@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate total price
-    let totalPrice = crust.priceModifier + sauce.priceModifier;
+    let totalPrice = size.basePrice + crust.priceModifier + sauce.priceModifier;
     
     const toppingPrices = toppingList.reduce((sum, topping) => {
       const orderTopping = toppings.find((t: any) => t.toppingId === topping.id);
