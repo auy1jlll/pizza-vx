@@ -8,6 +8,7 @@ interface PizzaSize {
   id: string;
   name: string;
   diameter: string;
+  basePrice: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -19,7 +20,8 @@ export default function PizzaSizesAdmin() {
   const [editingSize, setEditingSize] = useState<PizzaSize | null>(null);
   const [formData, setFormData] = useState({
     name: '',
-    diameter: ''
+    diameter: '',
+    basePrice: ''
   });
 
   // Fetch sizes
@@ -65,7 +67,7 @@ export default function PizzaSizesAdmin() {
         await fetchSizes();
         setShowForm(false);
         setEditingSize(null);
-        setFormData({ name: '', diameter: '' });
+        setFormData({ name: '', diameter: '', basePrice: '' });
       } else {
         // Handle specific error messages
         const errorMessage = data.error || 'Failed to save size';
@@ -99,7 +101,8 @@ export default function PizzaSizesAdmin() {
     setEditingSize(size);
     setFormData({
       name: size.name,
-      diameter: size.diameter
+      diameter: size.diameter,
+      basePrice: size.basePrice.toString()
     });
     setShowForm(true);
   };
@@ -120,7 +123,7 @@ export default function PizzaSizesAdmin() {
               onClick={() => {
                 setShowForm(true);
                 setEditingSize(null);
-                setFormData({ name: '', diameter: '' });
+                setFormData({ name: '', diameter: '', basePrice: '' });
               }}
               className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
             >
@@ -160,6 +163,22 @@ export default function PizzaSizesAdmin() {
                     onChange={(e) => setFormData(prev => ({ ...prev, diameter: e.target.value }))}
                     className="w-full border border-gray-300 rounded px-3 py-2"
                     placeholder="e.g., 10 inches, 12 inches"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Base Price ($)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.basePrice}
+                    onChange={(e) => setFormData(prev => ({ ...prev, basePrice: e.target.value }))}
+                    className="w-full border border-gray-300 rounded px-3 py-2"
+                    placeholder="e.g., 12.99"
                     required
                   />
                 </div>

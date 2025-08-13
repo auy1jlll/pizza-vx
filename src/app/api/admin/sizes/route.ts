@@ -30,12 +30,12 @@ export async function POST(request: NextRequest) {
     // Verify admin authentication
     requireAdmin(request);
     
-    const { name, diameter } = await request.json();
+    const { name, diameter, basePrice } = await request.json();
     
     // Validate required fields
-    if (!name || !diameter) {
+    if (!name || !diameter || basePrice === undefined) {
       return NextResponse.json(
-        { error: 'Name and diameter are required' },
+        { error: 'Name, diameter, and base price are required' },
         { status: 400 }
       );
     }
@@ -43,7 +43,8 @@ export async function POST(request: NextRequest) {
     const size = await prisma.pizzaSize.create({
       data: {
         name,
-        diameter
+        diameter,
+        basePrice: parseFloat(basePrice)
       }
     });
     
@@ -71,7 +72,7 @@ export async function PUT(request: NextRequest) {
   try {
     requireAdmin(request);
     
-    const { name, diameter } = await request.json();
+    const { name, diameter, basePrice } = await request.json();
     const url = new URL(request.url);
     const id = url.searchParams.get('id');
     
@@ -81,7 +82,11 @@ export async function PUT(request: NextRequest) {
 
     const size = await prisma.pizzaSize.update({
       where: { id },
-      data: { name, diameter }
+      data: { 
+        name, 
+        diameter,
+        basePrice: parseFloat(basePrice)
+      }
     });
     
     return NextResponse.json(size);

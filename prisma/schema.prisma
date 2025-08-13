@@ -36,6 +36,7 @@ model PizzaSize {
   id          String  @id @default(cuid())
   name        String  @unique
   diameter    String  // e.g., "10 inches", "12 inches", "16 inches"
+  basePrice   Float   // Base price for this size
   isActive    Boolean @default(true)
   sortOrder   Int     @default(0)
   description String?
@@ -112,25 +113,41 @@ enum ToppingCategory {
 
 // Order Management
 model Order {
-  id          String      @id @default(cuid())
-  orderNumber String      @unique
-  userId      String?
-  customerName String?
+  id            String      @id @default(cuid())
+  orderNumber   String      @unique
+  userId        String?
+  customerName  String?
   customerEmail String?
   customerPhone String?
-  status      OrderStatus @default(PENDING)
-  subtotal    Float
-  tax         Float
-  total       Float
-  notes       String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  status        OrderStatus @default(PENDING)
+  
+  // Order Type and Delivery
+  orderType     OrderType   @default(PICKUP)
+  deliveryAddress String?
+  deliveryCity    String?
+  deliveryZip     String?
+  deliveryInstructions String?
+  scheduledTime   DateTime?
+  
+  // Pricing
+  subtotal      Float
+  deliveryFee   Float       @default(0)
+  tax           Float
+  total         Float
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   // Relations
-  user       User?       @relation(fields: [userId], references: [id])
-  orderItems OrderItem[]
+  user         User?       @relation(fields: [userId], references: [id])
+  orderItems   OrderItem[]
   
   @@map("orders")
+}
+
+enum OrderType {
+  PICKUP
+  DELIVERY
 }
 
 enum OrderStatus {

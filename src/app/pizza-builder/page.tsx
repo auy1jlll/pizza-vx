@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Cart from '@/components/Cart';
 
 interface PizzaSize {
   id: string;
@@ -49,6 +50,26 @@ interface SelectedTopping {
   intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
 }
 
+interface CartItem {
+  sizeId: string;
+  sizeName: string;
+  crustId: string;
+  crustName: string;
+  sauceId: string;
+  sauceName: string;
+  sauceIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
+  crustCookingLevel: 'LIGHT' | 'REGULAR' | 'WELL_DONE';
+  toppings: Array<{
+    toppingId: string;
+    toppingName: string;
+    section: 'WHOLE' | 'LEFT' | 'RIGHT';
+    intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
+    price: number;
+  }>;
+  notes?: string;
+  totalPrice: number;
+}
+
 interface PizzaBuilderData {
   sizes: PizzaSize[];
   crusts: PizzaCrust[];
@@ -71,6 +92,9 @@ export default function PizzaBuilder() {
   const [activeTab, setActiveTab] = useState('SIZE');
   const [activeSection, setActiveSection] = useState<'WHOLE' | 'LEFT' | 'RIGHT'>('WHOLE');
   const [activeToppingCategory, setActiveToppingCategory] = useState('CHEESE');
+  const [cartItem, setCartItem] = useState<CartItem | null>(null);
+  const [showCart, setShowCart] = useState(false);
+  const [notes, setNotes] = useState('');
   const [selection, setSelection] = useState<Selection>({
     size: null,
     crust: null,
@@ -94,23 +118,29 @@ export default function PizzaBuilder() {
 
   const fetchPizzaData = async () => {
     try {
-      const response = await fetch('/api/pizza-builder');
-      const result = await response.json();
-      if (result.success) {
-        setData(result.data);
+      // Use cached endpoint with client-side caching
+      const response = await fetch('/api/pizza-data', {
+        // Add client-side cache control
+        cache: 'force-cache',
+        next: { revalidate: 300 } // 5 minutes
+      });
+      
+      const data = await response.json();
+      if (data.sizes && data.crusts && data.sauces && data.toppings) {
+        setData(data);
         
         // Set default active topping category to first available
-        const categories = [...new Set(result.data.toppings.map((t: PizzaTopping) => t.category))];
+        const categories = [...new Set(data.toppings.map((t: PizzaTopping) => t.category))];
         if (categories.length > 0) {
           setActiveToppingCategory(categories[0] as string);
         }
         
         // Set default selections
         setSelection({
-          size: result.data.sizes[1] || null,
-          crust: result.data.crusts[1] || null,
+          size: data.sizes[1] || null,
+          crust: data.crusts[1] || null,
           crustCookingLevel: 'REGULAR',
-          sauce: result.data.sauces[0] || null,
+          sauce: data.sauces[0] || null,
           sauceIntensity: 'REGULAR',
           toppings: []
         });
@@ -170,7 +200,7 @@ export default function PizzaBuilder() {
   };
 
   const calculateTotal = () => {
-    if (!selection.size) return 0;
+    if (!selection.size || !data) return 0;
     
     let total = selection.size.basePrice;
     if (selection.crust) total += selection.crust.priceModifier;
@@ -188,43 +218,60 @@ export default function PizzaBuilder() {
   };
 
   const handlePlaceOrder = async () => {
-    if (!selection.size || !selection.crust || !selection.sauce) {
+    if (!selection.size || !selection.crust || !selection.sauce || !data) {
       alert('Please complete your pizza selection');
       return;
     }
 
-    const orderData = {
-      size: selection.size,
-      crust: selection.crust,
-      sauce: selection.sauce,
-      toppings: selection.toppings,
-      total: calculateTotal()
+    // Create cart item
+    const cartToppings = selection.toppings.map(selectedTopping => {
+      const topping = data.toppings.find(t => t.id === selectedTopping.toppingId);
+      if (!topping) return null;
+      
+      const multiplier = selectedTopping.intensity === 'LIGHT' ? 0.75 : 
+                        selectedTopping.intensity === 'EXTRA' ? 1.5 : 1;
+      
+      return {
+        toppingId: topping.id,
+        toppingName: topping.name,
+        section: selectedTopping.section,
+        intensity: selectedTopping.intensity,
+        price: topping.price * multiplier
+      };
+    }).filter(Boolean) as any[];
+
+    const newCartItem: CartItem = {
+      sizeId: selection.size.id,
+      sizeName: selection.size.name,
+      crustId: selection.crust.id,
+      crustName: selection.crust.name,
+      sauceId: selection.sauce.id,
+      sauceName: selection.sauce.name,
+      sauceIntensity: selection.sauceIntensity,
+      crustCookingLevel: selection.crustCookingLevel,
+      toppings: cartToppings,
+      notes: notes,
+      totalPrice: calculateTotal()
     };
 
-    try {
-      const response = await fetch('/api/pizza-builder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
-      });
+    setCartItem(newCartItem);
+    setShowCart(true);
+  };
 
-      const result = await response.json();
-      if (result.success) {
-        alert(`Order created successfully! Order #: ${result.orderId || 'N/A'}`);
-        // Reset selections
-        setSelection({
-          size: data?.sizes[1] || null,
-          crust: data?.crusts[1] || null,
-          crustCookingLevel: 'REGULAR',
-          sauce: data?.sauces[0] || null,
-          sauceIntensity: 'REGULAR',
-          toppings: []
-        });
-      }
-    } catch (error) {
-      console.error('Error placing order:', error);
-      alert('Failed to place order. Please try again.');
-    }
+  const handleClearCart = () => {
+    setCartItem(null);
+    setShowCart(false);
+    // Reset pizza builder
+    setSelection({
+      size: data?.sizes[0] || null,
+      crust: data?.crusts[0] || null,
+      crustCookingLevel: 'REGULAR',
+      sauce: data?.sauces[0] || null,
+      sauceIntensity: 'REGULAR',
+      toppings: []
+    });
+    setNotes('');
+    setActiveTab('SIZE');
   };
 
   if (loading) {
@@ -279,12 +326,42 @@ export default function PizzaBuilder() {
             <h1 className="text-xl font-semibold">🍕 Build Your Perfect Pizza</h1>
             <p className="ml-2 text-red-200">Customize every detail exactly how you like it</p>
           </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold">${calculateTotal().toFixed(2)}</div>
-            <div className="text-red-200 text-sm">Current Total</div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className="text-3xl font-bold">${(calculateTotal() || 0).toFixed(2)}</div>
+              <div className="text-red-200 text-sm">Current Total</div>
+            </div>
+            {cartItem && (
+              <button
+                onClick={() => setShowCart(true)}
+                className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg font-semibold flex items-center gap-2"
+              >
+                🛒 View Cart
+              </button>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Cart Modal */}
+      {showCart && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 border-b flex justify-between items-center">
+              <h2 className="text-xl font-bold">Your Cart</h2>
+              <button
+                onClick={() => setShowCart(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-4">
+              <Cart cartItem={cartItem} onClearCart={handleClearCart} />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -337,7 +414,7 @@ export default function PizzaBuilder() {
               <hr className="my-3" />
               <div className="flex justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span className="text-red-600">${calculateTotal().toFixed(2)}</span>
+                <span className="text-red-600">${(calculateTotal() || 0).toFixed(2)}</span>
               </div>
             </div>
 
@@ -347,7 +424,7 @@ export default function PizzaBuilder() {
               disabled={!selection.size || !selection.crust || !selection.sauce}
               className="w-full mt-6 bg-red-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all flex items-center justify-center"
             >
-              🛒 Add to Cart - ${calculateTotal().toFixed(2)}
+              🛒 Add to Cart - ${(calculateTotal() || 0).toFixed(2)}
             </button>
           </div>
 
@@ -394,7 +471,7 @@ export default function PizzaBuilder() {
                             <div className="text-xs text-gray-500">Perfect for 1-2 people</div>
                           </div>
                           <div className="text-right">
-                            <div className="font-bold text-red-600">${size.basePrice.toFixed(2)}</div>
+                            <div className="font-bold text-red-600">${(size.basePrice || 0).toFixed(2)}</div>
                             {selection.size?.id === size.id && (
                               <div className="text-xs text-green-600 font-medium">Selected</div>
                             )}
@@ -452,7 +529,7 @@ export default function PizzaBuilder() {
                           </div>
                           <div className="text-right">
                             <div className="font-bold text-red-600">
-                              {sauce.priceModifier > 0 ? `+$${sauce.priceModifier.toFixed(2)}` : 'Free'}
+                              {(sauce.priceModifier || 0) > 0 ? `+$${(sauce.priceModifier || 0).toFixed(2)}` : 'Free'}
                             </div>
                           </div>
                         </div>
@@ -527,7 +604,7 @@ export default function PizzaBuilder() {
                           </div>
                           <div className="text-right">
                             <div className="font-bold text-red-600">
-                              {crust.priceModifier > 0 ? `+$${crust.priceModifier.toFixed(2)}` : 'Free'}
+                              {(crust.priceModifier || 0) > 0 ? `+$${(crust.priceModifier || 0).toFixed(2)}` : 'Free'}
                             </div>
                           </div>
                         </div>
@@ -620,7 +697,7 @@ export default function PizzaBuilder() {
                                 </div>
                               </div>
                               <div className="text-red-600 font-bold">
-                                +${topping.price.toFixed(2)}
+                                +${(topping.price || 0).toFixed(2)}
                               </div>
                             </div>
                             
@@ -705,19 +782,19 @@ export default function PizzaBuilder() {
                         {selection.size && (
                           <div className="flex justify-between">
                             <span>{selection.size.name} ({selection.size.diameter})</span>
-                            <span>${selection.size.basePrice.toFixed(2)}</span>
+                            <span>${(selection.size.basePrice || 0).toFixed(2)}</span>
                           </div>
                         )}
                         {selection.sauce && (
                           <div className="flex justify-between">
                             <span>{selection.sauce.name} ({selection.sauceIntensity.toLowerCase()})</span>
-                            <span>{selection.sauce.priceModifier > 0 ? `$${selection.sauce.priceModifier.toFixed(2)}` : 'Free'}</span>
+                            <span>{(selection.sauce.priceModifier || 0) > 0 ? `$${(selection.sauce.priceModifier || 0).toFixed(2)}` : 'Free'}</span>
                           </div>
                         )}
                         {selection.crust && (
                           <div className="flex justify-between">
                             <span>{selection.crust.name} ({selection.crustCookingLevel === 'WELL_DONE' ? 'well done' : selection.crustCookingLevel.toLowerCase()})</span>
-                            <span>{selection.crust.priceModifier > 0 ? `$${selection.crust.priceModifier.toFixed(2)}` : 'Free'}</span>
+                            <span>{(selection.crust.priceModifier || 0) > 0 ? `$${(selection.crust.priceModifier || 0).toFixed(2)}` : 'Free'}</span>
                           </div>
                         )}
                         {selection.toppings.map((selectedTopping) => {
@@ -726,16 +803,28 @@ export default function PizzaBuilder() {
                           return (
                             <div key={`${selectedTopping.toppingId}-${selectedTopping.section}`} className="flex justify-between">
                               <span>{topping.name} ({selectedTopping.section}, {selectedTopping.intensity.toLowerCase()})</span>
-                              <span>${topping.price.toFixed(2)}</span>
+                              <span>${(topping.price || 0).toFixed(2)}</span>
                             </div>
                           );
                         })}
                         <hr />
                         <div className="flex justify-between font-bold text-lg">
                           <span>Total:</span>
-                          <span className="text-red-600">${calculateTotal().toFixed(2)}</span>
+                          <span className="text-red-600">${(calculateTotal() || 0).toFixed(2)}</span>
                         </div>
                       </div>
+                    </div>
+                    
+                    {/* Special Instructions */}
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <h4 className="font-medium mb-2">Special Instructions (Optional)</h4>
+                      <textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Any special requests or cooking instructions..."
+                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                        rows={3}
+                      />
                     </div>
                   </div>
                   <div className="flex justify-between mt-6">
