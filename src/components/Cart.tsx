@@ -25,9 +25,10 @@ interface CartItem {
 interface CartProps {
   cartItem: CartItem | null;
   onClearCart: () => void;
+  onCloseCart?: () => void; // Add optional close cart function
 }
 
-export default function Cart({ cartItem, onClearCart }: CartProps) {
+export default function Cart({ cartItem, onClearCart, onCloseCart }: CartProps) {
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     email: '',
@@ -48,6 +49,7 @@ export default function Cart({ cartItem, onClearCart }: CartProps) {
       return;
     }
 
+    console.log('Placing order...', { customerInfo, cartItem });
     setIsPlacingOrder(true);
     
     try {
@@ -79,15 +81,25 @@ export default function Cart({ cartItem, onClearCart }: CartProps) {
       });
 
       const result = await response.json();
+      console.log('Order result:', result);
 
       if (response.ok) {
+        console.log('Order placed successfully!');
         setOrderResult({
           success: true,
           orderId: result.orderId,
           message: 'Order placed successfully!'
         });
-        onClearCart();
+        // Store order details for potential redirection
+        if (result.order && result.order.orderNumber) {
+          // Add a small delay to show success message, then redirect
+          setTimeout(() => {
+            window.location.href = `/order/${result.order.orderNumber}`;
+          }, 2000);
+        }
+        // Don't clear cart immediately - let user choose what to do next
       } else {
+        console.log('Order failed:', result);
         setOrderResult({
           success: false,
           message: result.error || 'Failed to place order'
@@ -114,19 +126,54 @@ export default function Cart({ cartItem, onClearCart }: CartProps) {
             {orderResult.success ? 'Order Placed!' : 'Order Failed'}
           </h2>
           <p className={`text-lg mb-6 ${orderResult.success ? 'text-green-700' : 'text-red-700'}`}>
-            {orderResult.message}
+            {orderResult.success ? 'Your order has been placed successfully! Redirecting to order details...' : orderResult.message}
           </p>
           {orderResult.orderId && (
             <p className="text-sm text-gray-600 mb-6">
               Order ID: <span className="font-mono font-bold">{orderResult.orderId}</span>
             </p>
           )}
-          <button
-            onClick={() => setOrderResult(null)}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-          >
-            Close
-          </button>
+          
+          {orderResult.success ? (
+            <div className="space-y-3">
+              <p className="text-gray-700 mb-4">What would you like to do next?</p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  onClick={() => {
+                    setOrderResult(null);
+                    onClearCart(); // Clear the cart to reset the pizza builder
+                    if (onCloseCart) {
+                      onCloseCart();
+                    }
+                  }}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  🍕 Order Another Pizza
+                </button>
+                <button
+                  onClick={() => {
+                    setOrderResult(null);
+                    onClearCart(); // Clear the cart before leaving
+                    if (onCloseCart) {
+                      onCloseCart();
+                    }
+                    // Navigate to home page
+                    window.location.href = '/';
+                  }}
+                  className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  🏠 Go to Home
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setOrderResult(null)}
+              className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Try Again
+            </button>
+          )}
         </div>
       </div>
     );

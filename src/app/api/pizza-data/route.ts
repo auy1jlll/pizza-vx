@@ -48,8 +48,74 @@ const mockData = {
 
 export async function GET() {
   try {
-    // Use mock data temporarily
-    const data = mockData;
+    console.log('Fetching pizza data from database...');
+    
+    // Fetch actual data from database
+    const [sizes, crusts, sauces, toppings] = await Promise.all([
+      prisma.pizzaSize.findMany({
+        where: { isActive: true },
+        orderBy: { sortOrder: 'asc' }
+      }),
+      prisma.pizzaCrust.findMany({
+        where: { isActive: true },
+        orderBy: { sortOrder: 'asc' }
+      }),
+      prisma.pizzaSauce.findMany({
+        where: { isActive: true },
+        orderBy: { sortOrder: 'asc' }
+      }),
+      prisma.pizzaTopping.findMany({
+        where: { isActive: true },
+        orderBy: { sortOrder: 'asc' }
+      })
+    ]);
+
+    // Transform data to match expected format
+    const data = {
+      sizes: sizes.map(size => ({
+        id: size.id,
+        name: size.name,
+        diameter: size.diameter,
+        basePrice: size.basePrice,
+        isActive: size.isActive,
+        sortOrder: size.sortOrder
+      })),
+      crusts: crusts.map(crust => ({
+        id: crust.id,
+        name: crust.name,
+        description: crust.description,
+        priceModifier: crust.priceModifier,
+        isActive: crust.isActive,
+        sortOrder: crust.sortOrder
+      })),
+      sauces: sauces.map(sauce => ({
+        id: sauce.id,
+        name: sauce.name,
+        description: sauce.description,
+        color: sauce.color,
+        spiceLevel: sauce.spiceLevel,
+        priceModifier: sauce.priceModifier,
+        isActive: sauce.isActive,
+        sortOrder: sauce.sortOrder
+      })),
+      toppings: toppings.map(topping => ({
+        id: topping.id,
+        name: topping.name,
+        category: topping.category,
+        price: topping.price,
+        isActive: topping.isActive,
+        isVegetarian: topping.isVegetarian,
+        isVegan: topping.isVegan || false, // Default to false if not set
+        sortOrder: topping.sortOrder
+      }))
+    };
+
+    console.log('Database data fetched:', {
+      sizes: data.sizes.length,
+      crusts: data.crusts.length,
+      sauces: data.sauces.length,
+      toppings: data.toppings.length
+    });
 
     // Add aggressive caching headers
     const response = NextResponse.json(data);
@@ -64,10 +130,12 @@ export async function GET() {
     return response;
   } catch (error) {
     console.error('Error fetching pizza data:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch pizza data' },
-      { status: 500 }
-    );
+    
+    // Fallback to mock data if database fails
+    console.log('Falling back to mock data...');
+    const response = NextResponse.json(mockData);
+    response.headers.set('Cache-Control', `public, s-maxage=60, stale-while-revalidate=300`);
+    return response;
   } finally {
     await prisma.$disconnect();
   }

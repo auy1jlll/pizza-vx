@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+interface ToppingInput {
+  toppingId: string;
+  section?: string;
+  intensity?: 'LIGHT' | 'REGULAR' | 'EXTRA';
+}
+
 // POST /api/cart - Add item to cart or create new order
 export async function POST(request: NextRequest) {
   try {
@@ -31,9 +37,19 @@ export async function POST(request: NextRequest) {
       prisma.pizzaCrust.findUnique({ where: { id: crustId } }),
       prisma.pizzaSauce.findUnique({ where: { id: sauceId } }),
       toppings.length > 0 ? prisma.pizzaTopping.findMany({
-        where: { id: { in: toppings.map((t: any) => t.toppingId) } }
+        where: { id: { in: toppings.map((t: ToppingInput) => t.toppingId) } }
       }) : []
     ]);
+
+    console.log('Pizza components lookup:', { sizeId, crustId, sauceId });
+    console.log('Found components:', { 
+      size: !!size, 
+      crust: !!crust, 
+      sauce: !!sauce,
+      sizeData: size,
+      crustData: crust,
+      sauceData: sauce
+    });
 
     if (!size || !crust || !sauce) {
       return NextResponse.json({ error: 'Invalid pizza components' }, { status: 400 });
@@ -43,7 +59,7 @@ export async function POST(request: NextRequest) {
     let totalPrice = size.basePrice + crust.priceModifier + sauce.priceModifier;
     
     const toppingPrices = toppingList.reduce((sum, topping) => {
-      const orderTopping = toppings.find((t: any) => t.toppingId === topping.id);
+      const orderTopping = toppings.find((t: ToppingInput) => t.toppingId === topping.id);
       const multiplier = orderTopping?.intensity === 'LIGHT' ? 0.75 : 
                         orderTopping?.intensity === 'EXTRA' ? 1.5 : 1;
       return sum + (topping.price * multiplier);
@@ -54,26 +70,28 @@ export async function POST(request: NextRequest) {
     // Create order
     const order = await prisma.order.create({
       data: {
+        orderNumber: `ORD-${Date.now()}`,
         customerName,
         customerEmail,
         customerPhone,
-        totalAmount: totalPrice,
+        subtotal: totalPrice,
+        tax: totalPrice * 0.1,
+        total: totalPrice * 1.1,
         status: 'PENDING',
         orderItems: {
           create: {
             quantity: 1,
-            unitPrice: totalPrice,
+            basePrice: size.basePrice,
+            totalPrice: totalPrice,
             pizzaSize: { connect: { id: sizeId } },
             pizzaCrust: { connect: { id: crustId } },
             pizzaSauce: { connect: { id: sauceId } },
-            sauceIntensity,
-            crustCookingLevel,
             notes,
-            orderItemToppings: {
-              create: toppings.map((topping: any) => ({
+            toppings: {
+              create: toppings.map((topping: ToppingInput) => ({
                 pizzaTopping: { connect: { id: topping.toppingId } },
-                section: topping.section || 'WHOLE',
-                intensity: topping.intensity || 'REGULAR'
+                quantity: 1,
+                price: toppingList.find(t => t.id === topping.toppingId)?.price || 0
               }))
             }
           }
@@ -85,7 +103,7 @@ export async function POST(request: NextRequest) {
             pizzaSize: true,
             pizzaCrust: true,
             pizzaSauce: true,
-            orderItemToppings: {
+            toppings: {
               include: {
                 pizzaTopping: true
               }
@@ -129,7 +147,7 @@ export async function GET(request: NextRequest) {
             pizzaSize: true,
             pizzaCrust: true,
             pizzaSauce: true,
-            orderItemToppings: {
+            toppings: {
               include: {
                 pizzaTopping: true
               }

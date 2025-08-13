@@ -137,8 +137,8 @@ export default function PizzaBuilder() {
         
         // Set default selections
         setSelection({
-          size: data.sizes[1] || null,
-          crust: data.crusts[1] || null,
+          size: data.sizes[0] || null,
+          crust: data.crusts[0] || null,
           crustCookingLevel: 'REGULAR',
           sauce: data.sauces[0] || null,
           sauceIntensity: 'REGULAR',
@@ -357,7 +357,11 @@ export default function PizzaBuilder() {
               </button>
             </div>
             <div className="p-4">
-              <Cart cartItem={cartItem} onClearCart={handleClearCart} />
+              <Cart 
+                cartItem={cartItem} 
+                onClearCart={handleClearCart} 
+                onCloseCart={() => setShowCart(false)} 
+              />
             </div>
           </div>
         </div>

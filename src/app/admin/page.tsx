@@ -39,6 +39,13 @@ export default function AdminDashboard() {
       href: '/admin/specialty-pizzas',
       icon: '🍕',
       count: '8 specialties'
+    },
+    {
+      title: 'Orders',
+      description: 'View and manage customer orders',
+      href: '/admin/orders',
+      icon: '📋',
+      count: 'View all orders'
     }
   ];
 
