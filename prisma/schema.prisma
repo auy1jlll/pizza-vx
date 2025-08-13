@@ -1,0 +1,201 @@
+// Pizza Builder Database Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?
+  role      UserRole @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  orders Order[]
+  
+  @@map("users")
+}
+
+enum UserRole {
+  CUSTOMER
+  EMPLOYEE
+  ADMIN
+  SUPER_ADMIN
+}
+
+// Pizza Components
+model PizzaSize {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  diameter    String  // e.g., "10 inches", "12 inches", "16 inches"
+  isActive    Boolean @default(true)
+  sortOrder   Int     @default(0)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  orderItems OrderItem[]
+  
+  @@map("pizza_sizes")
+}
+
+model PizzaCrust {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  priceModifier Float @default(0)
+  isActive    Boolean @default(true)
+  sortOrder   Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  orderItems OrderItem[]
+  
+  @@map("pizza_crusts")
+}
+
+model PizzaSauce {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  color       String? // Hex color for UI
+  spiceLevel  Int     @default(0) // 0-5 scale
+  priceModifier Float @default(0)
+  isActive    Boolean @default(true)
+  sortOrder   Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  orderItems OrderItem[]
+  
+  @@map("pizza_sauces")
+}
+
+model PizzaTopping {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  description String?
+  category    ToppingCategory
+  price       Float
+  isActive    Boolean       @default(true)
+  sortOrder   Int           @default(0)
+  isVegetarian Boolean      @default(false)
+  isVegan     Boolean       @default(false)
+  isGlutenFree Boolean     @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  orderItemToppings OrderItemTopping[]
+  
+  @@map("pizza_toppings")
+}
+
+enum ToppingCategory {
+  MEAT
+  VEGETABLE
+  CHEESE
+  SAUCE
+  SPECIALTY
+}
+
+// Order Management
+model Order {
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  userId      String?
+  customerName String?
+  customerEmail String?
+  customerPhone String?
+  status      OrderStatus @default(PENDING)
+  subtotal    Float
+  tax         Float
+  total       Float
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  user       User?       @relation(fields: [userId], references: [id])
+  orderItems OrderItem[]
+  
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+model OrderItem {
+  id           String  @id @default(cuid())
+  orderId      String
+  pizzaSizeId  String
+  pizzaCrustId String
+  pizzaSauceId String
+  quantity     Int     @default(1)
+  basePrice    Float
+  totalPrice   Float
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  order      Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  pizzaSize  PizzaSize         @relation(fields: [pizzaSizeId], references: [id])
+  pizzaCrust PizzaCrust        @relation(fields: [pizzaCrustId], references: [id])
+  pizzaSauce PizzaSauce        @relation(fields: [pizzaSauceId], references: [id])
+  toppings   OrderItemTopping[]
+  
+  @@map("order_items")
+}
+
+model OrderItemTopping {
+  id            String @id @default(cuid())
+  orderItemId   String
+  pizzaToppingId String
+  quantity      Int    @default(1)
+  price         Float
+  createdAt     DateTime @default(now())
+
+  // Relations
+  orderItem    OrderItem    @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  pizzaTopping PizzaTopping @relation(fields: [pizzaToppingId], references: [id])
+  
+  @@unique([orderItemId, pizzaToppingId])
+  @@map("order_item_toppings")
+}
+
+// Settings and Configuration
+model AppSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  type      SettingType @default(STRING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("app_settings")
+}
+
+enum SettingType {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
