@@ -110,8 +110,8 @@ export default function PizzaSaucesAdmin() {
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
-            <h1 className="text-2xl font-semibold text-gray-900">Pizza Sauces</h1>
-            <p className="mt-2 text-sm text-gray-700">
+            <h1 className="text-3xl font-bold text-white">Pizza Sauces</h1>
+            <p className="mt-2 text-lg text-gray-300">
               Manage the available pizza sauces for your restaurant.
             </p>
           </div>
@@ -122,43 +122,44 @@ export default function PizzaSaucesAdmin() {
                 setEditingSauce(null);
                 setFormData({ name: '', description: '', color: '#ff0000', spiceLevel: 0, priceModifier: 0 });
               }}
-              className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="flex items-center space-x-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105"
             >
-              Add New Sauce
+              <span className="text-xl">🍅</span>
+              <span>Add New Sauce</span>
             </button>
           </div>
         </div>
 
         {/* Form Modal */}
         {showForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <h2 className="text-xl font-bold mb-4">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-gray-800/90 backdrop-blur-md border border-white/10 rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl">
+              <h2 className="text-2xl font-bold text-white mb-6">
                 {editingSauce ? 'Edit Sauce' : 'Add New Sauce'}
               </h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Sauce Name
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full border border-gray-300 rounded px-3 py-2"
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent backdrop-blur-sm"
                     placeholder="e.g., Marinara, BBQ, White Sauce"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Description
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full border border-gray-300 rounded px-3 py-2"
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent backdrop-blur-sm resize-none"
                     rows={3}
                     placeholder="Describe the sauce flavor and style"
                     required
@@ -166,28 +167,28 @@ export default function PizzaSaucesAdmin() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Color
                   </label>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3">
                     <input
                       type="color"
                       value={formData.color}
                       onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
-                      className="w-16 h-10 border border-gray-300 rounded"
+                      className="w-16 h-12 rounded-lg border border-white/20 bg-white/10 cursor-pointer"
                     />
                     <input
                       type="text"
                       value={formData.color}
                       onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
-                      className="flex-1 border border-gray-300 rounded px-3 py-2"
+                      className="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent backdrop-blur-sm"
                       placeholder="#ff0000"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Spice Level (0-5)
                   </label>
                   <input
@@ -196,15 +197,16 @@ export default function PizzaSaucesAdmin() {
                     max="5"
                     value={formData.spiceLevel}
                     onChange={(e) => setFormData(prev => ({ ...prev, spiceLevel: parseInt(e.target.value) || 0 }))}
-                    className="w-full border border-gray-300 rounded px-3 py-2"
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent backdrop-blur-sm"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    0 = Mild, 5 = Very Spicy
-                  </p>
+                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>0 = Mild</span>
+                    <span>5 = Very Spicy</span>
+                  </div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Price Modifier ($)
                   </label>
                   <input
@@ -212,22 +214,22 @@ export default function PizzaSaucesAdmin() {
                     step="0.01"
                     value={formData.priceModifier}
                     onChange={(e) => setFormData(prev => ({ ...prev, priceModifier: parseFloat(e.target.value) || 0 }))}
-                    className="w-full border border-gray-300 rounded px-3 py-2"
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent backdrop-blur-sm"
                     placeholder="0.00"
                   />
                 </div>
 
-                <div className="flex space-x-3">
+                <div className="flex space-x-3 pt-4">
                   <button
                     type="submit"
-                    className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                    className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 px-6 rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105"
                   >
-                    {editingSauce ? 'Update' : 'Create'}
+                    {editingSauce ? 'Update Sauce' : 'Create Sauce'}
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400"
+                    className="flex-1 bg-gray-600/80 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-all duration-200 hover:shadow-lg backdrop-blur-sm border border-gray-500/30"
                   >
                     Cancel
                   </button>
@@ -238,84 +240,92 @@ export default function PizzaSaucesAdmin() {
         )}
 
         {/* Sauces List */}
-        <div className="mt-8 flow-root">
-          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-              {loading ? (
-                <div className="text-center py-8">Loading...</div>
-              ) : sauces.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  No pizza sauces found. Add your first sauce to get started.
-                </div>
-              ) : (
-                <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-300">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Name
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Color/Spice
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price Modifier
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {sauces.map((sauce) => (
-                    <tr key={sauce.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div 
-                            className="w-4 h-4 rounded-full border border-gray-300 mr-2"
-                            style={{ backgroundColor: sauce.color }}
-                          ></div>
-                          <div className="text-sm font-medium text-gray-900">{sauce.name}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900">{sauce.description}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {'🌶️'.repeat(sauce.spiceLevel)} {sauce.spiceLevel === 0 ? 'Mild' : ''}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className={`text-sm ${sauce.priceModifier >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {sauce.priceModifier >= 0 ? '+' : ''}${sauce.priceModifier.toFixed(2)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
-                          onClick={() => handleEdit(sauce)}
-                          className="text-blue-600 hover:text-blue-900 mr-4"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(sauce.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-                </div>
-              )}
+        <div className="mt-8">
+          {loading ? (
+            <div className="text-center py-8 text-white">Loading...</div>
+          ) : sauces.length === 0 ? (
+            <div className="text-center py-8 text-gray-300">
+              No pizza sauces found. Add your first sauce to get started.
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {sauces.map((sauce) => (
+                <div
+                  key={sauce.id}
+                  className="group relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+                  style={{
+                    background: `linear-gradient(135deg, ${sauce.color}15, rgba(255, 255, 255, 0.05))`,
+                  }}
+                >
+                  {/* Sauce Color Indicator */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div 
+                        className="w-8 h-8 rounded-full border-2 border-white/20 shadow-lg"
+                        style={{ backgroundColor: sauce.color }}
+                      ></div>
+                      <span className="text-2xl">🍅</span>
+                    </div>
+                    <div className="text-right">
+                      <div className={`text-sm font-medium ${sauce.priceModifier >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {sauce.priceModifier >= 0 ? '+' : ''}${sauce.priceModifier.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sauce Info */}
+                  <div className="mb-4">
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-orange-300 transition-colors">
+                      {sauce.name}
+                    </h3>
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      {sauce.description}
+                    </p>
+                  </div>
+
+                  {/* Spice Level */}
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-400">Spice Level</span>
+                      <span className="text-sm text-gray-300">
+                        {sauce.spiceLevel === 0 ? 'Mild' : `Level ${sauce.spiceLevel}`}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      {sauce.spiceLevel === 0 ? (
+                        <span className="text-blue-400 text-sm">❄️ Mild</span>
+                      ) : (
+                        <span className="text-red-400">
+                          {'🌶️'.repeat(Math.min(sauce.spiceLevel, 5))}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(sauce)}
+                      className="flex-1 bg-blue-600/80 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-lg backdrop-blur-sm border border-blue-500/30"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(sauce.id)}
+                      className="flex-1 bg-red-600/80 hover:bg-red-600 text-white py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-lg backdrop-blur-sm border border-red-500/30"
+                    >
+                      Delete
+                    </button>
+                  </div>
+
+                  {/* Hover Effect Overlay */}
+                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </AdminLayout>

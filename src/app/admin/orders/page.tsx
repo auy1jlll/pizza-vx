@@ -79,6 +79,44 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updateLoading, setUpdateLoading] = useState<string | null>(null);
 
+  // Helper functions for order categorization
+  const getOrderTypeIcon = (orderType: string): string => {
+    return orderType === 'DELIVERY' ? '🚚' : '🏪';
+  };
+
+  const getOrderTypeColor = (orderType: string): string => {
+    return orderType === 'DELIVERY' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : 'bg-green-500/20 text-green-300 border-green-500/30';
+  };
+
+  const getOrderPriority = (status: string): number => {
+    const priorities = {
+      PENDING: 1,
+      CONFIRMED: 2,
+      PREPARING: 3,
+      READY: 4,
+      COMPLETED: 5,
+      CANCELLED: 6
+    };
+    return priorities[status as keyof typeof priorities] || 5;
+  };
+
+  const getTimeElapsed = (createdAt: string): string => {
+    const now = new Date();
+    const orderTime = new Date(createdAt);
+    const diffMs = now.getTime() - orderTime.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMins / 60);
+    
+    if (diffMins < 60) {
+      return `${diffMins}m ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    } else {
+      const diffDays = Math.floor(diffHours / 24);
+      return `${diffDays}d ago`;
+    }
+  };
+
   const statusOptions = [
     'PENDING',
     'CONFIRMED', 
@@ -89,12 +127,21 @@ export default function AdminOrders() {
   ];
 
   const statusColors = {
-    PENDING: 'bg-yellow-100 text-yellow-800',
-    CONFIRMED: 'bg-blue-100 text-blue-800',
-    PREPARING: 'bg-orange-100 text-orange-800',
-    READY: 'bg-green-100 text-green-800',
-    COMPLETED: 'bg-gray-100 text-gray-800',
-    CANCELLED: 'bg-red-100 text-red-800'
+    PENDING: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+    CONFIRMED: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+    PREPARING: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+    READY: 'bg-green-500/20 text-green-300 border-green-500/30',
+    COMPLETED: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
+    CANCELLED: 'bg-red-500/20 text-red-300 border-red-500/30'
+  };
+
+  const statusIcons = {
+    PENDING: '⏳',
+    CONFIRMED: '✅', 
+    PREPARING: '👨‍🍳',
+    READY: '🍕',
+    COMPLETED: '📦',
+    CANCELLED: '❌'
   };
 
   useEffect(() => {
@@ -174,7 +221,10 @@ export default function AdminOrders() {
     return (
       <AdminLayout>
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+            <p className="text-white">Loading orders...</p>
+          </div>
         </div>
       </AdminLayout>
     );
@@ -185,201 +235,185 @@ export default function AdminOrders() {
       <div className="px-3 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex-auto">
-            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Orders Management</h1>
-            <p className="mt-1 sm:mt-2 text-sm text-gray-700">
+            <h1 className="text-3xl font-bold text-white">Orders Management</h1>
+            <p className="mt-2 text-lg text-gray-300">
               View and manage customer orders
             </p>
           </div>
           <div className="flex-none">
             <button
               onClick={fetchOrders}
-              className="w-full sm:w-auto inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105"
             >
-              Refresh Orders
+              <span className="text-xl">🔄</span>
+              <span>Refresh Orders</span>
             </button>
           </div>
         </div>
 
         {error && (
-          <div className="mt-4 bg-red-50 border border-red-200 rounded-md p-3 sm:p-4">
+          <div className="mt-4 bg-red-500/20 border border-red-500/30 rounded-xl p-4 backdrop-blur-sm">
             <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">Error</h3>
-                <p className="mt-1 text-sm text-red-700">{error}</p>
+              <span className="text-red-400 text-xl mr-3">⚠️</span>
+              <div>
+                <h3 className="text-sm font-medium text-red-300">Error</h3>
+                <p className="mt-1 text-sm text-red-200">{error}</p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Mobile Card View */}
-        <div className="mt-6 sm:hidden">
+        {/* Orders Cards */}
+        <div className="mt-8">
           {orders.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-sm text-gray-500">No orders found</p>
+              <span className="text-6xl mb-4 block">📋</span>
+              <p className="text-lg text-gray-300">No orders found</p>
+              <p className="text-sm text-gray-400 mt-2">Orders will appear here when customers place them</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {orders.map((order) => (
-                <div key={order.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">#{order.orderNumber}</p>
-                      <p className="text-xs text-gray-500">{formatDate(order.createdAt)}</p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {orders
+                .sort((a, b) => getOrderPriority(a.status) - getOrderPriority(b.status))
+                .map((order) => (
+                <div
+                  key={order.id}
+                  className="group relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+                  style={{
+                    background: `linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(59, 130, 246, 0.1))`,
+                  }}
+                >
+                  {/* Order Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-blue-500 flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">#{order.orderNumber.slice(-3)}</span>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-white group-hover:text-green-300 transition-colors">
+                          Order #{order.orderNumber}
+                        </h3>
+                        <p className="text-xs text-gray-400">{getTimeElapsed(order.createdAt)}</p>
+                      </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-gray-900">{formatCurrency(order.total)}</p>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        order.orderType === 'DELIVERY' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-                      }`}>
-                        {order.orderType}
-                      </span>
+                      <div className="text-xl font-bold text-green-400">
+                        {formatCurrency(order.total)}
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="mb-3">
-                    <p className="text-sm font-medium text-gray-900">{order.customerName || 'Guest'}</p>
-                    <p className="text-xs text-gray-500 truncate">{order.customerEmail}</p>
-                    <p className="text-xs text-gray-500">{order.customerPhone}</p>
+
+                  {/* Customer Info */}
+                  <div className="mb-4">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-blue-400">👤</span>
+                      <span className="text-white font-medium">{order.customerName || 'Guest'}</span>
+                    </div>
+                    {order.customerPhone && (
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="text-green-400">📞</span>
+                        <span className="text-gray-300 text-sm">{order.customerPhone}</span>
+                      </div>
+                    )}
+                    {order.customerEmail && (
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="text-yellow-400">📧</span>
+                        <span className="text-gray-300 text-sm truncate">{order.customerEmail}</span>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  {/* Order Type & Items Count */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-lg text-xs font-medium border ${getOrderTypeColor(order.orderType)}`}>
+                      <span>{getOrderTypeIcon(order.orderType)}</span>
+                      <span>{order.orderType}</span>
+                    </div>
+                    <div className="text-gray-300 text-sm">
+                      {order.orderItems.length} item{order.orderItems.length !== 1 ? 's' : ''}
+                    </div>
+                  </div>
+
+                  {/* Status */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-400">Status</span>
+                    </div>
                     <select
                       value={order.status}
                       onChange={(e) => updateOrderStatus(order.id, e.target.value)}
                       disabled={updateLoading === order.id}
-                      className={`flex-1 rounded-md px-3 py-1 text-xs font-semibold border border-gray-300 focus:ring-2 focus:ring-indigo-500 ${
-                        statusColors[order.status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800'
+                      className={`w-full rounded-lg px-3 py-2 text-sm font-medium border bg-white/10 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                        statusColors[order.status as keyof typeof statusColors] || 'bg-gray-500/20 text-gray-300 border-gray-500/30'
                       }`}
                     >
                       {statusOptions.map(status => (
-                        <option key={status} value={status}>
-                          {status}
+                        <option key={status} value={status} className="bg-gray-800 text-white">
+                          {statusIcons[status as keyof typeof statusIcons]} {status}
                         </option>
                       ))}
                     </select>
+                  </div>
+
+                  {/* Order Items Preview */}
+                  <div className="mb-6">
+                    <div className="text-sm font-medium text-gray-400 mb-2">Items:</div>
+                    <div className="space-y-1">
+                      {order.orderItems.slice(0, 2).map((item, index) => (
+                        <div key={item.id} className="flex justify-between text-sm">
+                          <span className="text-gray-300">
+                            {item.quantity}x {item.pizzaSize.name} {item.pizzaCrust.name}
+                          </span>
+                          <span className="text-green-400">{formatCurrency(item.totalPrice)}</span>
+                        </div>
+                      ))}
+                      {order.orderItems.length > 2 && (
+                        <div className="text-xs text-gray-400">
+                          +{order.orderItems.length - 2} more item{order.orderItems.length - 2 !== 1 ? 's' : ''}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex space-x-2">
                     <button
                       onClick={() => setSelectedOrder(order)}
-                      className="flex-1 bg-indigo-600 text-white px-3 py-1 text-xs font-medium rounded-md hover:bg-indigo-700"
+                      className="flex-1 bg-blue-600/80 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-lg backdrop-blur-sm border border-blue-500/30 text-sm font-medium"
                     >
                       View Details
                     </button>
                   </div>
+
+                  {/* Hover Effect Overlay */}
+                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent"></div>
+                  </div>
+
+                  {/* Priority Indicator */}
+                  {(order.status === 'PENDING' || order.status === 'CONFIRMED' || order.status === 'PREPARING') && (
+                    <div className="absolute top-2 right-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Desktop Table View */}
-        <div className="mt-8 flow-root hidden sm:block">
-          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                <table className="min-w-full divide-y divide-gray-300">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Order #
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Customer
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Type
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Total
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {orders.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
-                          No orders found
-                        </td>
-                      </tr>
-                    ) : (
-                      orders.map((order) => (
-                        <tr key={order.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {order.orderNumber}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <div>
-                              <div className="font-medium">{order.customerName || 'Guest'}</div>
-                              <div className="text-gray-500">{order.customerEmail}</div>
-                              <div className="text-gray-500">{order.customerPhone}</div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              order.orderType === 'DELIVERY' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-                            }`}>
-                              {order.orderType}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <select
-                              value={order.status}
-                              onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                              disabled={updateLoading === order.id}
-                              className={`rounded-full px-3 py-1 text-xs font-semibold border-0 focus:ring-2 focus:ring-indigo-500 ${
-                                statusColors[order.status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800'
-                              }`}
-                            >
-                              {statusOptions.map(status => (
-                                <option key={status} value={status}>
-                                  {status}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                            {formatCurrency(order.total)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {formatDate(order.createdAt)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <button
-                              onClick={() => setSelectedOrder(order)}
-                              className="text-indigo-600 hover:text-indigo-900 font-medium"
-                            >
-                              View Details
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Order Details Modal */}
         {selectedOrder && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 p-2 sm:p-4">
-            <div className="relative top-4 sm:top-20 mx-auto border w-full max-w-4xl shadow-lg rounded-md bg-white max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-10rem)] overflow-y-auto">
-              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 p-2 sm:p-4">
+            <div className="relative top-4 sm:top-20 mx-auto border border-white/10 w-full max-w-4xl shadow-2xl rounded-2xl bg-gray-800/90 backdrop-blur-md max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-10rem)] overflow-y-auto">
+              <div className="sticky top-0 bg-gray-800/90 backdrop-blur-md border-b border-white/10 px-4 sm:px-6 py-3 sm:py-4 rounded-t-2xl">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-base sm:text-lg font-medium text-gray-900">
-                    Order Details - {selectedOrder.orderNumber}
+                  <h3 className="text-base sm:text-lg font-medium text-white">
+                    Order Details - #{selectedOrder.orderNumber}
                   </h3>
                   <button
                     onClick={() => setSelectedOrder(null)}
-                    className="text-gray-400 hover:text-gray-600 p-1"
+                    className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
                   >
                     <span className="sr-only">Close</span>
                     <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -393,34 +427,34 @@ export default function AdminOrders() {
                 <div className="space-y-4 sm:space-y-6">
                   {/* Customer Information */}
                   <div>
-                    <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2">Customer Information</h4>
-                    <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
+                    <h4 className="text-sm sm:text-base font-medium text-white mb-2">Customer Information</h4>
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-3 sm:p-4 rounded-xl">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
-                        <p><span className="font-medium">Name:</span> {selectedOrder.customerName || 'Guest'}</p>
-                        <p><span className="font-medium">Phone:</span> {selectedOrder.customerPhone}</p>
-                        <p className="sm:col-span-2 break-all"><span className="font-medium">Email:</span> {selectedOrder.customerEmail}</p>
+                        <p className="text-gray-300"><span className="font-medium text-white">Name:</span> {selectedOrder.customerName || 'Guest'}</p>
+                        <p className="text-gray-300"><span className="font-medium text-white">Phone:</span> {selectedOrder.customerPhone}</p>
+                        <p className="sm:col-span-2 break-all text-gray-300"><span className="font-medium text-white">Email:</span> {selectedOrder.customerEmail}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Order Type and Delivery */}
                   <div>
-                    <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2">Order Type</h4>
-                    <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
+                    <h4 className="text-sm sm:text-base font-medium text-white mb-2">Order Type</h4>
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-3 sm:p-4 rounded-xl">
                       <div className="space-y-2 text-sm">
-                        <p><span className="font-medium">Type:</span> {selectedOrder.orderType}</p>
+                        <p className="text-gray-300"><span className="font-medium text-white">Type:</span> {selectedOrder.orderType}</p>
                         {selectedOrder.orderType === 'DELIVERY' && (
                           <>
-                            <p><span className="font-medium">Address:</span> {selectedOrder.deliveryAddress}</p>
-                            <p><span className="font-medium">City:</span> {selectedOrder.deliveryCity}</p>
-                            <p><span className="font-medium">ZIP:</span> {selectedOrder.deliveryZip}</p>
+                            <p className="text-gray-300"><span className="font-medium text-white">Address:</span> {selectedOrder.deliveryAddress}</p>
+                            <p className="text-gray-300"><span className="font-medium text-white">City:</span> {selectedOrder.deliveryCity}</p>
+                            <p className="text-gray-300"><span className="font-medium text-white">ZIP:</span> {selectedOrder.deliveryZip}</p>
                             {selectedOrder.deliveryInstructions && (
-                              <p><span className="font-medium">Instructions:</span> {selectedOrder.deliveryInstructions}</p>
+                              <p className="text-gray-300"><span className="font-medium text-white">Instructions:</span> {selectedOrder.deliveryInstructions}</p>
                             )}
                           </>
                         )}
                         {selectedOrder.scheduledTime && (
-                          <p><span className="font-medium">Scheduled Time:</span> {formatDate(selectedOrder.scheduledTime)}</p>
+                          <p className="text-gray-300"><span className="font-medium text-white">Scheduled Time:</span> {formatDate(selectedOrder.scheduledTime)}</p>
                         )}
                       </div>
                     </div>
@@ -428,36 +462,38 @@ export default function AdminOrders() {
 
                   {/* Order Items */}
                   <div>
-                    <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2">Order Items</h4>
+                    <h4 className="text-sm sm:text-base font-medium text-white mb-2">Order Items</h4>
                     <div className="space-y-3">
                       {selectedOrder.orderItems.map((item, index) => (
-                        <div key={item.id} className="bg-gray-50 p-3 sm:p-4 rounded-lg">
+                        <div key={item.id} className="bg-white/5 backdrop-blur-sm border border-white/10 p-3 sm:p-4 rounded-xl">
                           <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-1">
-                            <h5 className="font-medium text-sm">Pizza #{index + 1}</h5>
-                            <span className="font-bold text-sm">{formatCurrency(item.totalPrice)}</span>
+                            <h5 className="font-medium text-sm text-white">Pizza #{index + 1}</h5>
+                            <span className="font-bold text-sm text-green-400">{formatCurrency(item.totalPrice)}</span>
                           </div>
-                          <div className="text-xs sm:text-sm text-gray-600 space-y-1">
+                          <div className="text-xs sm:text-sm text-gray-300 space-y-1">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
-                              <p><span className="font-medium">Size:</span> {item.pizzaSize.name} ({item.pizzaSize.diameter})</p>
-                              <p><span className="font-medium">Quantity:</span> {item.quantity}</p>
-                              <p><span className="font-medium">Crust:</span> {item.pizzaCrust.name}</p>
-                              <p><span className="font-medium">Sauce:</span> {item.pizzaSauce.name}</p>
+                              <p><span className="font-medium text-white">Size:</span> {item.pizzaSize.name} ({item.pizzaSize.diameter})</p>
+                              <p><span className="font-medium text-white">Quantity:</span> {item.quantity}</p>
+                              <p><span className="font-medium text-white">Crust:</span> {item.pizzaCrust.name}</p>
+                              <p><span className="font-medium text-white">Sauce:</span> {item.pizzaSauce.name}</p>
                             </div>
                             {item.toppings.length > 0 && (
                               <div className="mt-2">
-                                <span className="font-medium">Toppings:</span>
+                                <span className="font-medium text-white">Toppings:</span>
                                 <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-1">
                                   {item.toppings.map((topping) => (
                                     <div key={topping.id} className="flex justify-between text-xs">
-                                      <span>{topping.pizzaTopping.name} (x{topping.quantity})</span>
-                                      <span>{formatCurrency(topping.price)}</span>
+                                      <span className="text-gray-300">{topping.pizzaTopping.name} (x{topping.quantity})</span>
+                                      <span className="text-green-400">{formatCurrency(topping.price)}</span>
                                     </div>
                                   ))}
                                 </div>
                               </div>
                             )}
                             {item.notes && (
-                              <p className="mt-2 p-2 bg-yellow-50 rounded text-xs"><span className="font-medium">Notes:</span> {item.notes}</p>
+                              <p className="mt-2 p-2 bg-yellow-500/20 border border-yellow-500/30 rounded text-xs text-yellow-200">
+                                <span className="font-medium">Notes:</span> {item.notes}
+                              </p>
                             )}
                           </div>
                         </div>
@@ -467,35 +503,35 @@ export default function AdminOrders() {
 
                   {/* Order Summary */}
                   <div>
-                    <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2">Order Summary</h4>
-                    <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
+                    <h4 className="text-sm sm:text-base font-medium text-white mb-2">Order Summary</h4>
+                    <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-3 sm:p-4 rounded-xl">
                       <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
+                        <div className="flex justify-between text-gray-300">
                           <span>Subtotal:</span>
                           <span>{formatCurrency(selectedOrder.subtotal)}</span>
                         </div>
                         {selectedOrder.deliveryFee > 0 && (
-                          <div className="flex justify-between">
+                          <div className="flex justify-between text-gray-300">
                             <span>Delivery Fee:</span>
                             <span>{formatCurrency(selectedOrder.deliveryFee)}</span>
                           </div>
                         )}
-                        <div className="flex justify-between">
+                        <div className="flex justify-between text-gray-300">
                           <span>Tax:</span>
                           <span>{formatCurrency(selectedOrder.tax)}</span>
                         </div>
-                        <div className="flex justify-between font-bold text-base sm:text-lg border-t pt-2">
+                        <div className="flex justify-between font-bold text-base sm:text-lg border-t border-white/20 pt-2 text-white">
                           <span>Total:</span>
-                          <span>{formatCurrency(selectedOrder.total)}</span>
+                          <span className="text-green-400">{formatCurrency(selectedOrder.total)}</span>
                         </div>
                       </div>
                       {selectedOrder.notes && (
-                        <div className="mt-3 pt-3 border-t">
-                          <p className="text-sm"><span className="font-medium">Order Notes:</span> {selectedOrder.notes}</p>
+                        <div className="mt-3 pt-3 border-t border-white/20">
+                          <p className="text-sm text-gray-300"><span className="font-medium text-white">Order Notes:</span> {selectedOrder.notes}</p>
                         </div>
                       )}
-                      <div className="mt-3 pt-3 border-t">
-                        <p className="text-sm"><span className="font-medium">Order Date:</span> {formatDate(selectedOrder.createdAt)}</p>
+                      <div className="mt-3 pt-3 border-t border-white/20">
+                        <p className="text-sm text-gray-300"><span className="font-medium text-white">Order Date:</span> {formatDate(selectedOrder.createdAt)}</p>
                       </div>
                     </div>
                   </div>
