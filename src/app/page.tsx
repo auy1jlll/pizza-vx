@@ -43,6 +43,12 @@ export default function Home() {
               >
                 🍀 Specialty Pizzas
               </Link>
+              <Link 
+                href="/order-history"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold px-8 py-4 rounded-lg text-lg transition-all duration-300 shadow-2xl hover:scale-105 hover:shadow-blue-500/25"
+              >
+                📋 Order History
+              </Link>
             </div>
 
             {/* Boston Features */}

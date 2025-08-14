@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/contexts/CartContext';
+import { useUser } from '@/contexts/UserContext';
 import { showToast } from '@/components/ToastContainer';
 
 interface CheckoutModalProps {
@@ -11,6 +12,7 @@ interface CheckoutModalProps {
 
 export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
   const { items, getTotalPrice, clearCart } = useCart();
+  const { user } = useUser();
   const [loading, setLoading] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderDetails, setOrderDetails] = useState<any>(null);
@@ -25,6 +27,22 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     zip: '',
     instructions: ''
   });
+
+  // Auto-populate customer info when user is logged in
+  useEffect(() => {
+    if (user) {
+      setCustomerInfo(prev => ({
+        ...prev,
+        name: user.name || '',
+        email: user.email || '',
+        // Keep existing phone, address, etc. if already filled
+        phone: prev.phone || '',
+        address: prev.address || '',
+        city: prev.city || '',
+        zip: prev.zip || ''
+      }));
+    }
+  }, [user]);
 
   const subtotal = getTotalPrice();
   const tax = subtotal * 0.0875; // 8.75% Boston tax rate
@@ -41,6 +59,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include authentication cookies
         body: JSON.stringify({
           items,
           customerInfo
@@ -69,9 +88,10 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     if (orderComplete) {
       setOrderComplete(false);
       setOrderDetails(null);
+      // Reset form but preserve user info if logged in
       setCustomerInfo({
-        name: '',
-        email: '',
+        name: user?.name || '',
+        email: user?.email || '',
         phone: '',
         orderType: 'DELIVERY',
         address: '',
@@ -162,6 +182,15 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
               </div>
 
               {/* Customer Information */}
+              {user && (
+                <div className="mb-4 p-3 bg-green-600/20 border border-green-500/30 rounded-lg">
+                  <div className="flex items-center gap-2 text-green-300 text-sm">
+                    <span>✅</span>
+                    <span>Logged in as <strong>{user.name}</strong> - Information auto-filled</span>
+                  </div>
+                </div>
+              )}
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">

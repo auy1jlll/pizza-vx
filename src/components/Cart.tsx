@@ -1,26 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-
-interface CartItem {
-  sizeId: string;
-  sizeName: string;
-  crustId: string;
-  crustName: string;
-  sauceId: string;
-  sauceName: string;
-  sauceIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-  crustCookingLevel: 'LIGHT' | 'REGULAR' | 'WELL_DONE';
-  toppings: Array<{
-    toppingId: string;
-    toppingName: string;
-    section: 'WHOLE' | 'LEFT' | 'RIGHT';
-    intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-    price: number;
-  }>;
-  notes?: string;
-  totalPrice: number;
-}
+import { CartItem } from '@/contexts/CartContext';
 
 interface CartProps {
   cartItems: CartItem[];
@@ -43,7 +24,7 @@ export default function Cart({ cartItems, onClearCart, onCloseCart }: CartProps)
 
   // Calculate total for all items in cart
   const calculateCartTotal = () => {
-    return cartItems.reduce((total, item) => total + item.totalPrice, 0);
+    return cartItems.reduce((total, item) => total + ((item.totalPrice || item.price) * item.quantity), 0);
   };
 
   const handlePlaceOrder = async () => {
@@ -71,19 +52,33 @@ export default function Cart({ cartItems, onClearCart, onCloseCart }: CartProps)
           deliveryAddress: customerInfo.deliveryAddress,
           deliveryCity: customerInfo.deliveryCity,
           deliveryZip: customerInfo.deliveryZip,
-          items: cartItems.map(item => ({
-            sizeId: item.sizeId,
-            crustId: item.crustId,
-            sauceId: item.sauceId,
-            sauceIntensity: item.sauceIntensity,
-            crustCookingLevel: item.crustCookingLevel,
-            toppings: item.toppings.map(t => ({
-              toppingId: t.toppingId,
-              section: t.section,
-              intensity: t.intensity
-            })),
-            notes: item.notes
-          }))
+          items: cartItems.map(item => {
+            // Handle detailed pizzas from pizza builder
+            if (item.detailedToppings && item.sizeId && item.crustId && item.sauceId) {
+              return {
+                sizeId: item.sizeId,
+                crustId: item.crustId,
+                sauceId: item.sauceId,
+                sauceIntensity: item.sauceIntensity || 'REGULAR',
+                crustCookingLevel: item.crustCookingLevel || 'REGULAR',
+                toppings: item.detailedToppings.map(t => ({
+                  toppingId: t.toppingId,
+                  section: t.section,
+                  intensity: t.intensity
+                })),
+                notes: item.notes,
+                quantity: item.quantity
+              };
+            }
+            
+            // Handle simple specialty pizzas
+            return {
+              specialtyPizzaId: item.specialtyPizzaId,
+              size: item.size,
+              quantity: item.quantity,
+              notes: item.customizations
+            };
+          })
         }),
       });
 
@@ -209,38 +204,138 @@ export default function Cart({ cartItems, onClearCart, onCloseCart }: CartProps)
           {cartItems.map((item, index) => (
             <div key={index} className="border rounded-lg p-4 bg-gray-50">
               <h3 className="text-lg font-semibold mb-3 flex items-center justify-between">
-                <span>🍕 Custom Pizza #{index + 1}</span>
-                <span className="text-lg font-bold text-red-600">${item.totalPrice.toFixed(2)}</span>
+                <span>
+                  🍕 {item.name} {item.quantity > 1 && `(x${item.quantity})`}
+                </span>
+                <span className="text-lg font-bold text-red-600">${((item.totalPrice || item.price) * item.quantity).toFixed(2)}</span>
               </h3>
               
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Size:</span>
-                  <span className="font-medium">{item.sizeName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Crust:</span>
-                  <span className="font-medium">{item.crustName} ({item.crustCookingLevel.toLowerCase()})</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Sauce:</span>
-                  <span className="font-medium">{item.sauceName} ({item.sauceIntensity.toLowerCase()})</span>
-                </div>
-              </div>
-
-              {item.toppings.length > 0 && (
-                <div className="mt-4">
-                  <h4 className="font-medium mb-2">Toppings:</h4>
-                  <div className="space-y-1 text-sm">
-                    {item.toppings.map((topping, toppingIndex) => (
-                      <div key={toppingIndex} className="flex justify-between">
-                        <span>
-                          {topping.toppingName} ({topping.section.toLowerCase()}, {topping.intensity.toLowerCase()})
-                        </span>
-                        <span className="font-medium">${topping.price.toFixed(2)}</span>
+              {/* Specialty Pizza Customization Summary */}
+              {item.specialtyPizzaName && item.specialtyPizzaChanges && (
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="font-medium text-blue-800 mb-2">🍕 Customizations & Pricing</h4>
+                  {(() => {
+                    const changes = item.specialtyPizzaChanges;
+                    const hasChanges = changes.addedToppings.length > 0 || changes.removedToppings.length > 0 || changes.modifiedToppings.length > 0;
+                    
+                    if (!hasChanges) {
+                      return <div className="text-sm text-blue-600">Original {item.specialtyPizzaName} recipe - no customization charges</div>;
+                    }
+                    
+                    return (
+                      <div className="text-sm space-y-2">
+                        {changes.addedToppings.length > 0 && (
+                          <div className="text-green-700">
+                            <strong>➕ Added Toppings:</strong>
+                            <ul className="ml-4 list-disc">
+                              {changes.addedToppings.map((t, i) => (
+                                <li key={i}>
+                                  {t.toppingName} ({t.section.toLowerCase()}, {t.intensity.toLowerCase()})
+                                  <span className="text-green-600 ml-2">+$2.50</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {changes.removedToppings.length > 0 && (
+                          <div className="text-red-700">
+                            <strong>➖ Removed Toppings:</strong>
+                            <ul className="ml-4 list-disc">
+                              {changes.removedToppings.map((t, i) => (
+                                <li key={i}>
+                                  {t.toppingName} ({t.section.toLowerCase()}) 
+                                  <span className="text-red-600 ml-2">-$1.25 credit (50%)</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {changes.modifiedToppings.length > 0 && (
+                          <div className="text-orange-700">
+                            <strong>⚙️ Intensity Changes:</strong>
+                            <ul className="ml-4 list-disc">
+                              {changes.modifiedToppings.map((t, i) => (
+                                <li key={i}>
+                                  {t.toppingName}: {t.originalIntensity.toLowerCase()} → {t.newIntensity.toLowerCase()}
+                                  <span className="text-orange-600 ml-2">
+                                    {t.newIntensity === 'EXTRA' && t.originalIntensity === 'REGULAR' ? '+$1.25' :
+                                     t.newIntensity === 'LIGHT' && t.originalIntensity === 'REGULAR' ? '-$0.63' :
+                                     t.newIntensity === 'EXTRA' && t.originalIntensity === 'LIGHT' ? '+$1.88' :
+                                     t.newIntensity === 'LIGHT' && t.originalIntensity === 'EXTRA' ? '-$1.88' :
+                                     t.newIntensity === 'REGULAR' && t.originalIntensity === 'EXTRA' ? '-$1.25' :
+                                     t.newIntensity === 'REGULAR' && t.originalIntensity === 'LIGHT' ? '+$0.63' : '±$0.00'}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        <div className="mt-2 pt-2 border-t border-blue-200">
+                          <div className="font-medium text-blue-800">
+                            💰 Customization charges applied to base {item.specialtyPizzaName} price
+                          </div>
+                        </div>
                       </div>
-                    ))}
+                    );
+                  })()}
+                </div>
+              )}
+              
+              {/* Display detailed pizza information if available */}
+              {item.detailedToppings && item.sizeName && (
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>Size:</span>
+                    <span className="font-medium">{item.sizeName}</span>
                   </div>
+                  {item.crustName && (
+                    <div className="flex justify-between">
+                      <span>Crust:</span>
+                      <span className="font-medium">{item.crustName} ({(item.crustCookingLevel || 'REGULAR').toLowerCase()})</span>
+                    </div>
+                  )}
+                  {item.sauceName && (
+                    <div className="flex justify-between">
+                      <span>Sauce:</span>
+                      <span className="font-medium">{item.sauceName} ({(item.sauceIntensity || 'REGULAR').toLowerCase()})</span>
+                    </div>
+                  )}
+
+                  {item.detailedToppings.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="font-medium mb-2">Toppings:</h4>
+                      <div className="space-y-1 text-sm">
+                        {item.detailedToppings.map((topping, toppingIndex) => (
+                          <div key={toppingIndex} className="flex justify-between">
+                            <span>
+                              {topping.toppingName} ({topping.section.toLowerCase()}, {topping.intensity.toLowerCase()})
+                            </span>
+                            <span className="font-medium">${topping.price.toFixed(2)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Display simple pizza information for specialty pizzas */}
+              {!item.detailedToppings && (
+                <div className="space-y-2 text-sm">
+                  {item.size && (
+                    <div className="flex justify-between">
+                      <span>Size:</span>
+                      <span className="font-medium">{item.size}</span>
+                    </div>
+                  )}
+                  {item.toppings && Array.isArray(item.toppings) && item.toppings.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="font-medium mb-2">Included Toppings:</h4>
+                      <div className="text-sm text-gray-600">
+                        {item.toppings.join(', ')}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

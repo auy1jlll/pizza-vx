@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
 import { CartProvider } from '@/contexts/CartContext';
+import { UserProvider } from '@/contexts/UserContext';
 import FloatingCart from '@/components/FloatingCart';
 import ToastContainer from '@/components/ToastContainer';
+import AuthNav from '@/components/AuthNav';
 
 export const metadata: Metadata = {
   title: "Pizza Builder Pro",
@@ -20,7 +22,8 @@ export default function RootLayout({
       <body
         className="antialiased"
       >
-        <CartProvider>
+        <UserProvider>
+          <CartProvider>
           <nav className="bg-gradient-to-r from-emerald-800 to-green-700 shadow-lg border-b border-green-600">
             <div className="container mx-auto px-4">
               <div className="flex justify-between items-center py-4">
@@ -28,7 +31,7 @@ export default function RootLayout({
                   🍕 <span className="text-orange-300">Boston</span> <span className="text-green-200">Pizza Co.</span>
                 </Link>
                 
-                <div className="flex space-x-6">
+                <div className="flex items-center space-x-6">
                   <Link 
                     href="/" 
                     className="text-white hover:text-orange-300 transition-colors font-medium"
@@ -53,6 +56,7 @@ export default function RootLayout({
                   >
                     Admin
                   </Link>
+                  <AuthNav />
                 </div>
               </div>
             </div>
@@ -73,7 +77,8 @@ export default function RootLayout({
               </p>
             </div>
           </footer>
-        </CartProvider>
+          </CartProvider>
+        </UserProvider>
       </body>
     </html>
   );

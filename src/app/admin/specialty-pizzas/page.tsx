@@ -34,6 +34,7 @@ export default function SpecialtyPizzasAdmin() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingPizza, setEditingPizza] = useState<SpecialtyPizza | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -101,6 +102,42 @@ export default function SpecialtyPizzasAdmin() {
     } catch (error) {
       console.error('Error fetching sizes:', error);
     }
+  };
+
+  // Handle image upload
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setImageUploading(true);
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataUpload,
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setFormData(prev => ({ ...prev, imageUrl: result.imageUrl }));
+        alert('Image uploaded successfully!');
+      } else {
+        alert(result.error || 'Failed to upload image');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Failed to upload image');
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  // Remove uploaded image
+  const removeImage = () => {
+    setFormData(prev => ({ ...prev, imageUrl: '' }));
   };
 
   // Handle form submission
@@ -336,15 +373,104 @@ export default function SpecialtyPizzasAdmin() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Image URL (Optional)
+                      Category
                     </label>
-                    <input
-                      type="url"
-                      value={formData.imageUrl}
-                      onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
                       className="w-full border border-gray-600 bg-slate-700 text-white rounded px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      placeholder="https://example.com/image.jpg"
-                    />
+                      required
+                    >
+                      {categories.map(category => (
+                        <option key={category} value={category}>
+                          {category.charAt(0) + category.slice(1).toLowerCase().replace('_', ' ')}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Image Upload Section */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Pizza Image
+                  </label>
+                  
+                  {/* Current Image Preview */}
+                  {formData.imageUrl && (
+                    <div className="mb-4 relative inline-block">
+                      <img
+                        src={formData.imageUrl}
+                        alt="Pizza preview"
+                        className="w-32 h-32 object-cover rounded-lg border-2 border-gray-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                        title="Remove image"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Upload Controls */}
+                  <div className="space-y-3">
+                    {/* File Upload */}
+                    <div>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="image-upload"
+                        disabled={imageUploading}
+                      />
+                      <label
+                        htmlFor="image-upload"
+                        className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 border border-gray-600 rounded-lg text-sm font-medium transition-colors ${
+                          imageUploading
+                            ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                            : 'bg-slate-700 text-white hover:bg-slate-600'
+                        }`}
+                      >
+                        {imageUploading ? (
+                          <>
+                            <span className="animate-spin">⏳</span>
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            📁 Choose Image File
+                          </>
+                        )}
+                      </label>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Supported: JPEG, PNG, WebP • Max size: 5MB
+                      </p>
+                    </div>
+
+                    {/* OR Divider */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 border-t border-gray-600"></div>
+                      <span className="text-gray-400 text-sm">OR</span>
+                      <div className="flex-1 border-t border-gray-600"></div>
+                    </div>
+
+                    {/* Manual URL Input */}
+                    <div>
+                      <input
+                        type="url"
+                        value={formData.imageUrl}
+                        onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
+                        className="w-full border border-gray-600 bg-slate-700 text-white rounded px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        placeholder="https://example.com/pizza-image.jpg"
+                      />
+                      <p className="text-xs text-gray-400 mt-1">
+                        Enter an image URL directly
+                      </p>
+                    </div>
                   </div>
                 </div>
 

@@ -177,14 +177,31 @@ export default function SpecialtyPizzasPage() {
                     >
                       {/* Pizza Image */}
                       {pizza.imageUrl ? (
-                        <img 
-                          src={pizza.imageUrl} 
-                          alt={pizza.name}
-                          className="w-full h-48 object-cover"
-                        />
+                        <div className="w-full h-48 relative overflow-hidden">
+                          <img 
+                            src={pizza.imageUrl} 
+                            alt={pizza.name}
+                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                            onError={(e) => {
+                              // Fallback to pizza emoji if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const fallback = target.nextElementSibling as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }}
+                          />
+                          <div className="w-full h-full bg-gradient-to-br from-orange-500/30 to-green-500/30 flex items-center justify-center" style={{display: 'none'}}>
+                            <span className="text-6xl">🍕</span>
+                          </div>
+                          {/* Image overlay for better text readability */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                        </div>
                       ) : (
                         <div className="w-full h-48 bg-gradient-to-br from-orange-500/30 to-green-500/30 flex items-center justify-center">
-                          <span className="text-6xl">🍕</span>
+                          <div className="text-center">
+                            <span className="text-6xl mb-2 block">🍕</span>
+                            <p className="text-white/60 text-sm">No image available</p>
+                          </div>
                         </div>
                       )}
 

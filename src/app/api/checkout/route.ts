@@ -1,11 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
     const { items, customerInfo } = await request.json();
+
+    // Check if user is authenticated
+    let authenticatedUserId = null;
+    try {
+      const token = request.cookies.get('token')?.value;
+      if (token) {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+        authenticatedUserId = decoded.userId;
+      }
+    } catch (error) {
+      // Not authenticated, continue as guest checkout
+      console.log('Guest checkout - no valid token');
+    }
 
     // Validate input
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -35,6 +49,7 @@ export async function POST(request: NextRequest) {
     const order = await prisma.order.create({
       data: {
         orderNumber,
+        userId: authenticatedUserId, // Associate with user if authenticated
         customerName: customerInfo.name,
         customerEmail: customerInfo.email,
         customerPhone: customerInfo.phone,
@@ -48,7 +63,7 @@ export async function POST(request: NextRequest) {
         tax,
         total,
         status: 'PENDING',
-        notes: `Order placed via online pizza builder - ${items.length} item(s)`
+        notes: `Order placed via online pizza builder - ${items.length} item(s)${authenticatedUserId ? ' (Authenticated User)' : ' (Guest)'}`
       }
     });
 

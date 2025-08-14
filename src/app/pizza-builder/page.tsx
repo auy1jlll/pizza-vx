@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useCart } from '@/contexts/CartContext';
 import Cart from '@/components/Cart';
 
 interface PizzaSize {
@@ -70,6 +71,27 @@ interface CartItem {
   notes?: string;
   totalPrice: number;
   specialtyPizzaName?: string; // Add this to track if it's based on a specialty pizza
+  specialtyPizzaChanges?: {
+    addedToppings: Array<{
+      toppingId: string;
+      toppingName: string;
+      section: 'WHOLE' | 'LEFT' | 'RIGHT';
+      intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
+    }>;
+    removedToppings: Array<{
+      toppingId: string;
+      toppingName: string;
+      section: 'WHOLE' | 'LEFT' | 'RIGHT';
+      intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
+    }>;
+    modifiedToppings: Array<{
+      toppingId: string;
+      toppingName: string;
+      section: 'WHOLE' | 'LEFT' | 'RIGHT';
+      originalIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
+      newIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
+    }>;
+  };
 }
 
 interface PizzaBuilderData {
@@ -90,6 +112,7 @@ interface SpecialtyPizza {
   defaultSauceId: string;
   sauceIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
   crustCookingLevel: 'LIGHT' | 'REGULAR' | 'WELL_DONE';
+  imageUrl?: string;
   toppings: Array<{
     toppingId: string;
     section: 'WHOLE' | 'LEFT' | 'RIGHT';
@@ -116,14 +139,15 @@ export default function PizzaBuilder() {
   const searchParams = useSearchParams();
   const specialtyId = searchParams.get('specialty');
   const selectedSizeId = searchParams.get('size'); // Get the selected size from URL
+  const { items: cartItems, addDetailedPizza, clearCart, getTotalPrice: getCartTotalPrice, getTotalItems } = useCart();
   
   const [data, setData] = useState<PizzaBuilderData | null>(null);
   const [specialtyPizza, setSpecialtyPizza] = useState<SpecialtyPizza | null>(null);
+  const [originalSpecialtyToppings, setOriginalSpecialtyToppings] = useState<SelectedTopping[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('SIZE');
   const [activeSection, setActiveSection] = useState<'WHOLE' | 'LEFT' | 'RIGHT'>('WHOLE');
   const [activeToppingCategory, setActiveToppingCategory] = useState('CHEESE');
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [notes, setNotes] = useState('');
   const [selection, setSelection] = useState<Selection>({
@@ -149,17 +173,6 @@ export default function PizzaBuilder() {
     // Load specialty pizza if specified
     if (specialtyId) {
       fetchSpecialtyPizza(specialtyId);
-    }
-    
-    // Load cart from localStorage
-    const savedCart = localStorage.getItem('pizzaCart');
-    if (savedCart) {
-      try {
-        const parsedCart = JSON.parse(savedCart);
-        setCartItems(parsedCart);
-      } catch (error) {
-        console.error('Error loading cart from localStorage:', error);
-      }
     }
   }, [specialtyId]);
 
@@ -262,6 +275,9 @@ export default function PizzaBuilder() {
       intensity: t.intensity
     }));
     
+    // Store the original specialty toppings for comparison
+    setOriginalSpecialtyToppings([...specialtyToppings]);
+    
     // Update selection with specialty pizza data
     setSelection({
       size: specialtySize,
@@ -279,6 +295,91 @@ export default function PizzaBuilder() {
       loadSpecialtyPizzaSelection(specialtyPizza);
     }
   }, [data, specialtyPizza]);
+
+  // Calculate specialty pizza changes
+  const getSpecialtyPizzaChanges = () => {
+    const addedToppings: Array<{
+      toppingId: string;
+      toppingName: string;
+      section: 'WHOLE' | 'LEFT' | 'RIGHT';
+      intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
+    }> = [];
+    
+    const removedToppings: Array<{
+      toppingId: string;
+      toppingName: string;
+      section: 'WHOLE' | 'LEFT' | 'RIGHT';
+      intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
+    }> = [];
+    
+    const modifiedToppings: Array<{
+      toppingId: string;
+      toppingName: string;
+      section: 'WHOLE' | 'LEFT' | 'RIGHT';
+      originalIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
+      newIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
+    }> = [];
+
+    if (!specialtyPizza || originalSpecialtyToppings.length === 0) {
+      return { addedToppings, removedToppings, modifiedToppings };
+    }
+
+    // Find removed toppings
+    originalSpecialtyToppings.forEach(originalTopping => {
+      const currentTopping = selection.toppings.find(t => 
+        t.toppingId === originalTopping.toppingId && t.section === originalTopping.section
+      );
+      
+      if (!currentTopping) {
+        const toppingData = data?.toppings.find(t => t.id === originalTopping.toppingId);
+        if (toppingData) {
+          removedToppings.push({
+            toppingId: originalTopping.toppingId,
+            toppingName: toppingData.name,
+            section: originalTopping.section,
+            intensity: originalTopping.intensity
+          });
+        }
+      } else if (currentTopping.intensity !== originalTopping.intensity) {
+        // Find modified toppings (intensity changed)
+        const toppingData = data?.toppings.find(t => t.id === originalTopping.toppingId);
+        if (toppingData) {
+          modifiedToppings.push({
+            toppingId: originalTopping.toppingId,
+            toppingName: toppingData.name,
+            section: originalTopping.section,
+            originalIntensity: originalTopping.intensity,
+            newIntensity: currentTopping.intensity
+          });
+        }
+      }
+    });
+
+    // Find added toppings
+    selection.toppings.forEach(currentTopping => {
+      const originalTopping = originalSpecialtyToppings.find(t => 
+        t.toppingId === currentTopping.toppingId && t.section === currentTopping.section
+      );
+      
+      if (!originalTopping) {
+        const toppingData = data?.toppings.find(t => t.id === currentTopping.toppingId);
+        if (toppingData) {
+          addedToppings.push({
+            toppingId: currentTopping.toppingId,
+            toppingName: toppingData.name,
+            section: currentTopping.section,
+            intensity: currentTopping.intensity
+          });
+        }
+      }
+    });
+
+    return {
+      addedToppings,
+      removedToppings,
+      modifiedToppings
+    };
+  };
 
   const toggleTopping = (topping: PizzaTopping, section: 'WHOLE' | 'LEFT' | 'RIGHT') => {
     const existingToppingIndex = selection.toppings.findIndex(
@@ -340,44 +441,136 @@ export default function PizzaBuilder() {
     }
     
     // Calculate topping modifications from the original specialty configuration
-    if (specialtyPizza) {
+    if (specialtyPizza && originalSpecialtyToppings.length > 0) {
       // For specialty pizzas, calculate the difference from the original configuration
-      const originalToppings = specialtyPizza.toppings.map(t => t.toppingId);
-      const currentToppings = selection.toppings.map(t => t.toppingId);
+      const changes = getSpecialtyPizzaChanges();
       
       // Add price for new toppings not in the original
-      selection.toppings.forEach(selectedTopping => {
-        if (!originalToppings.includes(selectedTopping.toppingId)) {
-          const topping = data?.toppings.find(t => t.id === selectedTopping.toppingId);
-          if (topping) {
-            total += topping.price * (selectedTopping.quantity || 1);
-          }
+      changes.addedToppings.forEach(addedTopping => {
+        const topping = data?.toppings.find(t => t.id === addedTopping.toppingId);
+        if (topping) {
+          const intensityMultiplier = addedTopping.intensity === 'LIGHT' ? 0.75 : 
+                                    addedTopping.intensity === 'EXTRA' ? 1.5 : 1;
+          total += topping.price * intensityMultiplier;
         }
       });
       
-      // Subtract price for removed original toppings (if you want to credit for removals)
-      // For now, we'll keep it simple and not credit for removals
+      // Subtract price for removed original toppings (provide credit)
+      changes.removedToppings.forEach(removedTopping => {
+        const topping = data?.toppings.find(t => t.id === removedTopping.toppingId);
+        if (topping) {
+          const intensityMultiplier = removedTopping.intensity === 'LIGHT' ? 0.75 : 
+                                    removedTopping.intensity === 'EXTRA' ? 1.5 : 1;
+          total -= topping.price * intensityMultiplier * 0.5; // 50% credit for removals
+        }
+      });
+      
+      // Apply pricing adjustments for intensity modifications
+      changes.modifiedToppings.forEach(modifiedTopping => {
+        const topping = data?.toppings.find(t => t.id === modifiedTopping.toppingId);
+        if (topping) {
+          const originalMultiplier = modifiedTopping.originalIntensity === 'LIGHT' ? 0.75 : 
+                                   modifiedTopping.originalIntensity === 'EXTRA' ? 1.5 : 1;
+          const newMultiplier = modifiedTopping.newIntensity === 'LIGHT' ? 0.75 : 
+                              modifiedTopping.newIntensity === 'EXTRA' ? 1.5 : 1;
+          
+          // Apply the difference in pricing
+          const priceDifference = topping.price * (newMultiplier - originalMultiplier);
+          total += priceDifference;
+        }
+      });
     } else {
-      // Regular pizza - add all topping prices
+      // Regular pizza - add all topping prices with intensity modifiers
       selection.toppings.forEach(selectedTopping => {
         const topping = data?.toppings.find(t => t.id === selectedTopping.toppingId);
         if (topping) {
-          total += topping.price * (selectedTopping.quantity || 1);
+          const intensityMultiplier = selectedTopping.intensity === 'LIGHT' ? 0.75 : 
+                                    selectedTopping.intensity === 'EXTRA' ? 1.5 : 1;
+          total += topping.price * intensityMultiplier * (selectedTopping.quantity || 1);
         }
       });
     }
     
-    return total;
+    return Math.max(total, 0); // Ensure total never goes negative
+  };
+
+  // Calculate detailed pricing breakdown for specialty pizzas
+  const getPricingBreakdown = () => {
+    if (!selection.size || !data) return null;
+    
+    const breakdown = {
+      basePrice: specialtyPizza ? specialtyPizza.basePrice : selection.size.basePrice,
+      baseName: specialtyPizza ? specialtyPizza.name : `${selection.size.name} Pizza`,
+      crustModifier: !specialtyPizza && selection.crust ? selection.crust.priceModifier : 0,
+      sauceModifier: !specialtyPizza && selection.sauce ? selection.sauce.priceModifier : 0,
+      addedToppingsPrice: 0,
+      removedToppingsCredit: 0,
+      intensityAdjustments: 0,
+      total: 0
+    };
+    
+    if (specialtyPizza && originalSpecialtyToppings.length > 0) {
+      const changes = getSpecialtyPizzaChanges();
+      
+      // Calculate added toppings price
+      changes.addedToppings.forEach(addedTopping => {
+        const topping = data?.toppings.find(t => t.id === addedTopping.toppingId);
+        if (topping) {
+          const intensityMultiplier = addedTopping.intensity === 'LIGHT' ? 0.75 : 
+                                    addedTopping.intensity === 'EXTRA' ? 1.5 : 1;
+          breakdown.addedToppingsPrice += topping.price * intensityMultiplier;
+        }
+      });
+      
+      // Calculate removed toppings credit
+      changes.removedToppings.forEach(removedTopping => {
+        const topping = data?.toppings.find(t => t.id === removedTopping.toppingId);
+        if (topping) {
+          const intensityMultiplier = removedTopping.intensity === 'LIGHT' ? 0.75 : 
+                                    removedTopping.intensity === 'EXTRA' ? 1.5 : 1;
+          breakdown.removedToppingsCredit += topping.price * intensityMultiplier * 0.5; // 50% credit
+        }
+      });
+      
+      // Calculate intensity adjustments
+      changes.modifiedToppings.forEach(modifiedTopping => {
+        const topping = data?.toppings.find(t => t.id === modifiedTopping.toppingId);
+        if (topping) {
+          const originalMultiplier = modifiedTopping.originalIntensity === 'LIGHT' ? 0.75 : 
+                                   modifiedTopping.originalIntensity === 'EXTRA' ? 1.5 : 1;
+          const newMultiplier = modifiedTopping.newIntensity === 'LIGHT' ? 0.75 : 
+                              modifiedTopping.newIntensity === 'EXTRA' ? 1.5 : 1;
+          
+          breakdown.intensityAdjustments += topping.price * (newMultiplier - originalMultiplier);
+        }
+      });
+    } else {
+      // Regular pizza toppings
+      selection.toppings.forEach(selectedTopping => {
+        const topping = data?.toppings.find(t => t.id === selectedTopping.toppingId);
+        if (topping) {
+          const intensityMultiplier = selectedTopping.intensity === 'LIGHT' ? 0.75 : 
+                                    selectedTopping.intensity === 'EXTRA' ? 1.5 : 1;
+          breakdown.addedToppingsPrice += topping.price * intensityMultiplier * (selectedTopping.quantity || 1);
+        }
+      });
+    }
+    
+    breakdown.total = Math.max(
+      breakdown.basePrice + 
+      breakdown.crustModifier + 
+      breakdown.sauceModifier + 
+      breakdown.addedToppingsPrice - 
+      breakdown.removedToppingsCredit + 
+      breakdown.intensityAdjustments, 
+      0
+    );
+    
+    return breakdown;
   };
 
   const calculateCartTotal = () => {
-    console.log('Cart items:', cartItems);
-    const total = cartItems.reduce((total, item) => {
-      console.log('Item:', item, 'totalPrice:', item.totalPrice);
-      return total + item.totalPrice;
-    }, 0);
-    console.log('Cart total:', total);
-    return total;
+    return getCartTotalPrice();
   };
 
   const handlePlaceOrder = async () => {
@@ -386,8 +579,8 @@ export default function PizzaBuilder() {
       return;
     }
 
-    // Create cart item
-    const cartToppings = selection.toppings.map(selectedTopping => {
+    // Create detailed toppings array
+    const detailedToppings = selection.toppings.map(selectedTopping => {
       const topping = data.toppings.find(t => t.id === selectedTopping.toppingId);
       if (!topping) return null;
       
@@ -403,7 +596,8 @@ export default function PizzaBuilder() {
       };
     }).filter(Boolean) as any[];
 
-    const newCartItem: CartItem = {
+    // Add to unified cart using the detailed pizza function
+    addDetailedPizza({
       sizeId: selection.size.id,
       sizeName: selection.size.name,
       crustId: selection.crust.id,
@@ -412,18 +606,12 @@ export default function PizzaBuilder() {
       sauceName: selection.sauce.name,
       sauceIntensity: selection.sauceIntensity,
       crustCookingLevel: selection.crustCookingLevel,
-      toppings: cartToppings,
+      detailedToppings: detailedToppings,
       notes: notes,
       totalPrice: calculateTotal(),
-      specialtyPizzaName: specialtyPizza?.name // Include specialty pizza name if customizing one
-    };
-
-    // Add to cart instead of replacing
-    const updatedCart = [...cartItems, newCartItem];
-    setCartItems(updatedCart);
-    
-    // Save to localStorage
-    localStorage.setItem('pizzaCart', JSON.stringify(updatedCart));
+      specialtyPizzaName: specialtyPizza?.name,
+      specialtyPizzaChanges: specialtyPizza ? getSpecialtyPizzaChanges() : undefined
+    });
     
     // Reset the pizza builder for next item
     setSelection({
@@ -442,8 +630,7 @@ export default function PizzaBuilder() {
   };
 
   const handleClearCart = () => {
-    setCartItems([]);
-    localStorage.removeItem('pizzaCart');
+    clearCart();
     setShowCart(false);
     // Reset pizza builder
     setSelection({
@@ -567,31 +754,77 @@ export default function PizzaBuilder() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Side - Pizza Visualization */}
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-xl font-semibold text-center mb-6">Your Pizza Preview</h2>
+            <h2 className="text-xl font-semibold text-center mb-6">
+              {specialtyPizza ? `Customizing: ${specialtyPizza.name}` : 'Your Pizza Preview'}
+            </h2>
             
             {/* Pizza Circle */}
             <div className="flex justify-center mb-8">
               <div className="relative">
-                {/* Outer glow */}
-                <div className="absolute inset-0 bg-yellow-200 rounded-full blur-lg opacity-50 scale-110"></div>
-                {/* Pizza base */}
-                <div className="relative w-64 h-64 bg-gradient-to-br from-yellow-300 via-orange-300 to-orange-400 rounded-full border-4 border-yellow-400 shadow-xl">
-                  {/* Pizza slice lines */}
-                  <div className="absolute inset-4 border border-orange-400 rounded-full opacity-30"></div>
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-0"></div>
-                    <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-45 absolute top-0"></div>
-                    <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-90 absolute top-0"></div>
-                    <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-135 absolute top-0"></div>
+                {specialtyPizza && specialtyPizza.imageUrl ? (
+                  /* Specialty Pizza Image */
+                  <div className="relative w-64 h-64 rounded-full overflow-hidden border-4 border-yellow-400 shadow-xl">
+                    <img 
+                      src={specialtyPizza.imageUrl} 
+                      alt={specialtyPizza.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        target.nextElementSibling!.classList.remove('hidden');
+                      }}
+                    />
+                    {/* Fallback pizza visualization */}
+                    <div className="hidden absolute inset-0">
+                      {/* Outer glow */}
+                      <div className="absolute inset-0 bg-yellow-200 rounded-full blur-lg opacity-50 scale-110"></div>
+                      {/* Pizza base */}
+                      <div className="relative w-full h-full bg-gradient-to-br from-yellow-300 via-orange-300 to-orange-400 rounded-full">
+                        {/* Pizza slice icon in center */}
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                          <div className="text-6xl text-orange-600 opacity-60">🍕</div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  
-                  {/* Pizza slice icon in center */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <div className="text-6xl text-orange-600 opacity-60">🍕</div>
+                ) : (
+                  /* Default Pizza Visualization */
+                  <div className="relative">
+                    {/* Outer glow */}
+                    <div className="absolute inset-0 bg-yellow-200 rounded-full blur-lg opacity-50 scale-110"></div>
+                    {/* Pizza base */}
+                    <div className="relative w-64 h-64 bg-gradient-to-br from-yellow-300 via-orange-300 to-orange-400 rounded-full border-4 border-yellow-400 shadow-xl">
+                      {/* Pizza slice lines */}
+                      <div className="absolute inset-4 border border-orange-400 rounded-full opacity-30"></div>
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-0"></div>
+                        <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-45 absolute top-0"></div>
+                        <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-90 absolute top-0"></div>
+                        <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-135 absolute top-0"></div>
+                      </div>
+                      
+                      {/* Pizza slice icon in center */}
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <div className="text-6xl text-orange-600 opacity-60">🍕</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Specialty Pizza Info */}
+            {specialtyPizza && (
+              <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-4 mb-6">
+                <div className="text-center">
+                  <h3 className="font-semibold text-lg text-red-800 mb-2">Customizing Specialty Pizza</h3>
+                  <p className="text-sm text-gray-700 mb-2">{specialtyPizza.description}</p>
+                  <div className="text-xs text-gray-600">
+                    Base Price: <span className="font-semibold text-red-600">${specialtyPizza.basePrice.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Pizza Details Summary */}
             <div className="space-y-3 text-sm">
@@ -920,73 +1153,196 @@ export default function PizzaBuilder() {
                   {/* Display toppings for active category */}
                   {groupedToppings[activeToppingCategory] && (
                     <div className="mb-6">
+                      {/* Specialty Pizza Changes Summary */}
+                      {specialtyPizza && (
+                        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                          <h4 className="font-semibold text-blue-800 mb-2">🍕 Customizing {specialtyPizza.name}</h4>
+                          <p className="text-sm text-blue-700 mb-2">Original toppings are marked with ⭐. You can remove or modify them, and add new ones.</p>
+                          {(() => {
+                            const changes = getSpecialtyPizzaChanges();
+                            const hasChanges = changes.addedToppings.length > 0 || changes.removedToppings.length > 0 || changes.modifiedToppings.length > 0;
+                            
+                            if (hasChanges) {
+                              return (
+                                <div className="text-sm space-y-1">
+                                  {changes.addedToppings.length > 0 && (
+                                    <div className="text-green-700">
+                                      ➕ <strong>Added:</strong> {changes.addedToppings.map(t => `${t.toppingName} (${t.section})`).join(', ')}
+                                    </div>
+                                  )}
+                                  {changes.removedToppings.length > 0 && (
+                                    <div className="text-red-700">
+                                      ➖ <strong>Removed:</strong> {changes.removedToppings.map(t => `${t.toppingName} (${t.section})`).join(', ')}
+                                    </div>
+                                  )}
+                                  {changes.modifiedToppings.length > 0 && (
+                                    <div className="text-orange-700">
+                                      ⚙️ <strong>Modified:</strong> {changes.modifiedToppings.map(t => `${t.toppingName} (${t.originalIntensity.toLowerCase()} → ${t.newIntensity.toLowerCase()})`).join(', ')}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            } else {
+                              return <div className="text-sm text-blue-600">No changes made yet - this will be the original {specialtyPizza.name}</div>;
+                            }
+                          })()}
+                        </div>
+                      )}
+                      
                       <div className="grid grid-cols-1 gap-4">
-                        {groupedToppings[activeToppingCategory].map((topping) => (
-                          <div key={topping.id} className="border-2 border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-all">
-                            {/* Topping Info */}
-                            <div className="flex justify-between items-center mb-3">
-                              <div>
-                                <div className="font-medium text-lg">{topping.name}</div>
-                                <div className="text-sm text-gray-500">
-                                  {topping.isVegan && '🌱 '}
-                                  {topping.isVegetarian && !topping.isVegan && '🥬 '}
+                        {groupedToppings[activeToppingCategory].map((topping) => {
+                          // Check if this topping is original to the specialty pizza
+                          const isOriginalTopping = specialtyPizza && originalSpecialtyToppings.some(t => t.toppingId === topping.id);
+                          
+                          return (
+                            <div key={topping.id} className={`border-2 rounded-lg p-4 hover:border-gray-300 transition-all ${
+                              isOriginalTopping 
+                                ? 'border-blue-300 bg-blue-50' 
+                                : 'border-gray-200'
+                            }`}>
+                              {/* Topping Info */}
+                              <div className="flex justify-between items-center mb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="font-medium text-lg">
+                                    {isOriginalTopping && '⭐ '}
+                                    {topping.name}
+                                  </div>
+                                  {isOriginalTopping && (
+                                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                      Original
+                                    </span>
+                                  )}
+                                  <div className="text-sm text-gray-500">
+                                    {topping.isVegan && '🌱 '}
+                                    {topping.isVegetarian && !topping.isVegan && '🥬 '}
+                                  </div>
+                                </div>
+                                <div className="text-red-600 font-bold">
+                                  {(() => {
+                                    if (isOriginalTopping && specialtyPizza) {
+                                      // For original toppings, show potential credit for removal
+                                      const originalToppingConfig = originalSpecialtyToppings.find(t => t.toppingId === topping.id);
+                                      if (originalToppingConfig) {
+                                        const intensityMultiplier = originalToppingConfig.intensity === 'LIGHT' ? 0.75 : 
+                                                                  originalToppingConfig.intensity === 'EXTRA' ? 1.5 : 1;
+                                        const credit = topping.price * intensityMultiplier * 0.5;
+                                        return (
+                                          <div className="text-right">
+                                            <div className="text-blue-600">Included</div>
+                                            <div className="text-xs text-red-500">-${credit.toFixed(2)} if removed</div>
+                                          </div>
+                                        );
+                                      }
+                                      return 'Included';
+                                    } else {
+                                      // For new toppings, show the additional cost
+                                      return `+$${(topping.price || 0).toFixed(2)}`;
+                                    }
+                                  })()}
                                 </div>
                               </div>
-                              <div className="text-red-600 font-bold">
-                                +${(topping.price || 0).toFixed(2)}
+                              
+                              {/* Section Selector for this topping */}
+                              <div className="flex space-x-2">
+                                {(['WHOLE', 'LEFT', 'RIGHT'] as const).map((section) => {
+                                  const isSelected = selection.toppings.some(t => t.toppingId === topping.id && t.section === section);
+                                  const wasOriginallyOnSection = originalSpecialtyToppings.some(t => t.toppingId === topping.id && t.section === section);
+                                  
+                                  return (
+                                    <button
+                                      key={section}
+                                      onClick={() => toggleTopping(topping, section)}
+                                      className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                                        isSelected
+                                          ? wasOriginallyOnSection
+                                            ? 'bg-blue-600 text-white shadow-md' // Original topping, still selected
+                                            : 'bg-red-600 text-white shadow-md'   // New topping, selected
+                                          : wasOriginallyOnSection
+                                            ? 'bg-red-100 text-red-700 border-2 border-red-300 hover:bg-red-200' // Original topping, removed
+                                            : 'bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-700' // Normal unselected
+                                      }`}
+                                    >
+                                      {section}
+                                      {wasOriginallyOnSection && !isSelected && ' ❌'}
+                                      {!wasOriginallyOnSection && isSelected && ' ➕'}
+                                    </button>
+                                  );
+                                })}
                               </div>
-                            </div>
-                            
-                            {/* Section Selector for this topping */}
-                            <div className="flex space-x-2">
+
+                              {/* Intensity Selector for selected toppings */}
                               {(['WHOLE', 'LEFT', 'RIGHT'] as const).map((section) => {
-                                const isSelected = selection.toppings.some(t => t.toppingId === topping.id && t.section === section);
+                                const selectedTopping = selection.toppings.find(t => t.toppingId === topping.id && t.section === section);
+                                const originalTopping = originalSpecialtyToppings.find(t => t.toppingId === topping.id && t.section === section);
+                                if (!selectedTopping) return null;
+                                
                                 return (
-                                  <button
-                                    key={section}
-                                    onClick={() => toggleTopping(topping, section)}
-                                    className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
-                                      isSelected
-                                        ? 'bg-red-600 text-white shadow-md'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-700'
-                                    }`}
-                                  >
-                                    {section}
-                                  </button>
+                                  <div key={`${topping.id}-${section}-intensity`} className="mt-3 p-3 bg-gray-50 rounded-lg">
+                                    <div className="text-sm font-medium text-gray-700 mb-2">
+                                      {section} - Intensity
+                                      {originalTopping && originalTopping.intensity !== selectedTopping.intensity && (
+                                        <span className="ml-2 text-xs text-orange-600">
+                                          (Changed from {originalTopping.intensity.toLowerCase()})
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex space-x-2">
+                                      {(['LIGHT', 'REGULAR', 'EXTRA'] as const).map(intensity => {
+                                        const intensityMultiplier = intensity === 'LIGHT' ? 0.75 : intensity === 'EXTRA' ? 1.5 : 1;
+                                        let priceDisplay = '';
+                                        
+                                        if (originalTopping && specialtyPizza) {
+                                          // Show pricing impact for specialty pizza intensity changes
+                                          const originalMultiplier = originalTopping.intensity === 'LIGHT' ? 0.75 : 
+                                                                   originalTopping.intensity === 'EXTRA' ? 1.5 : 1;
+                                          const priceDiff = topping.price * (intensityMultiplier - originalMultiplier);
+                                          
+                                          if (priceDiff > 0) {
+                                            priceDisplay = `+$${priceDiff.toFixed(2)}`;
+                                          } else if (priceDiff < 0) {
+                                            priceDisplay = `-$${Math.abs(priceDiff).toFixed(2)}`;
+                                          } else {
+                                            priceDisplay = '';
+                                          }
+                                        } else if (!originalTopping) {
+                                          // Show pricing for new toppings
+                                          const price = topping.price * intensityMultiplier;
+                                          priceDisplay = intensity === 'REGULAR' ? '' : `($${price.toFixed(2)})`;
+                                        }
+                                        
+                                        return (
+                                          <div key={intensity} className="flex flex-col items-center">
+                                            <button
+                                              onClick={() => updateToppingIntensity(topping.id, section, intensity)}
+                                              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                                                selectedTopping.intensity === intensity
+                                                  ? originalTopping?.intensity === intensity
+                                                    ? 'bg-blue-600 text-white' // Original intensity
+                                                    : 'bg-orange-600 text-white' // Modified intensity
+                                                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                              }`}
+                                            >
+                                              {intensity.charAt(0) + intensity.slice(1).toLowerCase()}
+                                              {originalTopping?.intensity === intensity && selectedTopping.intensity === intensity && ' ⭐'}
+                                            </button>
+                                            {priceDisplay && (
+                                              <span className={`text-xs mt-1 ${
+                                                priceDisplay.startsWith('+') ? 'text-red-600' : 
+                                                priceDisplay.startsWith('-') ? 'text-green-600' : 'text-gray-500'
+                                              }`}>
+                                                {priceDisplay}
+                                              </span>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
                                 );
                               })}
                             </div>
-
-                            {/* Intensity Selector for selected toppings */}
-                            {(['WHOLE', 'LEFT', 'RIGHT'] as const).map((section) => {
-                              const selectedTopping = selection.toppings.find(t => t.toppingId === topping.id && t.section === section);
-                              if (!selectedTopping) return null;
-                              
-                              return (
-                                <div key={`${topping.id}-${section}-intensity`} className="mt-3 p-3 bg-gray-50 rounded-lg">
-                                  <div className="text-sm font-medium text-gray-700 mb-2">
-                                    {section} - Intensity
-                                  </div>
-                                  <div className="flex space-x-2">
-                                    {(['LIGHT', 'REGULAR', 'EXTRA'] as const).map(intensity => (
-                                      <button
-                                        key={intensity}
-                                        onClick={() => updateToppingIntensity(topping.id, section, intensity)}
-                                        className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                                          selectedTopping.intensity === intensity
-                                            ? 'bg-red-600 text-white'
-                                            : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-                                        }`}
-                                      >
-                                        {intensity.charAt(0) + intensity.slice(1).toLowerCase()}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -1012,42 +1368,230 @@ export default function PizzaBuilder() {
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Review Your Order</h3>
                   <div className="space-y-4">
+                    {/* Specialty Pizza Changes Summary */}
+                    {specialtyPizza && (
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 className="font-medium text-blue-800 mb-2">🍕 {specialtyPizza.name} Customization</h4>
+                        {(() => {
+                          const changes = getSpecialtyPizzaChanges();
+                          const hasChanges = changes.addedToppings.length > 0 || changes.removedToppings.length > 0 || changes.modifiedToppings.length > 0;
+                          
+                          if (!hasChanges) {
+                            return (
+                              <div className="text-sm text-blue-600">
+                                ✅ This will be the original {specialtyPizza.name} recipe with no modifications
+                              </div>
+                            );
+                          }
+                          
+                          return (
+                            <div className="text-sm space-y-2">
+                              <div className="text-blue-700 mb-2">Your customizations:</div>
+                              {changes.addedToppings.length > 0 && (
+                                <div className="text-green-700">
+                                  <strong>➕ Added Toppings:</strong>
+                                  <ul className="ml-4 list-disc">
+                                    {changes.addedToppings.map((t, i) => (
+                                      <li key={i}>{t.toppingName} ({t.section.toLowerCase()}, {t.intensity.toLowerCase()})</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {changes.removedToppings.length > 0 && (
+                                <div className="text-red-700">
+                                  <strong>➖ Removed Toppings:</strong>
+                                  <ul className="ml-4 list-disc">
+                                    {changes.removedToppings.map((t, i) => (
+                                      <li key={i}>{t.toppingName} ({t.section.toLowerCase()})</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {changes.modifiedToppings.length > 0 && (
+                                <div className="text-orange-700">
+                                  <strong>⚙️ Modified Toppings:</strong>
+                                  <ul className="ml-4 list-disc">
+                                    {changes.modifiedToppings.map((t, i) => (
+                                      <li key={i}>{t.toppingName} intensity changed from {t.originalIntensity.toLowerCase()} to {t.newIntensity.toLowerCase()}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+                    
                     <div className="p-4 bg-gray-50 rounded-lg">
                       <h4 className="font-medium mb-2">Order Summary</h4>
                       <div className="space-y-2 text-sm">
-                        {selection.size && (
-                          <div className="flex justify-between">
-                            <span>{selection.size.name} ({selection.size.diameter})</span>
-                            <span>${(selection.size.basePrice || 0).toFixed(2)}</span>
-                          </div>
-                        )}
-                        {selection.sauce && (
-                          <div className="flex justify-between">
-                            <span>{selection.sauce.name} ({selection.sauceIntensity.toLowerCase()})</span>
-                            <span>{(selection.sauce.priceModifier || 0) > 0 ? `$${(selection.sauce.priceModifier || 0).toFixed(2)}` : 'Free'}</span>
-                          </div>
-                        )}
-                        {selection.crust && (
-                          <div className="flex justify-between">
-                            <span>{selection.crust.name} ({selection.crustCookingLevel === 'WELL_DONE' ? 'well done' : selection.crustCookingLevel.toLowerCase()})</span>
-                            <span>{(selection.crust.priceModifier || 0) > 0 ? `$${(selection.crust.priceModifier || 0).toFixed(2)}` : 'Free'}</span>
-                          </div>
-                        )}
+                        {/* Base pricing */}
+                        {(() => {
+                          const breakdown = getPricingBreakdown();
+                          if (!breakdown) return null;
+                          
+                          return (
+                            <>
+                              <div className="flex justify-between">
+                                <span>{breakdown.baseName}</span>
+                                <span>${breakdown.basePrice.toFixed(2)}</span>
+                              </div>
+                              
+                              {/* Crust and sauce modifiers for regular pizzas */}
+                              {breakdown.crustModifier > 0 && (
+                                <div className="flex justify-between">
+                                  <span>Crust upgrade</span>
+                                  <span>+${breakdown.crustModifier.toFixed(2)}</span>
+                                </div>
+                              )}
+                              {breakdown.sauceModifier > 0 && (
+                                <div className="flex justify-between">
+                                  <span>Sauce upgrade</span>
+                                  <span>+${breakdown.sauceModifier.toFixed(2)}</span>
+                                </div>
+                              )}
+                              
+                              {/* Specialty pizza adjustments */}
+                              {specialtyPizza && (
+                                <>
+                                  {breakdown.addedToppingsPrice > 0 && (
+                                    <div className="flex justify-between text-green-700">
+                                      <span>➕ Added toppings</span>
+                                      <span>+${breakdown.addedToppingsPrice.toFixed(2)}</span>
+                                    </div>
+                                  )}
+                                  {breakdown.removedToppingsCredit > 0 && (
+                                    <div className="flex justify-between text-red-700">
+                                      <span>➖ Removed toppings credit (50%)</span>
+                                      <span>-${breakdown.removedToppingsCredit.toFixed(2)}</span>
+                                    </div>
+                                  )}
+                                  {breakdown.intensityAdjustments !== 0 && (
+                                    <div className={`flex justify-between ${breakdown.intensityAdjustments > 0 ? 'text-orange-700' : 'text-blue-700'}`}>
+                                      <span>⚙️ Intensity adjustments</span>
+                                      <span>{breakdown.intensityAdjustments > 0 ? '+' : ''}${breakdown.intensityAdjustments.toFixed(2)}</span>
+                                    </div>
+                                  )}
+                                </>
+                              )}
+                              
+                              {/* Regular pizza toppings */}
+                              {!specialtyPizza && breakdown.addedToppingsPrice > 0 && (
+                                <div className="flex justify-between">
+                                  <span>Toppings</span>
+                                  <span>+${breakdown.addedToppingsPrice.toFixed(2)}</span>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
+                        
+                        <hr className="my-2" />
+                        
+                        {/* Individual toppings breakdown */}
                         {selection.toppings.map((selectedTopping) => {
                           const topping = data?.toppings.find(t => t.id === selectedTopping.toppingId);
                           if (!topping) return null;
+                          
+                          // Check if this is an original topping
+                          const isOriginal = originalSpecialtyToppings.some(t => 
+                            t.toppingId === selectedTopping.toppingId && 
+                            t.section === selectedTopping.section
+                          );
+                          
+                          const originalTopping = originalSpecialtyToppings.find(t => 
+                            t.toppingId === selectedTopping.toppingId && 
+                            t.section === selectedTopping.section
+                          );
+                          
+                          const intensityMultiplier = selectedTopping.intensity === 'LIGHT' ? 0.75 : 
+                                                    selectedTopping.intensity === 'EXTRA' ? 1.5 : 1;
+                          
+                          let priceDisplay = '';
+                          let textColor = '';
+                          
+                          if (specialtyPizza) {
+                            if (isOriginal) {
+                              if (originalTopping && originalTopping.intensity !== selectedTopping.intensity) {
+                                // Modified intensity
+                                const originalMultiplier = originalTopping.intensity === 'LIGHT' ? 0.75 : 
+                                                         originalTopping.intensity === 'EXTRA' ? 1.5 : 1;
+                                const priceDiff = topping.price * (intensityMultiplier - originalMultiplier);
+                                priceDisplay = priceDiff > 0 ? `+$${priceDiff.toFixed(2)}` : `-$${Math.abs(priceDiff).toFixed(2)}`;
+                                textColor = priceDiff > 0 ? 'text-orange-600' : 'text-blue-600';
+                              } else {
+                                // Original topping, no change
+                                priceDisplay = 'Included';
+                                textColor = 'text-gray-600';
+                              }
+                            } else {
+                              // Added topping
+                              priceDisplay = `+$${(topping.price * intensityMultiplier).toFixed(2)}`;
+                              textColor = 'text-green-600';
+                            }
+                          } else {
+                            // Regular pizza
+                            priceDisplay = `$${(topping.price * intensityMultiplier).toFixed(2)}`;
+                            textColor = 'text-gray-800';
+                          }
+                          
                           return (
-                            <div key={`${selectedTopping.toppingId}-${selectedTopping.section}`} className="flex justify-between">
-                              <span>{topping.name} ({selectedTopping.section}, {selectedTopping.intensity.toLowerCase()})</span>
-                              <span>${(topping.price || 0).toFixed(2)}</span>
+                            <div key={`${selectedTopping.toppingId}-${selectedTopping.section}`} className="flex justify-between text-xs">
+                              <span className="flex items-center">
+                                {isOriginal && specialtyPizza && '⭐ '}
+                                {topping.name} ({selectedTopping.section}, {selectedTopping.intensity.toLowerCase()})
+                                {originalTopping && originalTopping.intensity !== selectedTopping.intensity && (
+                                  <span className="ml-1 text-orange-500">
+                                    (was {originalTopping.intensity.toLowerCase()})
+                                  </span>
+                                )}
+                              </span>
+                              <span className={textColor}>{priceDisplay}</span>
                             </div>
                           );
                         })}
+                        
+                        {/* Show removed toppings */}
+                        {specialtyPizza && (() => {
+                          const changes = getSpecialtyPizzaChanges();
+                          return changes.removedToppings.map((removedTopping, index) => {
+                            const topping = data?.toppings.find(t => t.id === removedTopping.toppingId);
+                            if (!topping) return null;
+                            
+                            const intensityMultiplier = removedTopping.intensity === 'LIGHT' ? 0.75 : 
+                                                      removedTopping.intensity === 'EXTRA' ? 1.5 : 1;
+                            const credit = topping.price * intensityMultiplier * 0.5;
+                            
+                            return (
+                              <div key={`removed-${index}`} className="flex justify-between text-xs">
+                                <span className="text-red-600">
+                                  ❌ {topping.name} ({removedTopping.section}, {removedTopping.intensity.toLowerCase()}) - REMOVED
+                                </span>
+                                <span className="text-red-600">-${credit.toFixed(2)}</span>
+                              </div>
+                            );
+                          });
+                        })()}
+                        
                         <hr />
                         <div className="flex justify-between font-bold text-lg">
                           <span>Total:</span>
                           <span className="text-red-600">${(calculateTotal() || 0).toFixed(2)}</span>
                         </div>
+                        
+                        {/* Savings indicator */}
+                        {specialtyPizza && (() => {
+                          const breakdown = getPricingBreakdown();
+                          if (breakdown && breakdown.removedToppingsCredit > 0) {
+                            return (
+                              <div className="text-sm text-green-600 font-medium">
+                                💰 You saved ${breakdown.removedToppingsCredit.toFixed(2)} by removing toppings!
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                       </div>
                     </div>
                     
