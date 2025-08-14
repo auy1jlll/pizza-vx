@@ -43,6 +43,29 @@ export async function DELETE(
   try {
     const { id } = await params;
     
+    // Check if there are order items using this size
+    const orderItemsCount = await prisma.orderItem.count({
+      where: { pizzaSizeId: id }
+    });
+
+    if (orderItemsCount > 0) {
+      return NextResponse.json({ 
+        error: `Cannot delete size. It is being used in ${orderItemsCount} order item(s). Please deactivate it instead.` 
+      }, { status: 400 });
+    }
+
+    // Check if there are specialty pizza sizes using this size
+    const specialtyCount = await prisma.specialtyPizzaSize.count({
+      where: { pizzaSizeId: id }
+    });
+
+    if (specialtyCount > 0) {
+      // Delete specialty pizza size relationships first
+      await prisma.specialtyPizzaSize.deleteMany({
+        where: { pizzaSizeId: id }
+      });
+    }
+    
     await prisma.pizzaSize.delete({
       where: { id }
     });

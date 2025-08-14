@@ -5,6 +5,19 @@ import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
 import { showToast } from '@/components/ToastContainer';
 
+interface SpecialtyPizzaSize {
+  id: string;
+  price: number;
+  isAvailable: boolean;
+  pizzaSize: {
+    id: string;
+    name: string;
+    diameter: string;
+    basePrice: number;
+    description?: string;
+  };
+}
+
 interface SpecialtyPizza {
   id: string;
   name: string;
@@ -14,11 +27,13 @@ interface SpecialtyPizza {
   imageUrl?: string;
   ingredients: string;
   isActive: boolean;
+  sizes?: SpecialtyPizzaSize[];
 }
 
 export default function SpecialtyPizzasPage() {
   const [pizzas, setPizzas] = useState<SpecialtyPizza[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
   const { addItem, getTotalItems } = useCart();
 
   // Fetch specialty pizzas
@@ -28,6 +43,15 @@ export default function SpecialtyPizzasPage() {
       if (response.ok) {
         const data = await response.json();
         setPizzas(Array.isArray(data) ? data : []);
+        
+        // Set default sizes to the first available size for each pizza
+        const defaultSizes: Record<string, string> = {};
+        data.forEach((pizza: SpecialtyPizza) => {
+          if (pizza.sizes && pizza.sizes.length > 0) {
+            defaultSizes[pizza.id] = pizza.sizes[0].pizzaSize.id;
+          }
+        });
+        setSelectedSizes(defaultSizes);
       } else {
         console.error('Failed to fetch specialty pizzas');
         setPizzas([]);
@@ -44,15 +68,31 @@ export default function SpecialtyPizzasPage() {
     fetchPizzas();
   }, []);
 
+  // Get selected size for a pizza
+  const getSelectedSize = (pizza: SpecialtyPizza): SpecialtyPizzaSize | undefined => {
+    const selectedSizeId = selectedSizes[pizza.id];
+    return pizza.sizes?.find(size => size.pizzaSize.id === selectedSizeId);
+  };
+
+  // Get price for selected size or fallback to base price
+  const getPizzaPrice = (pizza: SpecialtyPizza): number => {
+    const selectedSize = getSelectedSize(pizza);
+    return selectedSize ? selectedSize.price : pizza.basePrice;
+  };
+
   // Add to cart function
   const addToCart = (pizza: SpecialtyPizza) => {
+    const selectedSize = getSelectedSize(pizza);
+    const price = getPizzaPrice(pizza);
+    
     addItem({
       type: 'specialty',
-      name: pizza.name,
-      price: pizza.basePrice,
+      name: `${pizza.name}`,
+      price: price,
+      size: selectedSize?.pizzaSize.name || 'Default',
       specialtyPizzaId: pizza.id
     });
-    showToast(`${pizza.name} added to cart! 🍕`, 'success');
+    showToast(`${pizza.name} (${selectedSize?.pizzaSize.name || 'Default'}) added to cart! 🍕`, 'success');
   };
 
   // Parse ingredients from JSON string
@@ -153,13 +193,42 @@ export default function SpecialtyPizzasPage() {
                         <div className="flex justify-between items-start mb-3">
                           <h3 className="text-xl font-bold text-white">{pizza.name}</h3>
                           <span className="text-2xl font-bold text-green-400">
-                            ${pizza.basePrice.toFixed(2)}
+                            ${getPizzaPrice(pizza).toFixed(2)}
                           </span>
                         </div>
 
                         <p className="text-gray-300 text-sm mb-4 leading-relaxed">
                           {pizza.description}
                         </p>
+
+                        {/* Size Selection */}
+                        {pizza.sizes && pizza.sizes.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="text-sm font-semibold text-orange-400 mb-2">Size:</h4>
+                            <div className="grid grid-cols-3 gap-2">
+                              {pizza.sizes.map((sizeOption) => (
+                                <button
+                                  key={sizeOption.pizzaSize.id}
+                                  onClick={() => setSelectedSizes(prev => ({
+                                    ...prev,
+                                    [pizza.id]: sizeOption.pizzaSize.id
+                                  }))}
+                                  className={`p-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                                    selectedSizes[pizza.id] === sizeOption.pizzaSize.id
+                                      ? 'bg-gradient-to-r from-green-600 to-green-700 text-white border-2 border-green-400'
+                                      : 'bg-slate-700 text-gray-300 border-2 border-slate-600 hover:bg-slate-600'
+                                  }`}
+                                >
+                                  <div className="text-center">
+                                    <div className="font-bold">{sizeOption.pizzaSize.name}</div>
+                                    <div className="text-xs opacity-75">{sizeOption.pizzaSize.diameter}</div>
+                                    <div className="text-xs text-green-400 font-bold">${sizeOption.price.toFixed(2)}</div>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
                         {/* Ingredients */}
                         {pizza.ingredients && (
@@ -181,7 +250,7 @@ export default function SpecialtyPizzasPage() {
                         {/* Action Buttons */}
                         <div className="flex space-x-3">
                           <Link
-                            href={`/pizza-builder?specialty=${pizza.id}`}
+                            href={`/pizza-builder?specialty=${pizza.id}&size=${selectedSizes[pizza.id] || ''}`}
                             className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-center py-3 px-4 rounded-lg font-semibold transition-all duration-300 hover:scale-105"
                           >
                             🛠️ Customize

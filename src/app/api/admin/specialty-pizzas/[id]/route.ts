@@ -16,7 +16,7 @@ export async function PUT(
 
     const { id } = params;
     const body = await request.json();
-    const { name, description, basePrice, category, imageUrl, ingredients, isActive } = body;
+    const { name, description, basePrice, category, imageUrl, ingredients, isActive, sizePricing } = body;
 
     if (!name || !description || basePrice === undefined || !category) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -34,6 +34,29 @@ export async function PUT(
         isActive: isActive !== undefined ? isActive : true
       }
     });
+
+    // Update size pricing relationships if provided
+    if (sizePricing) {
+      // First, delete existing size relationships
+      await prisma.specialtyPizzaSize.deleteMany({
+        where: { specialtyPizzaId: id }
+      });
+
+      // Then create new ones
+      const sizeEntries = Object.entries(sizePricing as Record<string, { price: number, isAvailable: boolean }>);
+      for (const [sizeId, pricing] of sizeEntries) {
+        if (pricing.isAvailable && pricing.price > 0) {
+          await prisma.specialtyPizzaSize.create({
+            data: {
+              specialtyPizzaId: id,
+              pizzaSizeId: sizeId,
+              price: pricing.price,
+              isAvailable: pricing.isAvailable
+            }
+          });
+        }
+      }
+    }
 
     // Parse ingredients for response
     const formattedPizza = {

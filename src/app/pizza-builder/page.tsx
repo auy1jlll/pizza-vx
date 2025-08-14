@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Cart from '@/components/Cart';
 
 interface PizzaSize {
@@ -68,6 +69,7 @@ interface CartItem {
   }>;
   notes?: string;
   totalPrice: number;
+  specialtyPizzaName?: string; // Add this to track if it's based on a specialty pizza
 }
 
 interface PizzaBuilderData {
@@ -75,6 +77,30 @@ interface PizzaBuilderData {
   crusts: PizzaCrust[];
   sauces: PizzaSauce[];
   toppings: PizzaTopping[];
+}
+
+interface SpecialtyPizza {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  basePrice: number;
+  defaultSizeId: string;
+  defaultCrustId: string;
+  defaultSauceId: string;
+  sauceIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
+  crustCookingLevel: 'LIGHT' | 'REGULAR' | 'WELL_DONE';
+  toppings: Array<{
+    toppingId: string;
+    section: 'WHOLE' | 'LEFT' | 'RIGHT';
+    intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
+  }>;
+  availableSizes?: Array<{
+    id: string;
+    name: string;
+    diameter: string;
+    price: number;
+  }>;
 }
 
 interface Selection {
@@ -87,7 +113,12 @@ interface Selection {
 }
 
 export default function PizzaBuilder() {
+  const searchParams = useSearchParams();
+  const specialtyId = searchParams.get('specialty');
+  const selectedSizeId = searchParams.get('size'); // Get the selected size from URL
+  
   const [data, setData] = useState<PizzaBuilderData | null>(null);
+  const [specialtyPizza, setSpecialtyPizza] = useState<SpecialtyPizza | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('SIZE');
   const [activeSection, setActiveSection] = useState<'WHOLE' | 'LEFT' | 'RIGHT'>('WHOLE');
@@ -114,6 +145,12 @@ export default function PizzaBuilder() {
 
   useEffect(() => {
     fetchPizzaData();
+    
+    // Load specialty pizza if specified
+    if (specialtyId) {
+      fetchSpecialtyPizza(specialtyId);
+    }
+    
     // Load cart from localStorage
     const savedCart = localStorage.getItem('pizzaCart');
     if (savedCart) {
@@ -124,15 +161,17 @@ export default function PizzaBuilder() {
         console.error('Error loading cart from localStorage:', error);
       }
     }
-  }, []);
+  }, [specialtyId]);
 
   const fetchPizzaData = async () => {
     try {
-      // Use cached endpoint with client-side caching
-      const response = await fetch('/api/pizza-data', {
-        // Add client-side cache control
-        cache: 'force-cache',
-        next: { revalidate: 300 } // 5 minutes
+      // Force fresh data - no caching during debugging
+      const response = await fetch(`/api/pizza-data?t=${Date.now()}`, {
+        // Force no cache
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
       });
       
       const data = await response.json();
@@ -145,15 +184,40 @@ export default function PizzaBuilder() {
           setActiveToppingCategory(categories[0] as string);
         }
         
-        // Set default selections
-        setSelection({
-          size: data.sizes[0] || null,
-          crust: data.crusts[0] || null,
-          crustCookingLevel: 'REGULAR',
-          sauce: data.sauces[0] || null,
-          sauceIntensity: 'REGULAR',
-          toppings: []
-        });
+        // Set default selections based on whether we're customizing a specialty pizza or building fresh
+        if (!specialtyId) {
+          // Fresh pizza building - use proper defaults
+          const defaultSize = data.sizes.find((s: PizzaSize) => s.sortOrder === 2) || data.sizes[1] || data.sizes[0];
+          const defaultCrust = data.crusts.find((c: PizzaCrust) => c.sortOrder === 1) || data.crusts[0];
+          const defaultSauce = data.sauces.find((s: PizzaSauce) => s.sortOrder === 1) || data.sauces[0];
+          const cheeseTopping = data.toppings.find((t: PizzaTopping) => 
+            t.category === 'CHEESE' && t.sortOrder === 1
+          ) || data.toppings.find((t: PizzaTopping) => t.category === 'CHEESE');
+
+          setSelection({
+            size: defaultSize,
+            crust: defaultCrust,
+            crustCookingLevel: 'REGULAR',
+            sauce: defaultSauce,
+            sauceIntensity: 'REGULAR',
+            toppings: cheeseTopping ? [{
+              toppingId: cheeseTopping.id,
+              section: 'WHOLE',
+              quantity: 1,
+              intensity: 'REGULAR'
+            }] : []
+          });
+        } else {
+          // Specialty pizza customization - set minimal defaults that will be overridden
+          setSelection({
+            size: data.sizes[0] || null,
+            crust: data.crusts[0] || null,
+            crustCookingLevel: 'REGULAR',
+            sauce: data.sauces[0] || null,
+            sauceIntensity: 'REGULAR',
+            toppings: []
+          });
+        }
       }
     } catch (error) {
       console.error('Error fetching pizza data:', error);
@@ -161,6 +225,60 @@ export default function PizzaBuilder() {
       setLoading(false);
     }
   };
+
+  const fetchSpecialtyPizza = async (specialtyId: string) => {
+    try {
+      const response = await fetch(`/api/specialty-pizzas/${specialtyId}`);
+      if (response.ok) {
+        const specialty = await response.json();
+        setSpecialtyPizza(specialty);
+        
+        // Load specialty pizza data into selection after main data is loaded
+        if (data) {
+          loadSpecialtyPizzaSelection(specialty);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching specialty pizza:', error);
+    }
+  };
+
+  const loadSpecialtyPizzaSelection = (specialty: SpecialtyPizza) => {
+    if (!data) return;
+    
+    // Find the specialty pizza components in the data
+    // Use the selected size from URL if available, otherwise use default
+    const specialtySize = selectedSizeId 
+      ? data.sizes.find(s => s.id === selectedSizeId) || data.sizes[0]
+      : data.sizes.find(s => s.id === specialty.defaultSizeId) || data.sizes[0];
+    const specialtyCrust = data.crusts.find(c => c.id === specialty.defaultCrustId) || data.crusts[0];
+    const specialtySauce = data.sauces.find(s => s.id === specialty.defaultSauceId) || data.sauces[0];
+    
+    // Convert specialty toppings to selection format
+    const specialtyToppings: SelectedTopping[] = specialty.toppings.map(t => ({
+      toppingId: t.toppingId,
+      section: t.section,
+      quantity: 1,
+      intensity: t.intensity
+    }));
+    
+    // Update selection with specialty pizza data
+    setSelection({
+      size: specialtySize,
+      crust: specialtyCrust,
+      crustCookingLevel: specialty.crustCookingLevel,
+      sauce: specialtySauce,
+      sauceIntensity: specialty.sauceIntensity,
+      toppings: specialtyToppings
+    });
+  };
+
+  // Load specialty selection when both data and specialty are available
+  useEffect(() => {
+    if (data && specialtyPizza) {
+      loadSpecialtyPizzaSelection(specialtyPizza);
+    }
+  }, [data, specialtyPizza]);
 
   const toggleTopping = (topping: PizzaTopping, section: 'WHOLE' | 'LEFT' | 'RIGHT') => {
     const existingToppingIndex = selection.toppings.findIndex(
@@ -212,17 +330,42 @@ export default function PizzaBuilder() {
   const calculateTotal = () => {
     if (!selection.size || !data) return 0;
     
-    let total = selection.size.basePrice;
-    if (selection.crust) total += selection.crust.priceModifier;
-    if (selection.sauce) total += selection.sauce.priceModifier;
+    // Use specialty pizza base price if available, otherwise use size base price
+    let total = specialtyPizza ? specialtyPizza.basePrice : selection.size.basePrice;
     
-    // Calculate topping prices
-    selection.toppings.forEach(selectedTopping => {
-      const topping = data?.toppings.find(t => t.id === selectedTopping.toppingId);
-      if (topping) {
-        total += topping.price * (selectedTopping.quantity || 1);
-      }
-    });
+    // Only add modifiers if not using specialty base price
+    if (!specialtyPizza) {
+      if (selection.crust) total += selection.crust.priceModifier;
+      if (selection.sauce) total += selection.sauce.priceModifier;
+    }
+    
+    // Calculate topping modifications from the original specialty configuration
+    if (specialtyPizza) {
+      // For specialty pizzas, calculate the difference from the original configuration
+      const originalToppings = specialtyPizza.toppings.map(t => t.toppingId);
+      const currentToppings = selection.toppings.map(t => t.toppingId);
+      
+      // Add price for new toppings not in the original
+      selection.toppings.forEach(selectedTopping => {
+        if (!originalToppings.includes(selectedTopping.toppingId)) {
+          const topping = data?.toppings.find(t => t.id === selectedTopping.toppingId);
+          if (topping) {
+            total += topping.price * (selectedTopping.quantity || 1);
+          }
+        }
+      });
+      
+      // Subtract price for removed original toppings (if you want to credit for removals)
+      // For now, we'll keep it simple and not credit for removals
+    } else {
+      // Regular pizza - add all topping prices
+      selection.toppings.forEach(selectedTopping => {
+        const topping = data?.toppings.find(t => t.id === selectedTopping.toppingId);
+        if (topping) {
+          total += topping.price * (selectedTopping.quantity || 1);
+        }
+      });
+    }
     
     return total;
   };
@@ -271,7 +414,8 @@ export default function PizzaBuilder() {
       crustCookingLevel: selection.crustCookingLevel,
       toppings: cartToppings,
       notes: notes,
-      totalPrice: calculateTotal()
+      totalPrice: calculateTotal(),
+      specialtyPizzaName: specialtyPizza?.name // Include specialty pizza name if customizing one
     };
 
     // Add to cart instead of replacing
@@ -363,8 +507,14 @@ export default function PizzaBuilder() {
             <button className="mr-4 text-white hover:text-gray-200">
               ← Back to Menu
             </button>
-            <h1 className="text-xl font-semibold">🍕 Build Your Perfect Pizza</h1>
-            <p className="ml-2 text-red-200">Customize every detail exactly how you like it</p>
+            <h1 className="text-xl font-semibold">
+              {specialtyPizza ? `🍕 Customize ${specialtyPizza.name}` : '🍕 Build Your Perfect Pizza'}
+            </h1>
+            {specialtyPizza ? (
+              <p className="ml-2 text-red-200 text-sm">{specialtyPizza.description}</p>
+            ) : (
+              <p className="ml-2 text-red-200">Customize every detail exactly how you like it</p>
+            )}
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
@@ -504,31 +654,67 @@ export default function PizzaBuilder() {
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Choose Your Size</h3>
                   <div className="space-y-3">
-                    {data.sizes.map((size) => (
-                      <button
-                        key={size.id}
-                        onClick={() => setSelection(prev => ({ ...prev, size }))}
-                        className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
-                          selection.size?.id === size.id
-                            ? 'border-red-500 bg-red-50'
-                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <div className="font-semibold text-lg">{size.name}</div>
-                            <div className="text-sm text-gray-600">({size.diameter})</div>
-                            <div className="text-xs text-gray-500">Perfect for 1-2 people</div>
+                    {specialtyPizza?.availableSizes ? (
+                      // For specialty pizzas, use available sizes with pricing from the specialty pizza
+                      specialtyPizza.availableSizes.map((size) => (
+                        <button
+                          key={size.id}
+                          onClick={() => {
+                            // Convert specialty size to PizzaSize format for selection
+                            const matchingSize = data.sizes.find(s => s.id === size.id);
+                            if (matchingSize) {
+                              setSelection(prev => ({ ...prev, size: matchingSize }));
+                            }
+                          }}
+                          className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+                            selection.size?.id === size.id
+                              ? 'border-red-500 bg-red-50'
+                              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <div className="font-semibold text-lg">{size.name}</div>
+                              <div className="text-sm text-gray-600">({size.diameter})</div>
+                              <div className="text-xs text-gray-500">Perfect for 1-2 people</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold text-red-600">${size.price.toFixed(2)}</div>
+                              {selection.size?.id === size.id && (
+                                <div className="text-xs text-green-600 font-medium">Selected</div>
+                              )}
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <div className="font-bold text-red-600">${(size.basePrice || 0).toFixed(2)}</div>
-                            {selection.size?.id === size.id && (
-                              <div className="text-xs text-green-600 font-medium">Selected</div>
-                            )}
+                        </button>
+                      ))
+                    ) : (
+                      // For custom pizzas, use regular pizza sizes
+                      data.sizes.map((size) => (
+                        <button
+                          key={size.id}
+                          onClick={() => setSelection(prev => ({ ...prev, size }))}
+                          className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+                            selection.size?.id === size.id
+                              ? 'border-red-500 bg-red-50'
+                              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <div className="font-semibold text-lg">{size.name}</div>
+                              <div className="text-sm text-gray-600">({size.diameter})</div>
+                              <div className="text-xs text-gray-500">Perfect for 1-2 people</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold text-red-600">${(size.basePrice || 0).toFixed(2)}</div>
+                              {selection.size?.id === size.id && (
+                                <div className="text-xs text-green-600 font-medium">Selected</div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </button>
-                    ))}
+                        </button>
+                      ))
+                    )}
                   </div>
                   <div className="flex justify-between mt-6">
                     <button

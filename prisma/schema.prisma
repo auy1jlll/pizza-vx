@@ -44,7 +44,8 @@ model PizzaSize {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  orderItems OrderItem[]
+  orderItems          OrderItem[]
+  specialtyPizzaSizes SpecialtyPizzaSize[]
   
   @@map("pizza_sizes")
 }
@@ -116,7 +117,7 @@ model SpecialtyPizza {
   id          String   @id @default(cuid())
   name        String   @unique
   description String
-  basePrice   Float
+  basePrice   Float    // Base price for the default/medium size
   category    String   // e.g., "Classic", "Premium", "Vegetarian", "Meat Lovers"
   imageUrl    String?
   ingredients String   // JSON string of ingredient names
@@ -125,7 +126,28 @@ model SpecialtyPizza {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
+  // Relations
+  sizes       SpecialtyPizzaSize[]
+  
   @@map("specialty_pizzas")
+}
+
+// Specialty Pizza Size Pricing
+model SpecialtyPizzaSize {
+  id              String        @id @default(cuid())
+  specialtyPizzaId String
+  pizzaSizeId     String
+  price           Float         // Price for this specialty pizza in this size
+  isAvailable     Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  specialtyPizza  SpecialtyPizza @relation(fields: [specialtyPizzaId], references: [id], onDelete: Cascade)
+  pizzaSize       PizzaSize     @relation(fields: [pizzaSizeId], references: [id])
+  
+  @@unique([specialtyPizzaId, pizzaSizeId])
+  @@map("specialty_pizza_sizes")
 }
 
 // Order Management

@@ -72,6 +72,7 @@ export async function GET() {
 
     // Transform data to match expected format
     const data = {
+      timestamp: Date.now(), // Force cache bust
       sizes: sizes.map(size => ({
         id: size.id,
         name: size.name,
@@ -117,15 +118,13 @@ export async function GET() {
       toppings: data.toppings.length
     });
 
-    // Add aggressive caching headers
+    // Add cache headers - disabled for debugging
     const response = NextResponse.json(data);
     
-    // Cache in browser and CDN
-    response.headers.set('Cache-Control', `public, s-maxage=${CACHE_DURATION}, stale-while-revalidate=86400`);
-    
-    // Add ETag for conditional requests
-    const etag = `"${Date.now()}"`;
-    response.headers.set('ETag', etag);
+    // Disable caching to get fresh data
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
     
     return response;
   } catch (error) {
@@ -134,7 +133,7 @@ export async function GET() {
     // Fallback to mock data if database fails
     console.log('Falling back to mock data...');
     const response = NextResponse.json(mockData);
-    response.headers.set('Cache-Control', `public, s-maxage=60, stale-while-revalidate=300`);
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     return response;
   } finally {
     await prisma.$disconnect();

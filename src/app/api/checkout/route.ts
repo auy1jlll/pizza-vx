@@ -76,9 +76,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Create order items
     for (const item of items) {
-      if (item.type === 'specialty') {
-        // For specialty pizzas, use default components
+      // Handle pizza builder cart items (from regular pizza builder or specialty pizza customization)
+      if (item.sizeId && item.crustId && item.sauceId) {
+        const orderItem = await prisma.orderItem.create({
+          data: {
+            orderId: order.id,
+            pizzaSizeId: item.sizeId,
+            pizzaCrustId: item.crustId,
+            pizzaSauceId: item.sauceId,
+            quantity: 1, // Pizza builder items are always quantity 1
+            basePrice: item.totalPrice,
+            totalPrice: item.totalPrice,
+            notes: item.specialtyPizzaName ? `Based on: ${item.specialtyPizzaName}` : 'Custom Pizza'
+          }
+        });
+
+        // Add toppings for this order item
+        if (item.toppings && item.toppings.length > 0) {
+          for (const topping of item.toppings) {
+            await prisma.orderItemTopping.create({
+              data: {
+                orderItemId: orderItem.id,
+                pizzaToppingId: topping.toppingId,
+                quantity: 1,
+                section: topping.section,
+                intensity: topping.intensity,
+                price: topping.price
+              }
+            });
+          }
+        }
+      }
+      // Handle legacy specialty pizza items (from direct add to cart)
+      else if (item.type === 'specialty') {
         await prisma.orderItem.create({
           data: {
             orderId: order.id,
@@ -92,7 +124,14 @@ export async function POST(request: NextRequest) {
           }
         });
       }
-      // Add handling for custom pizzas here when pizza builder is integrated
+      else {
+        // Log unknown item format for debugging
+        console.warn('Unknown cart item format:', item);
+        return NextResponse.json(
+          { error: 'Invalid pizza components in cart item' },
+          { status: 400 }
+        );
+      }
     }
 
     return NextResponse.json({

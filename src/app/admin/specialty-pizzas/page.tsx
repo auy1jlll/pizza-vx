@@ -3,6 +3,17 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 
+interface SpecialtyPizzaSize {
+  id: string;
+  price: number;
+  isAvailable: boolean;
+  pizzaSize: {
+    id: string;
+    name: string;
+    diameter: string;
+  };
+}
+
 interface SpecialtyPizza {
   id: string;
   name: string;
@@ -12,12 +23,14 @@ interface SpecialtyPizza {
   category: string;
   imageUrl?: string;
   ingredients: string[];
+  sizes?: SpecialtyPizzaSize[];
   createdAt: string;
   updatedAt: string;
 }
 
 export default function SpecialtyPizzasAdmin() {
   const [pizzas, setPizzas] = useState<SpecialtyPizza[]>([]);
+  const [availableSizes, setAvailableSizes] = useState<{id: string, name: string, diameter: string}[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingPizza, setEditingPizza] = useState<SpecialtyPizza | null>(null);
@@ -30,6 +43,7 @@ export default function SpecialtyPizzasAdmin() {
     ingredients: [] as string[],
     isActive: true
   });
+  const [sizePricing, setSizePricing] = useState<Record<string, { price: number, isAvailable: boolean }>>({});
 
   // Pizza categories
   const categories = [
@@ -66,7 +80,28 @@ export default function SpecialtyPizzasAdmin() {
 
   useEffect(() => {
     fetchPizzas();
+    fetchSizes();
   }, []);
+
+  // Fetch available pizza sizes
+  const fetchSizes = async () => {
+    try {
+      const response = await fetch('/api/admin/sizes');
+      if (response.ok) {
+        const data = await response.json();
+        setAvailableSizes(data);
+        
+        // Initialize default pricing for all sizes
+        const defaultPricing: Record<string, { price: number, isAvailable: boolean }> = {};
+        data.forEach((size: any) => {
+          defaultPricing[size.id] = { price: 0, isAvailable: true };
+        });
+        setSizePricing(defaultPricing);
+      }
+    } catch (error) {
+      console.error('Error fetching sizes:', error);
+    }
+  };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,12 +110,18 @@ export default function SpecialtyPizzasAdmin() {
       const url = editingPizza ? `/api/admin/specialty-pizzas/${editingPizza.id}` : '/api/admin/specialty-pizzas';
       const method = editingPizza ? 'PUT' : 'POST';
       
+      // Prepare submission data with size pricing
+      const submissionData = {
+        ...formData,
+        sizePricing: sizePricing
+      };
+      
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submissionData),
       });
 
       if (response.ok) {
@@ -96,6 +137,12 @@ export default function SpecialtyPizzasAdmin() {
           ingredients: [],
           isActive: true 
         });
+        // Reset size pricing to defaults
+        const defaultPricing: Record<string, { price: number, isAvailable: boolean }> = {};
+        availableSizes.forEach((size) => {
+          defaultPricing[size.id] = { price: 0, isAvailable: true };
+        });
+        setSizePricing(defaultPricing);
       }
     } catch (error) {
       console.error('Error saving specialty pizza:', error);
@@ -131,6 +178,22 @@ export default function SpecialtyPizzasAdmin() {
       ingredients: pizza.ingredients,
       isActive: pizza.isActive
     });
+    
+    // Load existing size pricing
+    const existingSizePricing: Record<string, { price: number, isAvailable: boolean }> = {};
+    availableSizes.forEach(size => {
+      const existingSize = pizza.sizes?.find(s => s.pizzaSize.id === size.id);
+      if (existingSize) {
+        existingSizePricing[size.id] = {
+          price: existingSize.price,
+          isAvailable: existingSize.isAvailable
+        };
+      } else {
+        existingSizePricing[size.id] = { price: 0, isAvailable: true };
+      }
+    });
+    setSizePricing(existingSizePricing);
+    
     setShowForm(true);
   };
 
@@ -321,6 +384,56 @@ export default function SpecialtyPizzasAdmin() {
                   </div>
                 </div>
 
+                {/* Size Pricing Section */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-3">
+                    Size Pricing
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {availableSizes.map((size) => (
+                      <div key={size.id} className="border border-gray-600 rounded-lg p-4 bg-slate-700/50">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-white">
+                            {size.name} ({size.diameter})
+                          </h4>
+                          <input
+                            type="checkbox"
+                            checked={sizePricing[size.id]?.isAvailable || false}
+                            onChange={(e) => setSizePricing(prev => ({
+                              ...prev,
+                              [size.id]: {
+                                ...prev[size.id],
+                                isAvailable: e.target.checked
+                              }
+                            }))}
+                            className="bg-slate-700 border-gray-600 rounded focus:ring-orange-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">
+                            Price ($)
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={sizePricing[size.id]?.price || 0}
+                            onChange={(e) => setSizePricing(prev => ({
+                              ...prev,
+                              [size.id]: {
+                                ...prev[size.id],
+                                price: parseFloat(e.target.value) || 0
+                              }
+                            }))}
+                            className="w-full border border-gray-600 bg-slate-700 text-white rounded px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                            placeholder="0.00"
+                            disabled={!sizePricing[size.id]?.isAvailable}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex items-center">
                   <input
                     type="checkbox"
@@ -392,10 +505,38 @@ export default function SpecialtyPizzasAdmin() {
                             </div>
                             <p className="text-sm text-gray-300">{pizza.description}</p>
                             <div className="text-lg font-bold text-green-400">
-                              ${pizza.basePrice.toFixed(2)}
+                              Base: ${pizza.basePrice.toFixed(2)}
                             </div>
+                            
+                            {/* Size Options */}
+                            {pizza.sizes && pizza.sizes.length > 0 && (
+                              <div className="mt-2">
+                                <div className="text-xs text-gray-400 mb-1">
+                                  <strong className="text-gray-300">Size Options:</strong>
+                                </div>
+                                <div className="grid grid-cols-3 gap-1">
+                                  {pizza.sizes.map((sizeOption) => (
+                                    <div
+                                      key={sizeOption.id}
+                                      className="bg-slate-600/50 border border-slate-500 rounded p-1 text-xs text-center"
+                                    >
+                                      <div className="font-semibold text-white">
+                                        {sizeOption.pizzaSize.name}
+                                      </div>
+                                      <div className="text-green-400 font-bold">
+                                        ${sizeOption.price.toFixed(2)}
+                                      </div>
+                                      <div className="text-gray-400 text-xs">
+                                        {sizeOption.pizzaSize.diameter}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
                             {pizza.ingredients.length > 0 && (
-                              <div className="text-xs text-gray-400">
+                              <div className="text-xs text-gray-400 mt-2">
                                 <strong className="text-gray-300">Ingredients:</strong> {pizza.ingredients.join(', ')}
                               </div>
                             )}

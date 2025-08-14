@@ -9,6 +9,21 @@ export async function GET() {
       where: {
         isActive: true
       },
+      include: {
+        sizes: {
+          include: {
+            pizzaSize: true
+          },
+          where: {
+            isAvailable: true
+          },
+          orderBy: {
+            pizzaSize: {
+              sortOrder: 'asc'
+            }
+          }
+        }
+      },
       orderBy: {
         category: 'asc'
       }
