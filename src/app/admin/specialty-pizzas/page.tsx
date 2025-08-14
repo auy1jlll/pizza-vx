@@ -201,8 +201,8 @@ export default function SpecialtyPizzasAdmin() {
 
         {/* Form Modal */}
         {showForm && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-slate-800 border border-white/20 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+            <div className="bg-slate-800 border border-slate-600 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
               <h2 className="text-xl font-bold mb-4 text-white">
                 {editingPizza ? 'Edit Specialty Pizza' : 'Add New Specialty Pizza'}
               </h2>
@@ -365,17 +365,17 @@ export default function SpecialtyPizzasAdmin() {
           ) : (
             <div className="space-y-6">
               {Object.entries(groupedPizzas).map(([category, categoryPizzas]) => (
-                <div key={category} className="overflow-hidden shadow-xl ring-1 ring-white/20 md:rounded-lg backdrop-blur-sm bg-white/10">
-                  <div className="bg-gradient-to-r from-orange-500/20 to-pink-500/20 backdrop-blur-sm px-6 py-4">
+                <div key={category} className="overflow-hidden shadow-xl ring-1 ring-white/20 md:rounded-lg bg-slate-800/90">
+                  <div className="bg-gradient-to-r from-orange-500/30 to-pink-500/30 px-6 py-4">
                     <h3 className="text-lg font-semibold text-white">
                       {category.replace('_', ' ')} ({categoryPizzas.length})
                     </h3>
                   </div>
                   
-                  <div className="bg-black/20 backdrop-blur-sm">
+                  <div className="bg-slate-900/50">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                       {categoryPizzas.map((pizza) => (
-                        <div key={pizza.id} className={`border rounded-lg p-4 backdrop-blur-sm transition-all duration-300 hover:scale-105 ${!pizza.isActive ? 'opacity-50 bg-white/5 border-white/10' : 'bg-white/10 border-white/20 hover:bg-white/15'}`}>
+                        <div key={pizza.id} className={`border rounded-lg p-4 transition-all duration-300 hover:scale-105 ${!pizza.isActive ? 'opacity-50 bg-slate-700/60 border-slate-600' : 'bg-slate-700/80 border-slate-600 hover:bg-slate-600/80'}`}>
                           {pizza.imageUrl && (
                             <img 
                               src={pizza.imageUrl} 

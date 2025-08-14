@@ -151,40 +151,13 @@ export default function AdminDashboard() {
 
   const managementCards = [
     {
-      title: 'Pizza Sizes',
-      description: 'Manage available pizza sizes and dimensions',
-      href: '/admin/sizes',
-      icon: '📐',
-      gradient: 'from-blue-500 to-blue-600',
-      count: stats?.componentCounts.sizes || 0,
-      unit: 'sizes'
-    },
-    {
-      title: 'Crust Options',
-      description: 'Configure different crust types and recipes',
-      href: '/admin/crusts',
-      icon: '🍞',
-      gradient: 'from-amber-500 to-orange-600',
-      count: stats?.componentCounts.crusts || 0,
-      unit: 'crusts'
-    },
-    {
-      title: 'Sauces',
-      description: 'Manage sauce varieties and flavor profiles',
-      href: '/admin/sauces',
-      icon: '🍅',
-      gradient: 'from-red-500 to-pink-600',
-      count: stats?.componentCounts.sauces || 0,
-      unit: 'sauces'
-    },
-    {
-      title: 'Toppings',
-      description: 'Configure ingredients and their pricing',
-      href: '/admin/toppings',
-      icon: '🧀',
-      gradient: 'from-green-500 to-emerald-600',
-      count: stats?.componentCounts.toppings || 0,
-      unit: 'toppings'
+      title: 'Pizza Manager',
+      description: 'Comprehensive pizza component management hub',
+      href: '/admin/pizza-manager',
+      icon: '🍕',
+      gradient: 'from-orange-500 to-red-600',
+      count: (stats?.componentCounts.sizes || 0) + (stats?.componentCounts.crusts || 0) + (stats?.componentCounts.sauces || 0) + (stats?.componentCounts.toppings || 0),
+      unit: 'components'
     },
     {
       title: 'Orders',
