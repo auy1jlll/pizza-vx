@@ -92,7 +92,7 @@ export default function PizzaBuilder() {
   const [activeTab, setActiveTab] = useState('SIZE');
   const [activeSection, setActiveSection] = useState<'WHOLE' | 'LEFT' | 'RIGHT'>('WHOLE');
   const [activeToppingCategory, setActiveToppingCategory] = useState('CHEESE');
-  const [cartItem, setCartItem] = useState<CartItem | null>(null);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [notes, setNotes] = useState('');
   const [selection, setSelection] = useState<Selection>({
@@ -114,6 +114,16 @@ export default function PizzaBuilder() {
 
   useEffect(() => {
     fetchPizzaData();
+    // Load cart from localStorage
+    const savedCart = localStorage.getItem('pizzaCart');
+    if (savedCart) {
+      try {
+        const parsedCart = JSON.parse(savedCart);
+        setCartItems(parsedCart);
+      } catch (error) {
+        console.error('Error loading cart from localStorage:', error);
+      }
+    }
   }, []);
 
   const fetchPizzaData = async () => {
@@ -217,6 +227,16 @@ export default function PizzaBuilder() {
     return total;
   };
 
+  const calculateCartTotal = () => {
+    console.log('Cart items:', cartItems);
+    const total = cartItems.reduce((total, item) => {
+      console.log('Item:', item, 'totalPrice:', item.totalPrice);
+      return total + item.totalPrice;
+    }, 0);
+    console.log('Cart total:', total);
+    return total;
+  };
+
   const handlePlaceOrder = async () => {
     if (!selection.size || !selection.crust || !selection.sauce || !data) {
       alert('Please complete your pizza selection');
@@ -254,12 +274,32 @@ export default function PizzaBuilder() {
       totalPrice: calculateTotal()
     };
 
-    setCartItem(newCartItem);
-    setShowCart(true);
+    // Add to cart instead of replacing
+    const updatedCart = [...cartItems, newCartItem];
+    setCartItems(updatedCart);
+    
+    // Save to localStorage
+    localStorage.setItem('pizzaCart', JSON.stringify(updatedCart));
+    
+    // Reset the pizza builder for next item
+    setSelection({
+      size: null,
+      crust: null,
+      sauce: null,
+      toppings: [],
+      sauceIntensity: 'REGULAR',
+      crustCookingLevel: 'REGULAR'
+    });
+    setNotes('');
+    setActiveTab('SIZE');
+    
+    // Show success message
+    alert('Pizza added to cart! Build another pizza or view your cart to checkout.');
   };
 
   const handleClearCart = () => {
-    setCartItem(null);
+    setCartItems([]);
+    localStorage.removeItem('pizzaCart');
     setShowCart(false);
     // Reset pizza builder
     setSelection({
@@ -329,15 +369,21 @@ export default function PizzaBuilder() {
           <div className="flex items-center gap-4">
             <div className="text-right">
               <div className="text-3xl font-bold">${(calculateTotal() || 0).toFixed(2)}</div>
-              <div className="text-red-200 text-sm">Current Total</div>
+              <div className="text-red-200 text-sm">Current Pizza</div>
             </div>
-            {cartItem && (
-              <button
-                onClick={() => setShowCart(true)}
-                className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg font-semibold flex items-center gap-2"
-              >
-                🛒 View Cart
-              </button>
+            {cartItems.length > 0 && (
+              <>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-orange-400">${calculateCartTotal().toFixed(2)}</div>
+                  <div className="text-orange-300 text-sm">Cart Total</div>
+                </div>
+                <button
+                  onClick={() => setShowCart(true)}
+                  className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg font-semibold flex items-center gap-2"
+                >
+                  🛒 View Cart ({cartItems.length})
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -358,7 +404,7 @@ export default function PizzaBuilder() {
             </div>
             <div className="p-4">
               <Cart 
-                cartItem={cartItem} 
+                cartItems={cartItems}
                 onClearCart={handleClearCart} 
                 onCloseCart={() => setShowCart(false)} 
               />

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { requireAdmin } from '@/lib/auth';
+import { verifyAdminToken } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,10 @@ const prisma = new PrismaClient();
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const crusts = await prisma.pizzaCrust.findMany({
       orderBy: { createdAt: 'desc' }
@@ -16,9 +19,6 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(crusts);
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     console.error('Error fetching crusts:', error);
     return NextResponse.json({ error: 'Failed to fetch crusts' }, { status: 500 });
   }
@@ -28,7 +28,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Verify admin authentication
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const { name, description, priceModifier } = await request.json();
     
@@ -50,10 +53,6 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(crust, { status: 201 });
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    
     // Handle unique constraint violation
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
@@ -70,7 +69,10 @@ export async function POST(request: NextRequest) {
 // PUT /api/admin/crusts - Update crust
 export async function PUT(request: NextRequest) {
   try {
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const { id, name, description, priceModifier } = await request.json();
     
@@ -89,9 +91,6 @@ export async function PUT(request: NextRequest) {
     
     return NextResponse.json(crust);
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     console.error('Error updating crust:', error);
     return NextResponse.json({ error: 'Failed to update crust' }, { status: 500 });
   }
@@ -100,7 +99,10 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/admin/crusts - Delete crust
 export async function DELETE(request: NextRequest) {
   try {
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -115,9 +117,6 @@ export async function DELETE(request: NextRequest) {
     
     return NextResponse.json({ message: 'Crust deleted successfully' });
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     console.error('Error deleting crust:', error);
     return NextResponse.json({ error: 'Failed to delete crust' }, { status: 500 });
   }

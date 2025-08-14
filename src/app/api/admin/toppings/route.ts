@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { requireAdmin } from '@/lib/auth';
+import { verifyAdminToken } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,10 @@ const prisma = new PrismaClient();
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const toppings = await prisma.pizzaTopping.findMany({
       orderBy: { createdAt: 'desc' }
@@ -16,9 +19,6 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(toppings);
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     console.error('Error fetching toppings:', error);
     return NextResponse.json({ error: 'Failed to fetch toppings' }, { status: 500 });
   }
@@ -28,7 +28,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Verify admin authentication
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const { name, category, price, isVegetarian, isVegan, isGlutenFree } = await request.json();
     
@@ -53,10 +56,6 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(topping, { status: 201 });
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    
     // Handle unique constraint violation
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
@@ -73,7 +72,10 @@ export async function POST(request: NextRequest) {
 // PUT /api/admin/toppings - Update topping
 export async function PUT(request: NextRequest) {
   try {
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const { id, name, category, price, isVegetarian, isVegan, isGlutenFree } = await request.json();
     
@@ -95,9 +97,6 @@ export async function PUT(request: NextRequest) {
     
     return NextResponse.json(topping);
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     console.error('Error updating topping:', error);
     return NextResponse.json({ error: 'Failed to update topping' }, { status: 500 });
   }
@@ -106,7 +105,10 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/admin/toppings - Delete topping
 export async function DELETE(request: NextRequest) {
   try {
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -121,9 +123,6 @@ export async function DELETE(request: NextRequest) {
     
     return NextResponse.json({ message: 'Topping deleted successfully' });
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     console.error('Error deleting topping:', error);
     return NextResponse.json({ error: 'Failed to delete topping' }, { status: 500 });
   }

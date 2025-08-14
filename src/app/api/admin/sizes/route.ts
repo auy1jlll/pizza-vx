@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { requireAdmin } from '@/lib/auth';
+import { verifyAdminToken } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,10 @@ const prisma = new PrismaClient();
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const sizes = await prisma.pizzaSize.findMany({
       orderBy: { createdAt: 'desc' }
@@ -16,9 +19,6 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(sizes);
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     console.error('Error fetching sizes:', error);
     return NextResponse.json({ error: 'Failed to fetch sizes' }, { status: 500 });
   }
@@ -28,7 +28,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Verify admin authentication
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const { name, diameter, basePrice } = await request.json();
     
@@ -50,10 +53,6 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(size, { status: 201 });
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    
     // Handle unique constraint violation
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
@@ -70,7 +69,10 @@ export async function POST(request: NextRequest) {
 // PUT /api/admin/sizes/[id] - Update size (for future use)
 export async function PUT(request: NextRequest) {
   try {
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const { name, diameter, basePrice } = await request.json();
     const url = new URL(request.url);
@@ -91,9 +93,6 @@ export async function PUT(request: NextRequest) {
     
     return NextResponse.json(size);
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     console.error('Error updating size:', error);
     return NextResponse.json({ error: 'Failed to update size' }, { status: 500 });
   }
@@ -102,7 +101,10 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/admin/sizes/[id] - Delete size (for future use)
 export async function DELETE(request: NextRequest) {
   try {
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     const url = new URL(request.url);
     const id = url.searchParams.get('id');
@@ -117,9 +119,6 @@ export async function DELETE(request: NextRequest) {
     
     return NextResponse.json({ message: 'Size deleted successfully' });
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     console.error('Error deleting size:', error);
     return NextResponse.json({ error: 'Failed to delete size' }, { status: 500 });
   }

@@ -15,86 +15,101 @@ export async function POST(request: NextRequest) {
       customerName, 
       customerEmail, 
       customerPhone,
-      sizeId, 
-      crustId, 
-      sauceId, 
-      sauceIntensity = 'REGULAR',
-      crustCookingLevel = 'REGULAR',
-      toppings = [],
-      notes 
+      orderType = 'PICKUP',
+      deliveryAddress,
+      deliveryCity, 
+      deliveryZip,
+      items = [] // Array of cart items
     } = body;
 
     // Validation
-    if (!customerName || !customerEmail || !sizeId || !crustId || !sauceId) {
+    if (!customerName || !customerEmail) {
       return NextResponse.json({ 
-        error: 'Missing required fields: customerName, customerEmail, sizeId, crustId, sauceId' 
+        error: 'Missing required fields: customerName, customerEmail' 
       }, { status: 400 });
     }
 
-    // Calculate pricing
-    const [size, crust, sauce, toppingList] = await Promise.all([
-      prisma.pizzaSize.findUnique({ where: { id: sizeId } }),
-      prisma.pizzaCrust.findUnique({ where: { id: crustId } }),
-      prisma.pizzaSauce.findUnique({ where: { id: sauceId } }),
-      toppings.length > 0 ? prisma.pizzaTopping.findMany({
-        where: { id: { in: toppings.map((t: ToppingInput) => t.toppingId) } }
-      }) : []
-    ]);
-
-    console.log('Pizza components lookup:', { sizeId, crustId, sauceId });
-    console.log('Found components:', { 
-      size: !!size, 
-      crust: !!crust, 
-      sauce: !!sauce,
-      sizeData: size,
-      crustData: crust,
-      sauceData: sauce
-    });
-
-    if (!size || !crust || !sauce) {
-      return NextResponse.json({ error: 'Invalid pizza components' }, { status: 400 });
+    if (!items || items.length === 0) {
+      return NextResponse.json({ 
+        error: 'No items in cart' 
+      }, { status: 400 });
     }
 
-    // Calculate total price
-    let totalPrice = size.basePrice + crust.priceModifier + sauce.priceModifier;
-    
-    const toppingPrices = toppingList.reduce((sum, topping) => {
-      const orderTopping = toppings.find((t: ToppingInput) => t.toppingId === topping.id);
-      const multiplier = orderTopping?.intensity === 'LIGHT' ? 0.75 : 
-                        orderTopping?.intensity === 'EXTRA' ? 1.5 : 1;
-      return sum + (topping.price * multiplier);
-    }, 0);
+    // Process each cart item and calculate totals
+    let orderTotal = 0;
+    const orderItemsData = [];
 
-    totalPrice += toppingPrices;
+    for (const item of items) {
+      const { sizeId, crustId, sauceId, sauceIntensity = 'REGULAR', crustCookingLevel = 'REGULAR', toppings = [], notes } = item;
+      
+      if (!sizeId || !crustId || !sauceId) {
+        return NextResponse.json({ 
+          error: 'Missing required fields in cart item: sizeId, crustId, sauceId' 
+        }, { status: 400 });
+      }
 
-    // Create order
+      // Calculate pricing for this item
+      const [size, crust, sauce, toppingList] = await Promise.all([
+        prisma.pizzaSize.findUnique({ where: { id: sizeId } }),
+        prisma.pizzaCrust.findUnique({ where: { id: crustId } }),
+        prisma.pizzaSauce.findUnique({ where: { id: sauceId } }),
+        toppings.length > 0 ? prisma.pizzaTopping.findMany({
+          where: { id: { in: toppings.map((t: ToppingInput) => t.toppingId) } }
+        }) : []
+      ]);
+
+      if (!size || !crust || !sauce) {
+        return NextResponse.json({ 
+          error: 'Invalid pizza components in cart item' 
+        }, { status: 400 });
+      }
+
+      // Calculate item total
+      let itemTotal = size.basePrice + crust.priceModifier + sauce.priceModifier;
+      const toppingsTotal = toppingList.reduce((sum, topping) => sum + topping.price, 0);
+      itemTotal += toppingsTotal;
+
+      orderTotal += itemTotal;
+
+      // Prepare order item data
+      orderItemsData.push({
+        quantity: 1,
+        basePrice: size.basePrice,
+        totalPrice: itemTotal,
+        pizzaSize: { connect: { id: sizeId } },
+        pizzaCrust: { connect: { id: crustId } },
+        pizzaSauce: { connect: { id: sauceId } },
+        notes,
+        toppings: {
+          create: toppings.map((topping: ToppingInput) => ({
+            pizzaTopping: { connect: { id: topping.toppingId } },
+            quantity: 1,
+            section: topping.section || 'WHOLE',
+            intensity: topping.intensity || 'REGULAR',
+            price: toppingList.find(t => t.id === topping.toppingId)?.price || 0
+          }))
+        }
+      });
+    }
+
+    // Calculate tax and final total
+    const subtotal = orderTotal;
+    const tax = subtotal * 0.1;
+    const finalTotal = subtotal + tax;
+
+    // Create order with all items
     const order = await prisma.order.create({
       data: {
         orderNumber: `ORD-${Date.now()}`,
         customerName,
         customerEmail,
         customerPhone,
-        subtotal: totalPrice,
-        tax: totalPrice * 0.1,
-        total: totalPrice * 1.1,
+        subtotal: subtotal,
+        tax: tax,
+        total: finalTotal,
         status: 'PENDING',
         orderItems: {
-          create: {
-            quantity: 1,
-            basePrice: size.basePrice,
-            totalPrice: totalPrice,
-            pizzaSize: { connect: { id: sizeId } },
-            pizzaCrust: { connect: { id: crustId } },
-            pizzaSauce: { connect: { id: sauceId } },
-            notes,
-            toppings: {
-              create: toppings.map((topping: ToppingInput) => ({
-                pizzaTopping: { connect: { id: topping.toppingId } },
-                quantity: 1,
-                price: toppingList.find(t => t.id === topping.toppingId)?.price || 0
-              }))
-            }
-          }
+          create: orderItemsData
         }
       },
       include: {
@@ -117,7 +132,7 @@ export async function POST(request: NextRequest) {
       message: 'Order created successfully',
       order,
       orderId: order.id,
-      totalPrice: totalPrice.toFixed(2)
+      totalPrice: finalTotal.toFixed(2)
     });
 
   } catch (error) {

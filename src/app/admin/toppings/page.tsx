@@ -146,31 +146,29 @@ export default function PizzaToppingsAdmin() {
   }, {} as Record<string, PizzaTopping[]>);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link href="/admin" className="text-blue-600 hover:text-blue-800">
-                ← Back to Admin
-              </Link>
-              <h1 className="text-2xl font-bold text-gray-900">Pizza Toppings Management</h1>
-            </div>
+    <AdminLayout>
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="sm:flex sm:items-center">
+          <div className="sm:flex-auto">
+            <h1 className="text-2xl font-semibold text-gray-900">Pizza Toppings</h1>
+            <p className="mt-2 text-sm text-gray-700">
+              Manage the available pizza toppings for your restaurant.
+            </p>
+          </div>
+          <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             <button
               onClick={() => {
                 setShowForm(true);
                 setEditingTopping(null);
                 setFormData({ name: '', category: '', price: 0, available: true });
               }}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
               Add New Topping
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="container mx-auto px-4 py-8">
         {/* Form Modal */}
         {showForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -269,36 +267,36 @@ export default function PizzaToppingsAdmin() {
         )}
 
         {/* Toppings List by Category */}
-        {loading ? (
-          <div className="p-6 text-center">Loading...</div>
-        ) : toppings.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
-            No pizza toppings found. Add your first topping to get started.
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {Object.entries(groupedToppings).map(([category, categoryToppings]) => (
-              <div key={category} className="bg-white rounded-lg shadow">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {category} ({categoryToppings.length})
-                  </h3>
-                </div>
+        <div className="mt-8">
+          {loading ? (
+            <div className="text-center py-8">Loading...</div>
+          ) : toppings.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No pizza toppings found. Add your first topping to get started.
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {Object.entries(groupedToppings).map(([category, categoryToppings]) => (
+                <div key={category} className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                  <div className="bg-gray-50 px-6 py-4">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {category} ({categoryToppings.length})
+                    </h3>
+                  </div>
                 
-                <div className="overflow-x-auto">
-                  <table className="w-full">
+                  <table className="min-w-full divide-y divide-gray-300">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Name
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Price
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Status
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
@@ -343,11 +341,11 @@ export default function PizzaToppingsAdmin() {
                     </tbody>
                   </table>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

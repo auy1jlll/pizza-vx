@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth';
+import { verifyAdminToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
 // GET /api/admin/components - Fetch all pizza components in one request
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    requireAdmin(request);
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     // Fetch all components in parallel for better performance
     const [sizes, crusts, sauces, toppings] = await Promise.all([
@@ -36,9 +39,6 @@ export async function GET(request: NextRequest) {
     });
     
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     console.error('Error fetching components:', error);
     return NextResponse.json({ 
       error: 'Failed to fetch pizza components',

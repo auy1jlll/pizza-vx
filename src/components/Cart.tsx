@@ -23,12 +23,12 @@ interface CartItem {
 }
 
 interface CartProps {
-  cartItem: CartItem | null;
+  cartItems: CartItem[];
   onClearCart: () => void;
   onCloseCart?: () => void; // Add optional close cart function
 }
 
-export default function Cart({ cartItem, onClearCart, onCloseCart }: CartProps) {
+export default function Cart({ cartItems, onClearCart, onCloseCart }: CartProps) {
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     email: '',
@@ -41,15 +41,20 @@ export default function Cart({ cartItem, onClearCart, onCloseCart }: CartProps) 
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [orderResult, setOrderResult] = useState<{ success: boolean; orderId?: string; message: string } | null>(null);
 
+  // Calculate total for all items in cart
+  const calculateCartTotal = () => {
+    return cartItems.reduce((total, item) => total + item.totalPrice, 0);
+  };
+
   const handlePlaceOrder = async () => {
-    if (!cartItem) return;
+    if (cartItems.length === 0) return;
     
     if (!customerInfo.name || !customerInfo.email) {
       alert('Please fill in your name and email');
       return;
     }
 
-    console.log('Placing order...', { customerInfo, cartItem });
+    console.log('Placing order...', { customerInfo, cartItems });
     setIsPlacingOrder(true);
     
     try {
@@ -66,17 +71,19 @@ export default function Cart({ cartItem, onClearCart, onCloseCart }: CartProps) 
           deliveryAddress: customerInfo.deliveryAddress,
           deliveryCity: customerInfo.deliveryCity,
           deliveryZip: customerInfo.deliveryZip,
-          sizeId: cartItem.sizeId,
-          crustId: cartItem.crustId,
-          sauceId: cartItem.sauceId,
-          sauceIntensity: cartItem.sauceIntensity,
-          crustCookingLevel: cartItem.crustCookingLevel,
-          toppings: cartItem.toppings.map(t => ({
-            toppingId: t.toppingId,
-            section: t.section,
-            intensity: t.intensity
-          })),
-          notes: cartItem.notes
+          items: cartItems.map(item => ({
+            sizeId: item.sizeId,
+            crustId: item.crustId,
+            sauceId: item.sauceId,
+            sauceIntensity: item.sauceIntensity,
+            crustCookingLevel: item.crustCookingLevel,
+            toppings: item.toppings.map(t => ({
+              toppingId: t.toppingId,
+              section: t.section,
+              intensity: t.intensity
+            })),
+            notes: item.notes
+          }))
         }),
       });
 
@@ -179,7 +186,7 @@ export default function Cart({ cartItem, onClearCart, onCloseCart }: CartProps) 
     );
   }
 
-  if (!cartItem) {
+  if (cartItems.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-6 text-center">
         <div className="text-6xl mb-4">🛒</div>
@@ -193,55 +200,64 @@ export default function Cart({ cartItem, onClearCart, onCloseCart }: CartProps) 
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
         <span className="mr-3">🛒</span>
-        Your Order
+        Your Cart ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''})
       </h2>
 
-      {/* Pizza Summary */}
+      {/* Cart Items */}
       <div className="border-b pb-4 mb-6">
-        <h3 className="text-lg font-semibold mb-3">Custom Pizza</h3>
-        
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span>Size:</span>
-            <span className="font-medium">{cartItem.sizeName}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Crust:</span>
-            <span className="font-medium">{cartItem.crustName} ({cartItem.crustCookingLevel.toLowerCase()})</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Sauce:</span>
-            <span className="font-medium">{cartItem.sauceName} ({cartItem.sauceIntensity.toLowerCase()})</span>
-          </div>
+        <div className="space-y-4">
+          {cartItems.map((item, index) => (
+            <div key={index} className="border rounded-lg p-4 bg-gray-50">
+              <h3 className="text-lg font-semibold mb-3 flex items-center justify-between">
+                <span>🍕 Custom Pizza #{index + 1}</span>
+                <span className="text-lg font-bold text-red-600">${item.totalPrice.toFixed(2)}</span>
+              </h3>
+              
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Size:</span>
+                  <span className="font-medium">{item.sizeName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Crust:</span>
+                  <span className="font-medium">{item.crustName} ({item.crustCookingLevel.toLowerCase()})</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Sauce:</span>
+                  <span className="font-medium">{item.sauceName} ({item.sauceIntensity.toLowerCase()})</span>
+                </div>
+              </div>
+
+              {item.toppings.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="font-medium mb-2">Toppings:</h4>
+                  <div className="space-y-1 text-sm">
+                    {item.toppings.map((topping, toppingIndex) => (
+                      <div key={toppingIndex} className="flex justify-between">
+                        <span>
+                          {topping.toppingName} ({topping.section.toLowerCase()}, {topping.intensity.toLowerCase()})
+                        </span>
+                        <span className="font-medium">${topping.price.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {item.notes && (
+                <div className="mt-4">
+                  <h4 className="font-medium mb-1">Special Instructions:</h4>
+                  <p className="text-sm text-gray-600 bg-white p-2 rounded border">{item.notes}</p>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
 
-        {cartItem.toppings.length > 0 && (
-          <div className="mt-4">
-            <h4 className="font-medium mb-2">Toppings:</h4>
-            <div className="space-y-1 text-sm">
-              {cartItem.toppings.map((topping, index) => (
-                <div key={index} className="flex justify-between">
-                  <span>
-                    {topping.toppingName} ({topping.section.toLowerCase()}, {topping.intensity.toLowerCase()})
-                  </span>
-                  <span className="font-medium">${topping.price.toFixed(2)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {cartItem.notes && (
-          <div className="mt-4">
-            <h4 className="font-medium mb-1">Special Instructions:</h4>
-            <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">{cartItem.notes}</p>
-          </div>
-        )}
-
-        <div className="mt-4 pt-4 border-t">
+        <div className="mt-6 pt-4 border-t bg-red-50 p-4 rounded-lg">
           <div className="flex justify-between text-xl font-bold">
-            <span>Total:</span>
-            <span className="text-red-600">${cartItem.totalPrice.toFixed(2)}</span>
+            <span>Cart Total:</span>
+            <span className="text-red-600">${calculateCartTotal().toFixed(2)}</span>
           </div>
         </div>
       </div>

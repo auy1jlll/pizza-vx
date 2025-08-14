@@ -3,379 +3,425 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 
-interface PizzaSize {
-  id: string;
-  name: string;
-  diameter: string;
-}
-
-interface PizzaCrust {
+interface SpecialtyPizza {
   id: string;
   name: string;
   description: string;
-  priceModifier: number;
-}
-
-interface PizzaSauce {
-  id: string;
-  name: string;
-  description: string;
-  color: string;
-  spiceLevel: number;
-  priceModifier: number;
-}
-
-interface PizzaTopping {
-  id: string;
-  name: string;
+  basePrice: number;
+  isActive: boolean;
   category: string;
-  price: number;
-  isVegetarian: boolean;
-  isVegan: boolean;
-  isGlutenFree: boolean;
-}
-
-interface ComponentData {
-  sizes: PizzaSize[];
-  crusts: PizzaCrust[];
-  sauces: PizzaSauce[];
-  toppings: PizzaTopping[];
+  imageUrl?: string;
+  ingredients: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function SpecialtyPizzasAdmin() {
-  const [data, setData] = useState<ComponentData>({
-    sizes: [],
-    crusts: [],
-    sauces: [],
-    toppings: []
-  });
+  const [pizzas, setPizzas] = useState<SpecialtyPizza[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [editingPizza, setEditingPizza] = useState<SpecialtyPizza | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    basePrice: 0,
+    category: 'CLASSIC',
+    imageUrl: '',
+    ingredients: [] as string[],
+    isActive: true
+  });
 
-  // Ultra-optimized single API call for all components
-  const fetchAllData = async () => {
+  // Pizza categories
+  const categories = [
+    'CLASSIC',
+    'PREMIUM',
+    'VEGETARIAN',
+    'VEGAN',
+    'MEAT_LOVERS',
+    'SPECIALTY'
+  ];
+
+  // Fetch specialty pizzas
+  const fetchPizzas = async () => {
     try {
-      setLoading(true);
-      setError(null);
-
-      // Single API call to fetch all components at once
-      const response = await fetch('/api/admin/components');
-
-      // Check authentication
+      const response = await fetch('/api/admin/specialty-pizzas');
       if (response.status === 401) {
         window.location.href = '/admin/login';
         return;
       }
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPizzas(Array.isArray(data) ? data : []);
+      } else {
+        console.error('Failed to fetch specialty pizzas');
+        setPizzas([]);
       }
-
-      const componentData = await response.json();
-
-      // Handle the combined response
-      setData({
-        sizes: Array.isArray(componentData.sizes) ? componentData.sizes : [],
-        crusts: Array.isArray(componentData.crusts) ? componentData.crusts : [],
-        sauces: Array.isArray(componentData.sauces) ? componentData.sauces : [],
-        toppings: Array.isArray(componentData.toppings) ? componentData.toppings : []
-      });
-
-      // Log performance info if available
-      if (componentData.meta) {
-        console.log(`Loaded ${componentData.meta.totalComponents} components at ${componentData.meta.loadedAt}`);
-      }
-
-    } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Failed to load pizza components. Please try again.');
+    } catch (error) {
+      console.error('Error fetching specialty pizzas:', error);
+      setPizzas([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAllData();
+    fetchPizzas();
   }, []);
 
-  // Loading skeleton component
-  const LoadingSkeleton = () => (
-    <div className="animate-pulse">
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-white shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="h-8 w-8 bg-gray-200 rounded"></div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-                  <div className="h-6 bg-gray-200 rounded w-8"></div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-50 px-5 py-3">
-              <div className="h-4 bg-gray-200 rounded w-20"></div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const url = editingPizza ? `/api/admin/specialty-pizzas/${editingPizza.id}` : '/api/admin/specialty-pizzas';
+      const method = editingPizza ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="sm:flex sm:items-center">
-            <div className="sm:flex-auto">
-              <h1 className="text-2xl font-semibold text-gray-900">Specialty Pizzas</h1>
-              <p className="mt-2 text-sm text-gray-700">Loading pizza components...</p>
-            </div>
-          </div>
-          <div className="mt-8">
-            <LoadingSkeleton />
-          </div>
-        </div>
-      </AdminLayout>
-    );
-  }
+      if (response.ok) {
+        await fetchPizzas();
+        setShowForm(false);
+        setEditingPizza(null);
+        setFormData({ 
+          name: '', 
+          description: '', 
+          basePrice: 0, 
+          category: 'CLASSIC', 
+          imageUrl: '', 
+          ingredients: [],
+          isActive: true 
+        });
+      }
+    } catch (error) {
+      console.error('Error saving specialty pizza:', error);
+    }
+  };
 
-  if (error) {
-    return (
-      <AdminLayout>
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="rounded-md bg-red-50 p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">Error Loading Data</h3>
-                <div className="mt-2 text-sm text-red-700">
-                  <p>{error}</p>
-                </div>
-                <div className="mt-4">
-                  <button
-                    onClick={fetchAllData}
-                    className="bg-red-100 px-2 py-1.5 rounded-md text-sm font-medium text-red-800 hover:bg-red-200"
-                  >
-                    Try Again
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </AdminLayout>
-    );
-  }
+  // Handle delete
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this specialty pizza?')) return;
+    
+    try {
+      const response = await fetch(`/api/admin/specialty-pizzas/${id}`, {
+        method: 'DELETE',
+      });
 
-  const { sizes, crusts, sauces, toppings } = data;
+      if (response.ok) {
+        await fetchPizzas();
+      }
+    } catch (error) {
+      console.error('Error deleting specialty pizza:', error);
+    }
+  };
+
+  // Handle edit
+  const handleEdit = (pizza: SpecialtyPizza) => {
+    setEditingPizza(pizza);
+    setFormData({
+      name: pizza.name,
+      description: pizza.description,
+      basePrice: pizza.basePrice,
+      category: pizza.category,
+      imageUrl: pizza.imageUrl || '',
+      ingredients: pizza.ingredients,
+      isActive: pizza.isActive
+    });
+    setShowForm(true);
+  };
+
+  // Add ingredient
+  const addIngredient = () => {
+    setFormData(prev => ({
+      ...prev,
+      ingredients: [...prev.ingredients, '']
+    }));
+  };
+
+  // Update ingredient
+  const updateIngredient = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      ingredients: prev.ingredients.map((ing, i) => i === index ? value : ing)
+    }));
+  };
+
+  // Remove ingredient
+  const removeIngredient = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      ingredients: prev.ingredients.filter((_, i) => i !== index)
+    }));
+  };
+
+  // Group pizzas by category
+  const groupedPizzas = pizzas.reduce((acc, pizza) => {
+    if (!acc[pizza.category]) {
+      acc[pizza.category] = [];
+    }
+    acc[pizza.category].push(pizza);
+    return acc;
+  }, {} as Record<string, SpecialtyPizza[]>);
 
   return (
     <AdminLayout>
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
-            <h1 className="text-2xl font-semibold text-gray-900">Specialty Pizzas</h1>
-            <p className="mt-2 text-sm text-gray-700">
-              Create and manage pre-configured specialty pizza combinations.
+            <h1 className="text-2xl font-semibold text-white">Specialty Pizzas</h1>
+            <p className="mt-2 text-sm text-gray-300">
+              Manage your signature specialty pizzas with custom ingredients and pricing.
             </p>
           </div>
           <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             <button
-              type="button"
-              className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+              onClick={() => {
+                setShowForm(true);
+                setEditingPizza(null);
+                setFormData({ 
+                  name: '', 
+                  description: '', 
+                  basePrice: 0, 
+                  category: 'CLASSIC', 
+                  imageUrl: '', 
+                  ingredients: [],
+                  isActive: true 
+                });
+              }}
+              className="block rounded-md bg-gradient-to-r from-orange-500 to-pink-500 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:from-orange-600 hover:to-pink-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500"
             >
-              Create Specialty Pizza
+              Add New Specialty Pizza
             </button>
           </div>
         </div>
 
+        {/* Form Modal */}
+        {showForm && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-slate-800 border border-white/20 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+              <h2 className="text-xl font-bold mb-4 text-white">
+                {editingPizza ? 'Edit Specialty Pizza' : 'Add New Specialty Pizza'}
+              </h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Pizza Name
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full border border-gray-600 bg-slate-700 text-white rounded px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      placeholder="e.g., Margherita Supreme"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Category
+                    </label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                      className="w-full border border-gray-600 bg-slate-700 text-white rounded px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      required
+                    >
+                      {categories.map(cat => (
+                        <option key={cat} value={cat}>
+                          {cat.replace('_', ' ')}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full border border-gray-600 bg-slate-700 text-white rounded px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    rows={3}
+                    placeholder="Describe this specialty pizza..."
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Base Price ($)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.basePrice}
+                      onChange={(e) => setFormData(prev => ({ ...prev, basePrice: parseFloat(e.target.value) || 0 }))}
+                      className="w-full border border-gray-600 bg-slate-700 text-white rounded px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      placeholder="0.00"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Image URL (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      value={formData.imageUrl}
+                      onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
+                      className="w-full border border-gray-600 bg-slate-700 text-white rounded px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
+                </div>
+
+                {/* Ingredients Section */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-300">
+                      Ingredients
+                    </label>
+                    <button
+                      type="button"
+                      onClick={addIngredient}
+                      className="text-sm bg-slate-600 hover:bg-slate-500 text-white px-2 py-1 rounded border border-gray-600"
+                    >
+                      Add Ingredient
+                    </button>
+                  </div>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {formData.ingredients.map((ingredient, index) => (
+                      <div key={index} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={ingredient}
+                          onChange={(e) => updateIngredient(index, e.target.value)}
+                          className="flex-1 border border-gray-600 bg-slate-700 text-white rounded px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                          placeholder="e.g., Fresh mozzarella"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeIngredient(index)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    checked={formData.isActive}
+                    onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                    className="mr-2 bg-slate-700 border-gray-600 rounded focus:ring-orange-500"
+                  />
+                  <label htmlFor="isActive" className="text-sm text-gray-300">
+                    Available for ordering
+                  </label>
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-pink-500 text-white py-2 rounded hover:from-orange-600 hover:to-pink-600 transition-all duration-300"
+                  >
+                    {editingPizza ? 'Update' : 'Create'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    className="flex-1 bg-slate-600 hover:bg-slate-500 text-white py-2 rounded transition-all duration-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Specialty Pizzas List */}
         <div className="mt-8">
-          {/* Component Summary Cards */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <span className="text-2xl">📏</span>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Pizza Sizes</dt>
-                      <dd className="text-lg font-medium text-gray-900">{sizes.length}</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 px-5 py-3">
-                <div className="text-sm">
-                  {sizes.length > 0 ? (
-                    <span className="text-green-600">✓ Available</span>
-                  ) : (
-                    <span className="text-red-600">⚠ No sizes configured</span>
-                  )}
-                </div>
-              </div>
+          {loading ? (
+            <div className="text-center py-8 text-white">Loading...</div>
+          ) : pizzas.length === 0 ? (
+            <div className="text-center py-8 text-gray-300">
+              No specialty pizzas found. Create your first signature pizza to get started.
             </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <span className="text-2xl">🍞</span>
+          ) : (
+            <div className="space-y-6">
+              {Object.entries(groupedPizzas).map(([category, categoryPizzas]) => (
+                <div key={category} className="overflow-hidden shadow-xl ring-1 ring-white/20 md:rounded-lg backdrop-blur-sm bg-white/10">
+                  <div className="bg-gradient-to-r from-orange-500/20 to-pink-500/20 backdrop-blur-sm px-6 py-4">
+                    <h3 className="text-lg font-semibold text-white">
+                      {category.replace('_', ' ')} ({categoryPizzas.length})
+                    </h3>
                   </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Crusts</dt>
-                      <dd className="text-lg font-medium text-gray-900">{crusts.length}</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 px-5 py-3">
-                <div className="text-sm">
-                  {crusts.length > 0 ? (
-                    <span className="text-green-600">✓ Available</span>
-                  ) : (
-                    <span className="text-red-600">⚠ No crusts configured</span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <span className="text-2xl">🍅</span>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Sauces</dt>
-                      <dd className="text-lg font-medium text-gray-900">{sauces.length}</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 px-5 py-3">
-                <div className="text-sm">
-                  {sauces.length > 0 ? (
-                    <span className="text-green-600">✓ Available</span>
-                  ) : (
-                    <span className="text-red-600">⚠ No sauces configured</span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <span className="text-2xl">🧀</span>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Toppings</dt>
-                      <dd className="text-lg font-medium text-gray-900">{toppings.length}</dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 px-5 py-3">
-                <div className="text-sm">
-                  {toppings.length > 0 ? (
-                    <span className="text-green-600">✓ Available</span>
-                  ) : (
-                    <span className="text-red-600">⚠ No toppings configured</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Preview of Available Components */}
-          <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">Available Sizes</h3>
-                <div className="mt-3">
-                  {sizes.length > 0 ? (
-                    <div className="space-y-2">
-                      {sizes.slice(0, 3).map((size) => (
-                        <div key={size.id} className="flex justify-between items-center py-2 border-b border-gray-200">
-                          <span className="font-medium">{size.name}</span>
-                          <span className="text-sm text-gray-500">{size.diameter}</span>
-                        </div>
-                      ))}
-                      {sizes.length > 3 && (
-                        <div className="text-sm text-gray-500 text-center py-2">
-                          +{sizes.length - 3} more sizes available
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500 text-sm">No sizes configured. Add some in the Sizes section.</p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">Available Crusts</h3>
-                <div className="mt-3">
-                  {crusts.length > 0 ? (
-                    <div className="space-y-2">
-                      {crusts.slice(0, 3).map((crust) => (
-                        <div key={crust.id} className="flex justify-between items-center py-2 border-b border-gray-200">
-                          <div>
-                            <span className="font-medium">{crust.name}</span>
-                            {crust.description && <p className="text-sm text-gray-500">{crust.description}</p>}
+                  
+                  <div className="bg-black/20 backdrop-blur-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                      {categoryPizzas.map((pizza) => (
+                        <div key={pizza.id} className={`border rounded-lg p-4 backdrop-blur-sm transition-all duration-300 hover:scale-105 ${!pizza.isActive ? 'opacity-50 bg-white/5 border-white/10' : 'bg-white/10 border-white/20 hover:bg-white/15'}`}>
+                          {pizza.imageUrl && (
+                            <img 
+                              src={pizza.imageUrl} 
+                              alt={pizza.name}
+                              className="w-full h-32 object-cover rounded-lg mb-4"
+                            />
+                          )}
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-start">
+                              <h4 className="font-semibold text-white">{pizza.name}</h4>
+                              <span className={`text-sm px-2 py-1 rounded ${pizza.isActive ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}`}>
+                                {pizza.isActive ? 'Active' : 'Inactive'}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-300">{pizza.description}</p>
+                            <div className="text-lg font-bold text-green-400">
+                              ${pizza.basePrice.toFixed(2)}
+                            </div>
+                            {pizza.ingredients.length > 0 && (
+                              <div className="text-xs text-gray-400">
+                                <strong className="text-gray-300">Ingredients:</strong> {pizza.ingredients.join(', ')}
+                              </div>
+                            )}
+                            <div className="flex space-x-2 mt-4">
+                              <button
+                                onClick={() => handleEdit(pizza)}
+                                className="flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 hover:border-blue-500/50 py-1 px-2 rounded text-sm transition-all duration-300"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(pizza.id)}
+                                className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 hover:border-red-500/50 py-1 px-2 rounded text-sm transition-all duration-300"
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </div>
-                          <span className="text-sm text-gray-500">+${crust.priceModifier}</span>
                         </div>
                       ))}
-                      {crusts.length > 3 && (
-                        <div className="text-sm text-gray-500 text-center py-2">
-                          +{crusts.length - 3} more crusts available
-                        </div>
-                      )}
                     </div>
-                  ) : (
-                    <p className="text-gray-500 text-sm">No crusts configured. Add some in the Crusts section.</p>
-                  )}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          </div>
-
-          {/* Performance Information */}
-          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-blue-800">System Ready</h3>
-                <div className="mt-2 text-sm text-blue-700">
-                  <p>
-                    All components loaded successfully using optimized parallel fetching.
-                    You can now create specialty pizza combinations.
-                  </p>
-                  <ul className="list-disc list-inside mt-2 space-y-1">
-                    <li>{sizes.length} pizza sizes available</li>
-                    <li>{crusts.length} crust options available</li>
-                    <li>{sauces.length} sauce varieties available</li>
-                    <li>{toppings.length} toppings to choose from</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </AdminLayout>

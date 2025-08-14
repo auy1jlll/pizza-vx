@@ -106,31 +106,29 @@ export default function PizzaSaucesAdmin() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link href="/admin" className="text-blue-600 hover:text-blue-800">
-                ← Back to Admin
-              </Link>
-              <h1 className="text-2xl font-bold text-gray-900">Pizza Sauces Management</h1>
-            </div>
+    <AdminLayout>
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="sm:flex sm:items-center">
+          <div className="sm:flex-auto">
+            <h1 className="text-2xl font-semibold text-gray-900">Pizza Sauces</h1>
+            <p className="mt-2 text-sm text-gray-700">
+              Manage the available pizza sauces for your restaurant.
+            </p>
+          </div>
+          <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             <button
               onClick={() => {
                 setShowForm(true);
                 setEditingSauce(null);
                 setFormData({ name: '', description: '', color: '#ff0000', spiceLevel: 0, priceModifier: 0 });
               }}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
               Add New Sauce
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="container mx-auto px-4 py-8">
         {/* Form Modal */}
         {showForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -240,26 +238,24 @@ export default function PizzaSaucesAdmin() {
         )}
 
         {/* Sauces List */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold">Existing Pizza Sauces</h3>
-          </div>
-          
-          {loading ? (
-            <div className="p-6 text-center">Loading...</div>
-          ) : sauces.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              No pizza sauces found. Add your first sauce to get started.
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <div className="mt-8 flow-root">
+          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              {loading ? (
+                <div className="text-center py-8">Loading...</div>
+              ) : sauces.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No pizza sauces found. Add your first sauce to get started.
+                </div>
+              ) : (
+                <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                  <table className="min-w-full divide-y divide-gray-300">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Description
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -316,10 +312,12 @@ export default function PizzaSaucesAdmin() {
                   ))}
                 </tbody>
               </table>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 }

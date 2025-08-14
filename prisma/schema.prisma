@@ -111,6 +111,23 @@ enum ToppingCategory {
   SPECIALTY
 }
 
+// Specialty Pizzas
+model SpecialtyPizza {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  basePrice   Float
+  category    String   // e.g., "Classic", "Premium", "Vegetarian", "Meat Lovers"
+  imageUrl    String?
+  ingredients String   // JSON string of ingredient names
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("specialty_pizzas")
+}
+
 // Order Management
 model Order {
   id            String      @id @default(cuid())
@@ -187,6 +204,8 @@ model OrderItemTopping {
   orderItemId   String
   pizzaToppingId String
   quantity      Int    @default(1)
+  section       String @default("WHOLE") // WHOLE, LEFT, RIGHT
+  intensity     String @default("REGULAR") // LIGHT, REGULAR, EXTRA
   price         Float
   createdAt     DateTime @default(now())
 
@@ -194,7 +213,7 @@ model OrderItemTopping {
   orderItem    OrderItem    @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
   pizzaTopping PizzaTopping @relation(fields: [pizzaToppingId], references: [id])
   
-  @@unique([orderItemId, pizzaToppingId])
+  @@unique([orderItemId, pizzaToppingId, section])
   @@map("order_item_toppings")
 }
 
