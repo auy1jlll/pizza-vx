@@ -14,7 +14,13 @@ const tokenCache = new Map<string, { payload: JWTPayload; expiry: number }>();
 
 export function verifyAdminToken(request: NextRequest): JWTPayload | null {
   try {
-    const token = request.cookies.get('admin-token')?.value;
+    // Check for access-token first (new JWT system)
+    let token = request.cookies.get('access-token')?.value;
+    
+    // Fallback to admin-token for backward compatibility
+    if (!token) {
+      token = request.cookies.get('admin-token')?.value;
+    }
     
     if (!token) {
       return null;

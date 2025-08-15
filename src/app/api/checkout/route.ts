@@ -1,12 +1,59 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
+import { CreateOrderSchema, validateSchema, createApiResponse, createApiError } from '@/lib/schemas';
+import { OrderService } from '@/services';
+import { orderRateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting for order creation with error handling
   try {
-    const { items, customerInfo } = await request.json();
+    const rateLimitResult = await new Promise((resolve) => {
+      orderRateLimit(request as any, {
+        status: (code: number) => ({
+          json: (data: any) => resolve({ error: true, status: code, data })
+        })
+      } as any, () => resolve({ error: false }));
+    });
+
+    if ((rateLimitResult as any).error) {
+      return NextResponse.json(
+        (rateLimitResult as any).data,
+        { status: (rateLimitResult as any).status }
+      );
+    }
+  } catch (rateLimitError) {
+    console.warn('Rate limiting error:', rateLimitError);
+    // Continue without rate limiting if there's an error
+  }
+
+  try {
+    const requestData = await request.json();
+
+    // Validate request data with Zod schema
+    const validation = validateSchema(CreateOrderSchema, requestData);
+    if (!validation.success) {
+      return NextResponse.json(
+        createApiError(`Validation error: ${validation.error}`, 400),
+        { status: 400 }
+      );
+    }
+
+    const { 
+      items, 
+      customer, 
+      delivery, 
+      orderType, 
+      paymentMethod,
+      subtotal, 
+      deliveryFee, 
+      tipAmount,
+      tipPercentage,
+      customTipAmount,
+      tax, 
+      total, 
+      notes 
+    } = validation.data;
 
     // Check if user is authenticated
     let authenticatedUserId = null;
@@ -21,151 +68,61 @@ export async function POST(request: NextRequest) {
       console.log('Guest checkout - no valid token');
     }
 
-    // Validate input
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    // Use OrderService
+    const orderService = new OrderService();
+
+    // Create order using service
+    const order = await orderService.createOrder({
+      items,
+      customer,
+      delivery: delivery || undefined,
+      orderType,
+      paymentMethod,
+      subtotal,
+      deliveryFee,
+      tipAmount: tipAmount || undefined,
+      tipPercentage: tipPercentage || undefined,
+      customTipAmount: customTipAmount || undefined,
+      tax,
+      total,
+      notes,
+      userId: authenticatedUserId
+    });
+
+    console.log('Order creation result:', { order, orderExists: !!order, orderNumber: order?.orderNumber });
+
+    // Check if order creation failed
+    if (!order) {
+      console.error('Order creation returned null/undefined');
       return NextResponse.json(
-        { error: 'No items provided' },
-        { status: 400 }
-      );
-    }
-
-    if (!customerInfo || !customerInfo.name || !customerInfo.email || !customerInfo.phone) {
-      return NextResponse.json(
-        { error: 'Customer information is required' },
-        { status: 400 }
-      );
-    }
-
-    // Calculate totals
-    const subtotal = items.reduce((total: number, item: any) => total + (item.price * item.quantity), 0);
-    const tax = subtotal * 0.0875; // 8.75% tax (typical Boston rate)
-    const deliveryFee = subtotal < 25 ? 3.99 : 0; // Free delivery over $25
-    const total = subtotal + tax + deliveryFee;
-
-    // Generate order number
-    const orderNumber = `BO${Date.now().toString().slice(-6)}${Math.random().toString(36).substr(2, 3).toUpperCase()}`;
-
-    // Create order
-    const order = await prisma.order.create({
-      data: {
-        orderNumber,
-        userId: authenticatedUserId, // Associate with user if authenticated
-        customerName: customerInfo.name,
-        customerEmail: customerInfo.email,
-        customerPhone: customerInfo.phone,
-        orderType: customerInfo.orderType || 'DELIVERY',
-        deliveryAddress: customerInfo.address,
-        deliveryCity: customerInfo.city,
-        deliveryZip: customerInfo.zip,
-        deliveryInstructions: customerInfo.instructions,
-        subtotal,
-        deliveryFee,
-        tax,
-        total,
-        status: 'PENDING',
-        notes: `Order placed via online pizza builder - ${items.length} item(s)${authenticatedUserId ? ' (Authenticated User)' : ' (Guest)'}`
-      }
-    });
-
-    // Create order items (simplified for specialty pizzas)
-    // First, get default size, crust, and sauce for specialty pizzas
-    const defaultSize = await prisma.pizzaSize.findFirst({
-      where: { isActive: true },
-      orderBy: { sortOrder: 'asc' }
-    });
-    
-    const defaultCrust = await prisma.pizzaCrust.findFirst({
-      where: { isActive: true },
-      orderBy: { sortOrder: 'asc' }
-    });
-    
-    const defaultSauce = await prisma.pizzaSauce.findFirst({
-      where: { isActive: true },
-      orderBy: { sortOrder: 'asc' }
-    });
-
-    if (!defaultSize || !defaultCrust || !defaultSauce) {
-      return NextResponse.json(
-        { error: 'Default pizza components not found. Please contact support.' },
+        createApiError('Failed to create order. Please try again.', 500),
         { status: 500 }
       );
     }
 
-    // Create order items
-    for (const item of items) {
-      // Handle pizza builder cart items (from regular pizza builder or specialty pizza customization)
-      if (item.sizeId && item.crustId && item.sauceId) {
-        const orderItem = await prisma.orderItem.create({
-          data: {
-            orderId: order.id,
-            pizzaSizeId: item.sizeId,
-            pizzaCrustId: item.crustId,
-            pizzaSauceId: item.sauceId,
-            quantity: 1, // Pizza builder items are always quantity 1
-            basePrice: item.totalPrice,
-            totalPrice: item.totalPrice,
-            notes: item.specialtyPizzaName ? `Based on: ${item.specialtyPizzaName}` : 'Custom Pizza'
-          }
-        });
-
-        // Add toppings for this order item
-        if (item.toppings && item.toppings.length > 0) {
-          for (const topping of item.toppings) {
-            await prisma.orderItemTopping.create({
-              data: {
-                orderItemId: orderItem.id,
-                pizzaToppingId: topping.toppingId,
-                quantity: 1,
-                section: topping.section,
-                intensity: topping.intensity,
-                price: topping.price
-              }
-            });
-          }
-        }
-      }
-      // Handle legacy specialty pizza items (from direct add to cart)
-      else if (item.type === 'specialty') {
-        await prisma.orderItem.create({
-          data: {
-            orderId: order.id,
-            pizzaSizeId: defaultSize.id,
-            pizzaCrustId: defaultCrust.id,
-            pizzaSauceId: defaultSauce.id,
-            quantity: item.quantity,
-            basePrice: item.price,
-            totalPrice: item.price * item.quantity,
-            notes: `Specialty Pizza: ${item.name} (ID: ${item.specialtyPizzaId})`
-          }
-        });
-      }
-      else {
-        // Log unknown item format for debugging
-        console.warn('Unknown cart item format:', item);
-        return NextResponse.json(
-          { error: 'Invalid pizza components in cart item' },
-          { status: 400 }
-        );
-      }
-    }
-
-    return NextResponse.json({
-      success: true,
-      order: {
-        id: order.id,
-        orderNumber: order.orderNumber,
-        total: order.total,
-        estimatedTime: '25-35 minutes'
-      }
+    // Get preparation time setting for estimated delivery  
+    const prepTimeResult = await prisma.appSetting.findUnique({
+      where: { key: 'preparationTime' }
     });
+    const prepTime = parseInt(prepTimeResult?.value || '25');
+    const estimatedTime = orderType === 'DELIVERY' 
+      ? `${prepTime + 10}-${prepTime + 20} minutes` 
+      : `${prepTime}-${prepTime + 10} minutes`;
+
+    return NextResponse.json(
+      createApiResponse({
+        id: order?.id,
+        orderNumber: order?.orderNumber,
+        total: order?.total,
+        estimatedTime
+      }, 'Order placed successfully!')
+    );
 
   } catch (error) {
-    console.error('Error creating order:', error);
+    console.error('Checkout error:', error);
     return NextResponse.json(
-      { error: 'Failed to create order' },
+      createApiError('Failed to process order. Please try again.', 500),
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

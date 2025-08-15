@@ -1,294 +1,173 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
+import { useSettings } from './SettingsContext';
 
+// Define the cart item structure
 export interface CartItem {
   id: string;
-  type: 'custom' | 'specialty';
-  name: string;
-  price: number;
-  quantity: number;
-  
-  // Basic pizza info (for simple specialty pizzas)
-  size?: string;
-  crust?: string;
-  sauce?: string;
-  toppings?: string[];
-  specialtyPizzaId?: string;
-  customizations?: string;
-  
-  // Detailed pizza builder info (for custom and customized specialty pizzas)
-  sizeId?: string;
-  sizeName?: string;
-  crustId?: string;
-  crustName?: string;
-  sauceId?: string;
-  sauceName?: string;
-  sauceIntensity?: 'LIGHT' | 'REGULAR' | 'EXTRA';
-  crustCookingLevel?: 'LIGHT' | 'REGULAR' | 'WELL_DONE';
-  detailedToppings?: Array<{
-    toppingId: string;
-    toppingName: string;
-    section: 'WHOLE' | 'LEFT' | 'RIGHT';
-    intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-    price: number;
+  size: {
+    id: string;
+    name: string;
+    diameter: string;
+    basePrice: number;
+    isActive: boolean;
+    sortOrder: number;
+  } | null;
+  crust: {
+    id: string;
+    name: string;
+    description: string;
+    priceModifier: number;
+    isActive: boolean;
+    sortOrder: number;
+  } | null;
+  sauce: {
+    id: string;
+    name: string;
+    description: string;
+    color: string;
+    spiceLevel: number;
+    priceModifier: number;
+    isActive: boolean;
+    sortOrder: number;
+  } | null;
+  toppings: Array<{
+    id: string;
+    name: string;
+    category?: string;
+    price: number; // Changed from priceModifier to price
+    quantity: number; // Added quantity (1 = full, 0.5 = half, etc.)
+    section: 'LEFT' | 'RIGHT' | 'WHOLE'; // Changed from optional side to required section
+    isActive?: boolean;
   }>;
+  quantity: number;
   notes?: string;
-  totalPrice?: number;
-  specialtyPizzaName?: string;
-  specialtyPizzaChanges?: {
-    addedToppings: Array<{
-      toppingId: string;
-      toppingName: string;
-      section: 'WHOLE' | 'LEFT' | 'RIGHT';
-      intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-    }>;
-    removedToppings: Array<{
-      toppingId: string;
-      toppingName: string;
-      section: 'WHOLE' | 'LEFT' | 'RIGHT';
-      intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-    }>;
-    modifiedToppings: Array<{
-      toppingId: string;
-      toppingName: string;
-      section: 'WHOLE' | 'LEFT' | 'RIGHT';
-      originalIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-      newIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-    }>;
-  };
+  basePrice: number;
+  totalPrice: number;
 }
 
 interface CartContextType {
-  items: CartItem[];
-  addItem: (item: Omit<CartItem, 'id' | 'quantity'>) => void;
-  addDetailedPizza: (pizza: {
-    sizeId: string;
-    sizeName: string;
-    crustId: string;
-    crustName: string;
-    sauceId: string;
-    sauceName: string;
-    sauceIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-    crustCookingLevel: 'LIGHT' | 'REGULAR' | 'WELL_DONE';
-    detailedToppings: Array<{
-      toppingId: string;
-      toppingName: string;
-      section: 'WHOLE' | 'LEFT' | 'RIGHT';
-      intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-      price: number;
-    }>;
-    notes?: string;
-    totalPrice: number;
-    specialtyPizzaName?: string;
-    specialtyPizzaChanges?: {
-      addedToppings: Array<{
-        toppingId: string;
-        toppingName: string;
-        section: 'WHOLE' | 'LEFT' | 'RIGHT';
-        intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-      }>;
-      removedToppings: Array<{
-        toppingId: string;
-        toppingName: string;
-        section: 'WHOLE' | 'LEFT' | 'RIGHT';
-        intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-      }>;
-      modifiedToppings: Array<{
-        toppingId: string;
-        toppingName: string;
-        section: 'WHOLE' | 'LEFT' | 'RIGHT';
-        originalIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-        newIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-      }>;
-    };
-  }) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  cartItems: CartItem[];
+  addPizza: (pizza: Omit<CartItem, 'id'>) => void;
+  addDetailedPizza: (pizza: any) => void;
+  removePizza: (id: string) => void;
+  updatePizzaQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
-  getTotalPrice: () => number;
-  getTotalItems: () => number;
+  calculateSubtotal: () => number;
+  calculateTotal: () => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+export function CartProvider({ children }: { children: ReactNode }) {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const { getTaxAmount } = useSettings();
 
-  // Load cart from localStorage on mount
-  useEffect(() => {
-    const savedCart = localStorage.getItem('pizza-cart');
-    if (savedCart) {
-      try {
-        setItems(JSON.parse(savedCart));
-      } catch (error) {
-        console.error('Error loading cart from localStorage:', error);
-      }
-    }
-  }, []);
-
-  // Save cart to localStorage whenever items change
-  useEffect(() => {
-    localStorage.setItem('pizza-cart', JSON.stringify(items));
-  }, [items]);
-
-  const addItem = (newItem: Omit<CartItem, 'id' | 'quantity'>) => {
-    const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const cartItem: CartItem = {
-      ...newItem,
-      id,
-      quantity: 1
+  const addPizza = (pizza: Omit<CartItem, 'id'>) => {
+    const newPizza: CartItem = {
+      ...pizza,
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     };
-
-    setItems(prev => {
-      // Check if identical item exists (for specialty pizzas without customizations)
-      if (newItem.type === 'specialty' && !newItem.customizations && !newItem.specialtyPizzaChanges) {
-        const existingItem = prev.find(item => 
-          item.type === 'specialty' && 
-          item.specialtyPizzaId === newItem.specialtyPizzaId &&
-          !item.customizations &&
-          !item.specialtyPizzaChanges
-        );
-        
-        if (existingItem) {
-          return prev.map(item =>
-            item.id === existingItem.id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          );
-        }
-      }
-
-      return [...prev, cartItem];
-    });
+    setCartItems(prev => [...prev, newPizza]);
   };
 
-  const addDetailedPizza = (pizza: {
-    sizeId: string;
-    sizeName: string;
-    crustId: string;
-    crustName: string;
-    sauceId: string;
-    sauceName: string;
-    sauceIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-    crustCookingLevel: 'LIGHT' | 'REGULAR' | 'WELL_DONE';
-    detailedToppings: Array<{
-      toppingId: string;
-      toppingName: string;
-      section: 'WHOLE' | 'LEFT' | 'RIGHT';
-      intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-      price: number;
-    }>;
-    notes?: string;
-    totalPrice: number;
-    specialtyPizzaName?: string;
-    specialtyPizzaChanges?: {
-      addedToppings: Array<{
-        toppingId: string;
-        toppingName: string;
-        section: 'WHOLE' | 'LEFT' | 'RIGHT';
-        intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-      }>;
-      removedToppings: Array<{
-        toppingId: string;
-        toppingName: string;
-        section: 'WHOLE' | 'LEFT' | 'RIGHT';
-        intensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-      }>;
-      modifiedToppings: Array<{
-        toppingId: string;
-        toppingName: string;
-        section: 'WHOLE' | 'LEFT' | 'RIGHT';
-        originalIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-        newIntensity: 'LIGHT' | 'REGULAR' | 'EXTRA';
-      }>;
+  const addDetailedPizza = (pizzaData: any) => {
+    // Convert detailed pizza data to CartItem format
+    const cartItem: Omit<CartItem, 'id'> = {
+      size: pizzaData.size || {
+        id: pizzaData.sizeId || 'unknown',
+        name: pizzaData.sizeName || 'Unknown Size',
+        diameter: '',
+        basePrice: pizzaData.basePrice || 0,
+        isActive: true,
+        sortOrder: 0
+      },
+      crust: pizzaData.crust || {
+        id: pizzaData.crustId || 'unknown',
+        name: pizzaData.crustName || 'Unknown Crust',
+        description: '',
+        priceModifier: 0,
+        isActive: true,
+        sortOrder: 0
+      },
+      sauce: pizzaData.sauce || {
+        id: pizzaData.sauceId || 'unknown',
+        name: pizzaData.sauceName || 'Unknown Sauce',
+        description: '',
+        color: '',
+        spiceLevel: 0,
+        priceModifier: 0,
+        isActive: true,
+        sortOrder: 0
+      },
+      toppings: (pizzaData.toppings || pizzaData.detailedToppings || []).map((topping: any) => ({
+        id: topping.id || topping.toppingId || 'unknown',
+        name: topping.name || topping.toppingName || 'Unknown',
+        category: topping.category || '',
+        price: Number(topping.price || topping.priceModifier || 0),
+        quantity: topping.quantity || (topping.intensity === 'LIGHT' ? 0.75 : topping.intensity === 'EXTRA' ? 1.5 : 1),
+        section: topping.section || topping.side || 'WHOLE'
+      })),
+      quantity: pizzaData.quantity || 1,
+      notes: pizzaData.notes || '',
+      basePrice: pizzaData.basePrice || pizzaData.size?.basePrice || 0,
+      totalPrice: pizzaData.totalPrice || 0
     };
-  }) => {
-    const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
-    // Generate a descriptive name for the pizza
-    let pizzaName = pizza.specialtyPizzaName 
-      ? `${pizza.specialtyPizzaName} (${pizza.sizeName})`
-      : `Custom ${pizza.sizeName} Pizza`;
-    
-    if (pizza.specialtyPizzaName && pizza.specialtyPizzaChanges) {
-      const hasChanges = pizza.specialtyPizzaChanges.addedToppings.length > 0 || 
-                        pizza.specialtyPizzaChanges.removedToppings.length > 0 || 
-                        pizza.specialtyPizzaChanges.modifiedToppings.length > 0;
-      if (hasChanges) {
-        pizzaName += ' (Customized)';
-      }
-    }
-
-    const cartItem: CartItem = {
-      id,
-      type: pizza.specialtyPizzaName ? 'specialty' : 'custom',
-      name: pizzaName,
-      price: pizza.totalPrice,
-      quantity: 1,
-      
-      // Detailed pizza builder data
-      sizeId: pizza.sizeId,
-      sizeName: pizza.sizeName,
-      crustId: pizza.crustId,
-      crustName: pizza.crustName,
-      sauceId: pizza.sauceId,
-      sauceName: pizza.sauceName,
-      sauceIntensity: pizza.sauceIntensity,
-      crustCookingLevel: pizza.crustCookingLevel,
-      detailedToppings: pizza.detailedToppings,
-      notes: pizza.notes,
-      totalPrice: pizza.totalPrice,
-      specialtyPizzaName: pizza.specialtyPizzaName,
-      specialtyPizzaChanges: pizza.specialtyPizzaChanges
-    };
-
-    setItems(prev => [...prev, cartItem]);
+    addPizza(cartItem);
   };
 
-  const removeItem = (id: string) => {
-    setItems(prev => prev.filter(item => item.id !== id));
+  const removePizza = (id: string) => {
+    setCartItems(prev => prev.filter(item => item.id !== id));
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updatePizzaQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
-      removeItem(id);
+      removePizza(id);
       return;
     }
-
-    setItems(prev =>
-      prev.map(item =>
+    
+    setCartItems(prev => 
+      prev.map(item => 
         item.id === id ? { ...item, quantity } : item
       )
     );
   };
 
   const clearCart = () => {
-    setItems([]);
+    setCartItems([]);
   };
 
-  const getTotalPrice = () => {
-    return items.reduce((total, item) => {
-      // Use totalPrice if available (from detailed pizzas), otherwise use price
-      const itemPrice = item.totalPrice || item.price;
-      return total + (itemPrice * item.quantity);
+  const calculateSubtotal = () => {
+    return cartItems.reduce((total, item) => {
+      const itemPrice = Number(item.totalPrice) || 0;
+      const itemQuantity = Number(item.quantity) || 1;
+      return total + (itemPrice * itemQuantity);
     }, 0);
   };
 
-  const getTotalItems = () => {
-    return items.reduce((total, item) => total + item.quantity, 0);
+  const calculateTotal = () => {
+    const subtotal = calculateSubtotal();
+    if (isNaN(subtotal)) return 0;
+    
+    const tax = getTaxAmount(subtotal); // Use dynamic tax rate from settings
+    const deliveryFee = subtotal > 0 ? 3.99 : 0;
+    const total = subtotal + tax + deliveryFee;
+    
+    return isNaN(total) ? 0 : total;
   };
 
   return (
     <CartContext.Provider value={{
-      items,
-      addItem,
+      cartItems,
+      addPizza,
       addDetailedPizza,
-      removeItem,
-      updateQuantity,
+      removePizza,
+      updatePizzaQuantity,
       clearCart,
-      getTotalPrice,
-      getTotalItems
+      calculateSubtotal,
+      calculateTotal,
     }}>
       {children}
     </CartContext.Provider>

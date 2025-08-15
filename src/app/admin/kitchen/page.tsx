@@ -427,11 +427,11 @@ Status: ${order.status.toUpperCase()}
                           </div>
                         )}
                         
-                        {/* Item Notes */}
+                        {/* Item Details */}
                         {item?.notes && (
-                          <div className="bg-yellow-900/40 border border-yellow-600 p-2 rounded mt-2">
-                            <span className="text-yellow-400 font-medium text-xs">Note:</span>
-                            <span className="text-yellow-300 text-sm ml-2">{item.notes}</span>
+                          <div className="bg-blue-900/40 border border-blue-600 p-2 rounded mt-2">
+                            <span className="text-blue-400 font-medium text-xs">Pizza Details:</span>
+                            <div className="text-blue-300 text-sm mt-1 whitespace-pre-line">{item.notes}</div>
                           </div>
                         )}
                       </div>

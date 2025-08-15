@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
-import Cart from '@/components/Cart';
 
 interface PizzaSize {
   id: string;
@@ -135,11 +134,108 @@ interface Selection {
   toppings: SelectedTopping[];
 }
 
+// Helper function to generate pizza description
+function generatePizzaDescription(selection: Selection, detailedToppings: any[], specialtyPizza?: SpecialtyPizza | null): string {
+  if (specialtyPizza) {
+    const modifications = [];
+    if (selection.size) modifications.push(`${selection.size.name} size`);
+    if (selection.crust && selection.crust.name !== 'Classic Hand Tossed') modifications.push(selection.crust.name.toLowerCase());
+    if (selection.sauce && selection.sauce.name !== 'Traditional Marinara') modifications.push(selection.sauce.name.toLowerCase());
+    
+    if (modifications.length > 0) {
+      return `${specialtyPizza.name} pizza (${modifications.join(', ')})`;
+    }
+    return `${specialtyPizza.name} pizza`;
+  }
+
+  const parts = [];
+  if (selection.size) parts.push(selection.size.name);
+  if (selection.crust) parts.push(selection.crust.name.toLowerCase());
+  
+  const toppings = detailedToppings.filter(t => t.isActive);
+  if (toppings.length === 0) {
+    parts.push('cheese pizza');
+  } else if (toppings.length <= 3) {
+    const toppingNames = toppings.map(t => t.name.toLowerCase());
+    parts.push(`${toppingNames.join(' & ')} pizza`);
+  } else {
+    parts.push(`pizza with ${toppings.length} toppings`);
+  }
+
+  return parts.join(' ');
+}
+
+// Helper function to show success message
+function showPizzaAddedMessage(pizzaDescription: string, totalPrice: number): void {
+  // Create a toast-style notification
+  const message = `🍕 ${pizzaDescription.charAt(0).toUpperCase() + pizzaDescription.slice(1)} added to cart! ($${totalPrice.toFixed(2)})`;
+  
+  // Create toast element
+  const toast = document.createElement('div');
+  toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+  toast.style.cssText = `
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background-color: #10b981;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    font-weight: 600;
+    animation: slideInRight 0.3s ease-out;
+    max-width: 400px;
+  `;
+  
+  // Add animation styles to document head if not already present
+  if (!document.querySelector('#toast-styles')) {
+    const style = document.createElement('style');
+    style.id = 'toast-styles';
+    style.textContent = `
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOutRight {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  // Auto remove after 3 seconds
+  setTimeout(() => {
+    toast.style.animation = 'slideOutRight 0.3s ease-in';
+    setTimeout(() => {
+      if (toast.parentNode) {
+        document.body.removeChild(toast);
+      }
+    }, 300);
+  }, 3000);
+}
+
 export default function PizzaBuilder() {
   const searchParams = useSearchParams();
   const specialtyId = searchParams.get('specialty');
   const selectedSizeId = searchParams.get('size'); // Get the selected size from URL
-  const { items: cartItems, addDetailedPizza, clearCart, getTotalPrice: getCartTotalPrice, getTotalItems } = useCart();
+  const { cartItems, addPizza, addDetailedPizza, calculateSubtotal } = useCart();
   
   const [data, setData] = useState<PizzaBuilderData | null>(null);
   const [specialtyPizza, setSpecialtyPizza] = useState<SpecialtyPizza | null>(null);
@@ -148,7 +244,6 @@ export default function PizzaBuilder() {
   const [activeTab, setActiveTab] = useState('SIZE');
   const [activeSection, setActiveSection] = useState<'WHOLE' | 'LEFT' | 'RIGHT'>('WHOLE');
   const [activeToppingCategory, setActiveToppingCategory] = useState('CHEESE');
-  const [showCart, setShowCart] = useState(false);
   const [notes, setNotes] = useState('');
   const [selection, setSelection] = useState<Selection>({
     size: null,
@@ -431,8 +526,15 @@ export default function PizzaBuilder() {
   const calculateTotal = () => {
     if (!selection.size || !data) return 0;
     
-    // Use specialty pizza base price if available, otherwise use size base price
-    let total = specialtyPizza ? specialtyPizza.basePrice : selection.size.basePrice;
+    // Use specialty pizza size-specific price if available, otherwise use size base price
+    let total: number;
+    if (specialtyPizza) {
+      // Find the size-specific price for this specialty pizza
+      const sizeOption = specialtyPizza.availableSizes?.find(s => s.id === selection.size!.id);
+      total = sizeOption ? sizeOption.price : specialtyPizza.basePrice;
+    } else {
+      total = selection.size.basePrice;
+    }
     
     // Only add modifiers if not using specialty base price
     if (!specialtyPizza) {
@@ -498,8 +600,17 @@ export default function PizzaBuilder() {
   const getPricingBreakdown = () => {
     if (!selection.size || !data) return null;
     
+    // Calculate correct base price for specialty pizzas based on selected size
+    let basePrice: number;
+    if (specialtyPizza) {
+      const sizeOption = specialtyPizza.availableSizes?.find(s => s.id === selection.size!.id);
+      basePrice = sizeOption ? sizeOption.price : specialtyPizza.basePrice;
+    } else {
+      basePrice = selection.size.basePrice;
+    }
+    
     const breakdown = {
-      basePrice: specialtyPizza ? specialtyPizza.basePrice : selection.size.basePrice,
+      basePrice,
       baseName: specialtyPizza ? specialtyPizza.name : `${selection.size.name} Pizza`,
       crustModifier: !specialtyPizza && selection.crust ? selection.crust.priceModifier : 0,
       sauceModifier: !specialtyPizza && selection.sauce ? selection.sauce.priceModifier : 0,
@@ -570,7 +681,7 @@ export default function PizzaBuilder() {
   };
 
   const calculateCartTotal = () => {
-    return getCartTotalPrice();
+    return calculateSubtotal();
   };
 
   const handlePlaceOrder = async () => {
@@ -598,20 +709,23 @@ export default function PizzaBuilder() {
 
     // Add to unified cart using the detailed pizza function
     addDetailedPizza({
-      sizeId: selection.size.id,
-      sizeName: selection.size.name,
-      crustId: selection.crust.id,
-      crustName: selection.crust.name,
-      sauceId: selection.sauce.id,
-      sauceName: selection.sauce.name,
+      size: selection.size,
+      crust: selection.crust,
+      sauce: selection.sauce,
       sauceIntensity: selection.sauceIntensity,
       crustCookingLevel: selection.crustCookingLevel,
-      detailedToppings: detailedToppings,
+      toppings: detailedToppings,
       notes: notes,
       totalPrice: calculateTotal(),
-      specialtyPizzaName: specialtyPizza?.name,
-      specialtyPizzaChanges: specialtyPizza ? getSpecialtyPizzaChanges() : undefined
+      specialtyPizzaName: specialtyPizza?.name
     });
+    
+    // Create dynamic success message
+    const pizzaDescription = generatePizzaDescription(selection, detailedToppings, specialtyPizza);
+    const totalPrice = calculateTotal();
+    
+    // Show contextual success message
+    showPizzaAddedMessage(pizzaDescription, totalPrice);
     
     // Reset the pizza builder for next item
     setSelection({
@@ -621,25 +735,6 @@ export default function PizzaBuilder() {
       toppings: [],
       sauceIntensity: 'REGULAR',
       crustCookingLevel: 'REGULAR'
-    });
-    setNotes('');
-    setActiveTab('SIZE');
-    
-    // Show success message
-    alert('Pizza added to cart! Build another pizza or view your cart to checkout.');
-  };
-
-  const handleClearCart = () => {
-    clearCart();
-    setShowCart(false);
-    // Reset pizza builder
-    setSelection({
-      size: data?.sizes[0] || null,
-      crust: data?.crusts[0] || null,
-      crustCookingLevel: 'REGULAR',
-      sauce: data?.sauces[0] || null,
-      sauceIntensity: 'REGULAR',
-      toppings: []
     });
     setNotes('');
     setActiveTab('SIZE');
@@ -715,40 +810,49 @@ export default function PizzaBuilder() {
                   <div className="text-orange-300 text-sm">Cart Total</div>
                 </div>
                 <button
-                  onClick={() => setShowCart(true)}
+                  onClick={() => {
+                    // Convert selected toppings to detailed format
+                    const cartToppings = selection.toppings.map(selectedTopping => {
+                      const topping = data?.toppings.find(t => t.id === selectedTopping.toppingId);
+                      return {
+                        id: selectedTopping.toppingId,
+                        name: topping?.name || 'Unknown Topping',
+                        category: topping?.category || 'Unknown',
+                        price: topping?.price || 0,
+                        quantity: selectedTopping.quantity || 1,
+                        section: selectedTopping.section,
+                        isActive: topping?.isActive || true
+                      };
+                    });
+
+                    // Add current pizza to cart using detailed function
+                    addDetailedPizza({
+                      size: selection.size,
+                      crust: selection.crust,
+                      sauce: selection.sauce,
+                      sauceIntensity: selection.sauceIntensity,
+                      crustCookingLevel: selection.crustCookingLevel,
+                      toppings: cartToppings,
+                      notes: notes || (specialtyPizza ? `Specialty Pizza: ${specialtyPizza.name}` : ''),
+                      totalPrice: calculateTotal(),
+                      specialtyPizzaName: specialtyPizza?.name
+                    });
+                    
+                    // Show contextual success message
+                    const pizzaDescription = generatePizzaDescription(selection, cartToppings, specialtyPizza);
+                    const totalPrice = calculateTotal();
+                    showPizzaAddedMessage(pizzaDescription, totalPrice);
+                  }}
                   className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg font-semibold flex items-center gap-2"
+                  disabled={!selection.size || !selection.crust || !selection.sauce}
                 >
-                  🛒 View Cart ({cartItems.length})
+                  🛒 Add to Cart - ${calculateTotal().toFixed(2)}
                 </button>
               </>
             )}
           </div>
         </div>
       </div>
-
-      {/* Cart Modal */}
-      {showCart && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h2 className="text-xl font-bold">Your Cart</h2>
-              <button
-                onClick={() => setShowCart(false)}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
-              >
-                ×
-              </button>
-            </div>
-            <div className="p-4">
-              <Cart 
-                cartItems={cartItems}
-                onClearCart={handleClearCart} 
-                onCloseCart={() => setShowCart(false)} 
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -820,7 +924,15 @@ export default function PizzaBuilder() {
                   <h3 className="font-semibold text-lg text-red-800 mb-2">Customizing Specialty Pizza</h3>
                   <p className="text-sm text-gray-700 mb-2">{specialtyPizza.description}</p>
                   <div className="text-xs text-gray-600">
-                    Base Price: <span className="font-semibold text-red-600">${specialtyPizza.basePrice.toFixed(2)}</span>
+                    Base Price ({selection.size?.name || 'Default'}): <span className="font-semibold text-red-600">
+                      ${(() => {
+                        if (selection.size) {
+                          const sizeOption = specialtyPizza.availableSizes?.find(s => s.id === selection.size!.id);
+                          return (sizeOption ? sizeOption.price : specialtyPizza.basePrice).toFixed(2);
+                        }
+                        return specialtyPizza.basePrice.toFixed(2);
+                      })()}
+                    </span>
                   </div>
                 </div>
               </div>

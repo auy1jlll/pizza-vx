@@ -3,7 +3,8 @@ import "./globals.css";
 import Link from "next/link";
 import { CartProvider } from '@/contexts/CartContext';
 import { UserProvider } from '@/contexts/UserContext';
-import FloatingCart from '@/components/FloatingCart';
+import { SettingsProvider } from '@/contexts/SettingsContext';
+import UnifiedCart from '@/components/UnifiedCart';
 import ToastContainer from '@/components/ToastContainer';
 import AuthNav from '@/components/AuthNav';
 
@@ -23,7 +24,8 @@ export default function RootLayout({
         className="antialiased"
       >
         <UserProvider>
-          <CartProvider>
+          <SettingsProvider>
+            <CartProvider>
           <nav className="bg-gradient-to-r from-emerald-800 to-green-700 shadow-lg border-b border-green-600">
             <div className="container mx-auto px-4">
               <div className="flex justify-between items-center py-4">
@@ -66,7 +68,7 @@ export default function RootLayout({
             {children}
           </main>
           
-          <FloatingCart />
+          <UnifiedCart />
           <ToastContainer />
           
           <footer className="bg-gray-900 text-white py-8 mt-16">
@@ -78,6 +80,7 @@ export default function RootLayout({
             </div>
           </footer>
           </CartProvider>
+          </SettingsProvider>
         </UserProvider>
       </body>
     </html>

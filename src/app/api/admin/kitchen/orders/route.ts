@@ -1,8 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth';
+import { adminRateLimit } from '@/lib/rate-limit';
 
 export async function GET(request: NextRequest) {
+  // Apply rate limiting for admin endpoints
+  const rateLimitResult = await new Promise((resolve) => {
+    adminRateLimit(request as any, {
+      status: (code: number) => ({
+        json: (data: any) => resolve({ error: true, status: code, data })
+      })
+    } as any, () => resolve({ error: false }));
+  });
+
+  if ((rateLimitResult as any).error) {
+    return NextResponse.json(
+      (rateLimitResult as any).data,
+      { status: (rateLimitResult as any).status }
+    );
+  }
+
   try {
     // Require admin authentication
     const user = await requireAdmin(request);

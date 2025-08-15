@@ -49,6 +49,11 @@ export default function AdminLogin() {
           <p className="mt-2 text-center text-sm text-gray-600">
             Sign in to access the admin dashboard
           </p>
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+            <p className="text-sm text-blue-800 font-medium">Demo Credentials:</p>
+            <p className="text-sm text-blue-700">Email: admin@pizzabuilder.com</p>
+            <p className="text-sm text-blue-700">Password: admin123</p>
+          </div>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
@@ -62,7 +67,7 @@ export default function AdminLogin() {
                 id="username"
                 name="username"
                 type="email"
-                autoComplete="email"
+                autoComplete="off"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
@@ -75,7 +80,7 @@ export default function AdminLogin() {
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="off"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Password"

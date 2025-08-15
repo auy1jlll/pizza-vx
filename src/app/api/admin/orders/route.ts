@@ -98,3 +98,77 @@ export async function PATCH(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const orderId = searchParams.get('orderId');
+    const clearAll = searchParams.get('clearAll');
+
+    if (clearAll === 'true') {
+      // Clear all orders
+      console.log('Clearing all orders...');
+      
+      // First delete all order item toppings
+      await prisma.orderItemTopping.deleteMany();
+      
+      // Then delete all order items
+      await prisma.orderItem.deleteMany();
+      
+      // Finally delete all orders
+      const result = await prisma.order.deleteMany();
+      
+      console.log(`Cleared ${result.count} orders`);
+      
+      return NextResponse.json({
+        success: true,
+        message: `Cleared ${result.count} orders`
+      });
+    } else if (orderId) {
+      // Delete specific order
+      console.log(`Deleting order ${orderId}...`);
+      
+      // First delete order item toppings
+      await prisma.orderItemTopping.deleteMany({
+        where: {
+          orderItem: {
+            orderId: orderId
+          }
+        }
+      });
+      
+      // Then delete order items
+      await prisma.orderItem.deleteMany({
+        where: { orderId: orderId }
+      });
+      
+      // Finally delete the order
+      await prisma.order.delete({
+        where: { id: orderId }
+      });
+      
+      console.log(`Order ${orderId} deleted successfully`);
+      
+      return NextResponse.json({
+        success: true,
+        message: 'Order deleted successfully'
+      });
+    } else {
+      return NextResponse.json(
+        { success: false, error: 'Order ID or clearAll parameter is required' },
+        { status: 400 }
+      );
+    }
+
+  } catch (error) {
+    console.error('Error deleting order(s):', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to delete order(s)',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
+  }
+}

@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     
     const itemTotal = (basePrice + toppingsTotal) * quantity;
     const subtotal = itemTotal;
-    const tax = subtotal * 0.1;
+    const tax = subtotal * (8.25 / 100); // Should match database tax rate setting
     const deliveryFee = orderType === 'DELIVERY' ? 3.99 : 0;
     const finalTotal = subtotal + tax + deliveryFee;
 

@@ -54,10 +54,21 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, description, basePrice, category, imageUrl, ingredients, isActive, sizePricing } = body;
+    const { name, description, basePrice, category, imageUrl, ingredients, toppings, isActive, sizePricing } = body;
 
     if (!name || !description || basePrice === undefined || !category) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Combine ingredients and topping names for storage
+    const allIngredients = [...(ingredients || [])];
+    if (toppings && toppings.length > 0) {
+      // Get topping names from the database
+      const selectedToppings = await prisma.pizzaTopping.findMany({
+        where: { id: { in: toppings } },
+        select: { name: true }
+      });
+      allIngredients.push(...selectedToppings.map((t: { name: string }) => t.name));
     }
 
     const specialtyPizza = await prisma.specialtyPizza.create({
@@ -67,7 +78,7 @@ export async function POST(request: NextRequest) {
         basePrice: parseFloat(basePrice),
         category,
         imageUrl: imageUrl || null,
-        ingredients: JSON.stringify(ingredients || []),
+        ingredients: JSON.stringify(allIngredients),
         isActive: isActive !== undefined ? isActive : true
       }
     });

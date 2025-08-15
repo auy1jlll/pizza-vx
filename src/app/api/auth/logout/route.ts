@@ -1,23 +1,54 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { JWTService } from '@/lib/jwt-service';
 
-export async function POST() {
+const jwtService = new JWTService();
+
+export async function POST(request: NextRequest) {
   try {
-    const response = NextResponse.json({ message: 'Logout successful' });
+    // Get tokens from cookies
+    const accessToken = request.cookies.get('access-token')?.value;
+    const refreshToken = request.cookies.get('refresh-token')?.value;
+    const adminToken = request.cookies.get('admin-token')?.value; // Legacy token
+
+    // Revoke tokens if they exist
+    const promises = [];
     
-    // Clear the admin token cookie
-    response.cookies.set('admin-token', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 0
+    if (accessToken) {
+      promises.push(jwtService.blacklistToken(accessToken, 'LOGOUT'));
+    }
+    
+    if (refreshToken) {
+      promises.push(jwtService.revokeRefreshToken(refreshToken, 'LOGOUT'));
+    }
+
+    if (adminToken) {
+      promises.push(jwtService.blacklistToken(adminToken, 'LOGOUT'));
+    }
+
+    await Promise.all(promises);
+
+    // Clear all cookies
+    const response = NextResponse.json({
+      message: 'Logout successful'
     });
+
+    response.cookies.delete('access-token');
+    response.cookies.delete('refresh-token');
+    response.cookies.delete('admin-token'); // Legacy token
 
     return response;
   } catch (error) {
     console.error('Logout error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    
+    // Even if there's an error, clear the cookies
+    const response = NextResponse.json({
+      message: 'Logout completed'
+    });
+
+    response.cookies.delete('access-token');
+    response.cookies.delete('refresh-token');
+    response.cookies.delete('admin-token'); // Legacy token
+
+    return response;
   }
 }

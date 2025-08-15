@@ -92,10 +92,26 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Calculate tax and final total
+    // Calculate tax and final total using dynamic settings
+    const settings = await prisma.appSetting.findMany({
+      where: {
+        key: { in: ['taxRate', 'deliveryFee', 'minimumOrder'] }
+      }
+    });
+
+    const settingsMap = settings.reduce((acc, setting) => {
+      acc[setting.key] = setting.value;
+      return acc;
+    }, {} as Record<string, string>);
+
+    const taxRate = (parseFloat(settingsMap.taxRate || '8.25')) / 100;
+    const deliveryFeeAmount = parseFloat(settingsMap.deliveryFee || '3.99');
+    const minimumOrderAmount = parseFloat(settingsMap.minimumOrder || '15.00');
+
     const subtotal = orderTotal;
-    const tax = subtotal * 0.1;
-    const finalTotal = subtotal + tax;
+    const deliveryFee = orderType === 'DELIVERY' && subtotal < minimumOrderAmount ? deliveryFeeAmount : 0;
+    const tax = +(subtotal * taxRate).toFixed(2);
+    const finalTotal = +(subtotal + tax + deliveryFee).toFixed(2);
 
     // Create order with all items
     const order = await prisma.order.create({
@@ -104,7 +120,12 @@ export async function POST(request: NextRequest) {
         customerName,
         customerEmail,
         customerPhone,
+        orderType,
+        deliveryAddress: orderType === 'DELIVERY' ? deliveryAddress : null,
+        deliveryCity: orderType === 'DELIVERY' ? deliveryCity : null,
+        deliveryZip: orderType === 'DELIVERY' ? deliveryZip : null,
         subtotal: subtotal,
+        deliveryFee: deliveryFee,
         tax: tax,
         total: finalTotal,
         status: 'PENDING',

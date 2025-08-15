@@ -1,5 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { cacheService, CACHE_KEYS } from '@/lib/cache-service';
+import { HTTPCacheService } from '@/lib/http-cache';
 
 const prisma = new PrismaClient();
 
@@ -46,32 +48,52 @@ const mockData = {
   ]
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
-    console.log('Fetching pizza data from database...');
-    
-    // Fetch actual data from database
-    const [sizes, crusts, sauces, toppings] = await Promise.all([
-      prisma.pizzaSize.findMany({
-        where: { isActive: true },
-        orderBy: { sortOrder: 'asc' }
-      }),
-      prisma.pizzaCrust.findMany({
-        where: { isActive: true },
-        orderBy: { sortOrder: 'asc' }
-      }),
-      prisma.pizzaSauce.findMany({
-        where: { isActive: true },
-        orderBy: { sortOrder: 'asc' }
-      }),
-      prisma.pizzaTopping.findMany({
-        where: { isActive: true },
-        orderBy: { sortOrder: 'asc' }
-      })
-    ]);
+    // Use HTTP conditional caching with memory cache fallback
+    return await HTTPCacheService.withConditionalCache(
+      request,
+      async () => {
+        console.log('Fetching pizza data...');
+        
+        // Try memory cache first (fastest)
+        let pizzaData = cacheService.get('pizza-data', CACHE_KEYS.PIZZA_DATA.COMPLETE);
+        
+        if (!pizzaData) {
+          console.log('[API] Cache MISS - fetching from database');
+          
+          // Fetch actual data from database in parallel
+          const [sizes, crusts, sauces, toppings] = await Promise.all([
+            cacheService.getOrSet('sizes', CACHE_KEYS.SIZES.ALL_AVAILABLE, async () => {
+              return prisma.pizzaSize.findMany({
+                where: { isActive: true },
+                orderBy: { sortOrder: 'asc' }
+              });
+            }),
+            cacheService.getOrSet('crusts', CACHE_KEYS.CRUSTS.ALL_AVAILABLE, async () => {
+              return prisma.pizzaCrust.findMany({
+                where: { isActive: true },
+                orderBy: { sortOrder: 'asc' }
+              });
+            }),
+            cacheService.getOrSet('sauces', CACHE_KEYS.SAUCES.ALL_AVAILABLE, async () => {
+              return prisma.pizzaSauce.findMany({
+                where: { isActive: true },
+                orderBy: { sortOrder: 'asc' }
+              });
+            }),
+            cacheService.getOrSet('toppings', CACHE_KEYS.TOPPINGS.ALL_AVAILABLE, async () => {
+              return prisma.pizzaTopping.findMany({
+                where: { isActive: true },
+                orderBy: { sortOrder: 'asc' }
+              });
+            })
+          ]);
 
-    // Transform data to match expected format
-    const data = {
+          // Transform data to match expected format
+          pizzaData = {
       timestamp: Date.now(), // Force cache bust
       sizes: sizes.map(size => ({
         id: size.id,
@@ -99,43 +121,71 @@ export async function GET() {
         isActive: sauce.isActive,
         sortOrder: sauce.sortOrder
       })),
-      toppings: toppings.map(topping => ({
-        id: topping.id,
-        name: topping.name,
-        category: topping.category,
-        price: topping.price,
-        isActive: topping.isActive,
-        isVegetarian: topping.isVegetarian,
-        isVegan: topping.isVegan || false, // Default to false if not set
-        sortOrder: topping.sortOrder
-      }))
-    };
+            toppings: toppings.map(topping => ({
+              id: topping.id,
+              name: topping.name,
+              category: topping.category,
+              price: topping.price,
+              isActive: topping.isActive,
+              isVegetarian: topping.isVegetarian,
+              isVegan: topping.isVegan || false, // Default to false if not set
+              sortOrder: topping.sortOrder
+            })),
+            metadata: {
+              lastUpdated: new Date().toISOString(),
+              cacheSource: 'database',
+              totalSizes: sizes.length,
+              totalCrusts: crusts.length,
+              totalSauces: sauces.length,
+              totalToppings: toppings.length
+            }
+          };
 
-    console.log('Database data fetched:', {
-      sizes: data.sizes.length,
-      crusts: data.crusts.length,
-      sauces: data.sauces.length,
-      toppings: data.toppings.length
-    });
+          // Cache the complete data
+          cacheService.set('pizza-data', CACHE_KEYS.PIZZA_DATA.COMPLETE, pizzaData);
+        } else {
+          console.log('[API] Cache HIT - serving from memory');
+          (pizzaData as any).metadata = {
+            ...(pizzaData as any).metadata,
+            cacheSource: 'memory'
+          };
+        }
 
-    // Add cache headers - disabled for debugging
-    const response = NextResponse.json(data);
-    
-    // Disable caching to get fresh data
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    response.headers.set('Pragma', 'no-cache');
-    response.headers.set('Expires', '0');
-    
-    return response;
+        return pizzaData;
+      },
+      HTTPCacheService.getCacheConfig('pizza-data')
+    );
+
   } catch (error) {
     console.error('Error fetching pizza data:', error);
     
-    // Fallback to mock data if database fails
+    // Try to serve stale cache data if available
+    const staleData = cacheService.get('pizza-data', CACHE_KEYS.PIZZA_DATA.COMPLETE);
+    if (staleData) {
+      console.log('[API] Serving stale cache data due to error');
+      const response = NextResponse.json({
+        ...staleData,
+        metadata: {
+          ...(staleData as any).metadata,
+          cacheSource: 'stale',
+          error: 'Database temporarily unavailable'
+        }
+      });
+      
+      // Set appropriate cache headers for stale data
+      response.headers.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+      response.headers.set('Warning', '110 - "Response is stale"');
+      
+      return response;
+    }
+    
+    // Fallback to mock data if database fails and no cache
     console.log('Falling back to mock data...');
     const response = NextResponse.json(mockData);
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     return response;
   } finally {
-    await prisma.$disconnect();
+    const responseTime = Date.now() - startTime;
+    console.log(`[API] Pizza data request completed in ${responseTime}ms`);
   }
 }

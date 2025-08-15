@@ -209,6 +209,66 @@ export default function AdminOrders() {
     }
   };
 
+  const clearAllOrders = async () => {
+    if (!confirm('Are you sure you want to clear ALL orders? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch('/api/admin/orders?clearAll=true', {
+        method: 'DELETE'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setOrders([]);
+        setSelectedOrder(null);
+        alert(data.message);
+      } else {
+        setError(data.error || 'Failed to clear orders');
+      }
+    } catch (err) {
+      setError('Failed to clear orders');
+      console.error('Error clearing orders:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    if (!confirm('Are you sure you want to delete this order?')) {
+      return;
+    }
+
+    try {
+      setUpdateLoading(orderId);
+      
+      const response = await fetch(`/api/admin/orders?orderId=${orderId}`, {
+        method: 'DELETE'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setOrders(prev => prev.filter(order => order.id !== orderId));
+        if (selectedOrder?.id === orderId) {
+          setSelectedOrder(null);
+        }
+      } else {
+        setError(data.error || 'Failed to delete order');
+      }
+    } catch (err) {
+      setError('Failed to delete order');
+      console.error('Error deleting order:', err);
+    } finally {
+      setUpdateLoading(null);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
   };
@@ -240,13 +300,20 @@ export default function AdminOrders() {
               View and manage customer orders
             </p>
           </div>
-          <div className="flex-none">
+          <div className="flex-none flex gap-3">
             <button
               onClick={fetchOrders}
               className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105"
             >
               <span className="text-xl">🔄</span>
               <span>Refresh Orders</span>
+            </button>
+            <button
+              onClick={clearAllOrders}
+              className="flex items-center space-x-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105"
+            >
+              <span className="text-xl">🗑️</span>
+              <span>Clear All Orders</span>
             </button>
           </div>
         </div>
@@ -383,6 +450,13 @@ export default function AdminOrders() {
                     >
                       View Details
                     </button>
+                    <button
+                      onClick={() => deleteOrder(order.id)}
+                      disabled={updateLoading === order.id}
+                      className="bg-red-600/80 hover:bg-red-600 text-white py-2 px-3 rounded-lg transition-all duration-200 hover:shadow-lg backdrop-blur-sm border border-red-500/30 text-sm font-medium disabled:opacity-50"
+                    >
+                      {updateLoading === order.id ? '...' : '🗑️'}
+                    </button>
                   </div>
 
                   {/* Hover Effect Overlay */}
@@ -491,9 +565,10 @@ export default function AdminOrders() {
                               </div>
                             )}
                             {item.notes && (
-                              <p className="mt-2 p-2 bg-yellow-500/20 border border-yellow-500/30 rounded text-xs text-yellow-200">
-                                <span className="font-medium">Notes:</span> {item.notes}
-                              </p>
+                              <div className="mt-2 p-2 bg-blue-500/20 border border-blue-500/30 rounded text-xs">
+                                <div className="font-medium text-blue-200 mb-1">Pizza Details:</div>
+                                <div className="text-blue-100 whitespace-pre-line">{item.notes}</div>
+                              </div>
                             )}
                           </div>
                         </div>

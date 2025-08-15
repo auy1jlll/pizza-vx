@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { verifyAdminToken } from '@/lib/auth';
+import { cacheService, CACHE_KEYS } from '@/lib/cache-service';
 
 const prisma = new PrismaClient();
 
-// GET /api/admin/toppings - Fetch all toppings
+// GET /api/admin/toppings - Fetch all toppings (with caching)
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
@@ -13,9 +14,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
+    // Try to get from cache first
+    const cachedToppings = cacheService.get('toppings', 'all-admin');
+    if (cachedToppings) {
+      return NextResponse.json(cachedToppings);
+    }
+    
+    // If not in cache, fetch from database
     const toppings = await prisma.pizzaTopping.findMany({
       orderBy: { createdAt: 'desc' }
     });
+    
+    // Cache the result for 15 minutes
+    cacheService.set('toppings', 'all-admin', toppings);
     
     return NextResponse.json(toppings);
   } catch (error) {
@@ -53,6 +64,9 @@ export async function POST(request: NextRequest) {
         isGlutenFree: Boolean(isGlutenFree)
       }
     });
+    
+    // Invalidate toppings cache
+    cacheService.invalidate('toppings');
     
     return NextResponse.json(topping, { status: 201 });
   } catch (error) {

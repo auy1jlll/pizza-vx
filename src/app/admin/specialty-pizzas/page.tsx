@@ -14,6 +14,14 @@ interface SpecialtyPizzaSize {
   };
 }
 
+interface SpecialtyPizzaTopping {
+  id: string;
+  name: string;
+  category: string;
+  priceModifier: number;
+  isActive: boolean;
+}
+
 interface SpecialtyPizza {
   id: string;
   name: string;
@@ -23,6 +31,7 @@ interface SpecialtyPizza {
   category: string;
   imageUrl?: string;
   ingredients: string[];
+  toppings?: string[]; // topping IDs
   sizes?: SpecialtyPizzaSize[];
   createdAt: string;
   updatedAt: string;
@@ -31,6 +40,7 @@ interface SpecialtyPizza {
 export default function SpecialtyPizzasAdmin() {
   const [pizzas, setPizzas] = useState<SpecialtyPizza[]>([]);
   const [availableSizes, setAvailableSizes] = useState<{id: string, name: string, diameter: string}[]>([]);
+  const [availableToppings, setAvailableToppings] = useState<SpecialtyPizzaTopping[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingPizza, setEditingPizza] = useState<SpecialtyPizza | null>(null);
@@ -42,6 +52,7 @@ export default function SpecialtyPizzasAdmin() {
     category: 'CLASSIC',
     imageUrl: '',
     ingredients: [] as string[],
+    toppings: [] as string[], // topping IDs
     isActive: true
   });
   const [sizePricing, setSizePricing] = useState<Record<string, { price: number, isAvailable: boolean }>>({});
@@ -82,6 +93,7 @@ export default function SpecialtyPizzasAdmin() {
   useEffect(() => {
     fetchPizzas();
     fetchSizes();
+    fetchToppings();
   }, []);
 
   // Fetch available pizza sizes
@@ -101,6 +113,19 @@ export default function SpecialtyPizzasAdmin() {
       }
     } catch (error) {
       console.error('Error fetching sizes:', error);
+    }
+  };
+
+  // Fetch available toppings
+  const fetchToppings = async () => {
+    try {
+      const response = await fetch('/api/admin/toppings');
+      if (response.ok) {
+        const data = await response.json();
+        setAvailableToppings(data);
+      }
+    } catch (error) {
+      console.error('Error fetching toppings:', error);
     }
   };
 
@@ -172,6 +197,7 @@ export default function SpecialtyPizzasAdmin() {
           category: 'CLASSIC', 
           imageUrl: '', 
           ingredients: [],
+          toppings: [],
           isActive: true 
         });
         // Reset size pricing to defaults
@@ -213,6 +239,7 @@ export default function SpecialtyPizzasAdmin() {
       category: pizza.category,
       imageUrl: pizza.imageUrl || '',
       ingredients: pizza.ingredients,
+      toppings: pizza.toppings || [],
       isActive: pizza.isActive
     });
     
@@ -258,6 +285,16 @@ export default function SpecialtyPizzasAdmin() {
     }));
   };
 
+  // Topping management functions
+  const toggleTopping = (toppingId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      toppings: prev.toppings.includes(toppingId)
+        ? prev.toppings.filter(id => id !== toppingId)
+        : [...prev.toppings, toppingId]
+    }));
+  };
+
   // Group pizzas by category
   const groupedPizzas = pizzas.reduce((acc, pizza) => {
     if (!acc[pizza.category]) {
@@ -289,6 +326,7 @@ export default function SpecialtyPizzasAdmin() {
                   category: 'CLASSIC', 
                   imageUrl: '', 
                   ingredients: [],
+                  toppings: [],
                   isActive: true 
                 });
               }}
@@ -505,6 +543,40 @@ export default function SpecialtyPizzasAdmin() {
                         >
                           ×
                         </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Toppings Section */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-3">
+                    Toppings
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto">
+                    {Object.entries(
+                      availableToppings.reduce((acc, topping) => {
+                        if (!acc[topping.category]) acc[topping.category] = [];
+                        acc[topping.category].push(topping);
+                        return acc;
+                      }, {} as Record<string, SpecialtyPizzaTopping[]>)
+                    ).map(([category, toppings]) => (
+                      <div key={category} className="border border-gray-600 rounded-lg p-3 bg-slate-700/30">
+                        <h4 className="font-medium text-orange-400 mb-2 text-sm">{category}</h4>
+                        <div className="space-y-2">
+                          {toppings.map((topping) => (
+                            <label key={topping.id} className="flex items-center gap-2 cursor-pointer hover:bg-slate-600/30 p-1 rounded">
+                              <input
+                                type="checkbox"
+                                checked={formData.toppings.includes(topping.id)}
+                                onChange={() => toggleTopping(topping.id)}
+                                className="bg-slate-700 border-gray-600 rounded focus:ring-orange-500"
+                              />
+                              <span className="text-sm text-gray-300 flex-1">{topping.name}</span>
+                              <span className="text-xs text-gray-400">+${topping.priceModifier}</span>
+                            </label>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>

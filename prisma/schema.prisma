@@ -162,6 +162,7 @@ model Order {
   
   // Order Type and Delivery
   orderType     OrderType   @default(PICKUP)
+  paymentMethod String?
   deliveryAddress String?
   deliveryCity    String?
   deliveryZip     String?
@@ -169,17 +170,21 @@ model Order {
   scheduledTime   DateTime?
   
   // Pricing
-  subtotal      Float
-  deliveryFee   Float       @default(0)
-  tax           Float
-  total         Float
+  subtotal         Float
+  deliveryFee      Float       @default(0)
+  tipAmount        Float?
+  tipPercentage    Float?
+  customTipAmount  Float?
+  tax              Float
+  total            Float
   notes         String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
   // Relations
-  user         User?       @relation(fields: [userId], references: [id])
-  orderItems   OrderItem[]
+  user           User?           @relation(fields: [userId], references: [id])
+  orderItems     OrderItem[]
+  priceSnapshots PriceSnapshot[]
   
   @@map("orders")
 }
@@ -256,4 +261,34 @@ enum SettingType {
   NUMBER
   BOOLEAN
   JSON
+}
+
+// Pricing Snapshots for Historical Accuracy
+model PriceSnapshot {
+  id            String   @id @default(cuid())
+  orderId       String
+  componentType String   // 'SIZE', 'CRUST', 'SAUCE', 'TOPPING'
+  componentId   String
+  componentName String
+  snapshotPrice Float
+  createdAt     DateTime @default(now())
+
+  // Relations
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@map("price_snapshots")
+}
+
+model PricingHistory {
+  id            String   @id @default(cuid())
+  componentType String   // 'SIZE', 'CRUST', 'SAUCE', 'TOPPING'
+  componentId   String
+  componentName String
+  oldPrice      Float?
+  newPrice      Float
+  changeReason  String?
+  changedBy     String?
+  changedAt     DateTime @default(now())
+  
+  @@map("pricing_history")
 }

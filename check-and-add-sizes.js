@@ -13,10 +13,10 @@ async function checkAndAddSizes() {
       console.log('Adding default sizes...');
       
       const sizes = [
-        { name: 'SMALL', diameter: 10, basePrice: 12.99 },
-        { name: 'MEDIUM', diameter: 12, basePrice: 15.99 },
-        { name: 'LARGE', diameter: 14, basePrice: 18.99 },
-        { name: 'EXTRA LARGE', diameter: 16, basePrice: 21.99 }
+        { name: 'SMALL', diameter: '10"', basePrice: 12.99 },
+        { name: 'MEDIUM', diameter: '12"', basePrice: 15.99 },
+        { name: 'LARGE', diameter: '14"', basePrice: 18.99 },
+        { name: 'EXTRA LARGE', diameter: '16"', basePrice: 21.99 }
       ];
       
       let sizeCount = 0;
