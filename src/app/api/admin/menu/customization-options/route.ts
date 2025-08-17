@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { MenuValidator } from '@/lib/validation/menu-validation';
 
 export async function GET(request: NextRequest) {
   try {
@@ -51,12 +52,31 @@ export async function POST(request: NextRequest) {
       allergens
     } = body;
 
-    // Validate required fields
-    if (!groupId || !name) {
-      return NextResponse.json({
-        success: false,
-        error: 'Group ID and name are required'
-      }, { status: 400 });
+    // Comprehensive validation
+    const validationResult = MenuValidator.validateCustomizationOption({
+      name,
+      groupId,
+      description,
+      priceModifier,
+      priceType,
+      isDefault,
+      isActive,
+      sortOrder,
+      maxQuantity,
+      nutritionInfo,
+      allergens
+    });
+
+    if (!validationResult.isValid) {
+      return NextResponse.json(
+        MenuValidator.formatValidationResponse(validationResult, 'Customization Option'),
+        { status: 400 }
+      );
+    }
+
+    // Show warnings if any
+    if (validationResult.warnings && validationResult.warnings.length > 0) {
+      console.log('Validation warnings:', validationResult.warnings);
     }
 
     // Check if group exists

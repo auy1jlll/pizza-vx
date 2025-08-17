@@ -1,6 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+// Basic validation functions
+function validateCategoryData(data: any) {
+  const errors: string[] = [];
+  
+  // Check name
+  if (!data.name || typeof data.name !== 'string' || data.name.trim().length === 0) {
+    errors.push('Category name is required and cannot be empty');
+  } else if (data.name.trim().length > 100) {
+    errors.push('Category name must be under 100 characters');
+  }
+  
+  // Check slug
+  if (!data.slug || typeof data.slug !== 'string' || data.slug.trim().length === 0) {
+    errors.push('Category slug is required and cannot be empty');
+  } else if (!/^[a-z0-9-]+$/.test(data.slug)) {
+    errors.push('Category slug must contain only lowercase letters, numbers, and hyphens');
+  }
+  
+  // Check description length
+  if (data.description && data.description.length > 500) {
+    errors.push('Category description must be under 500 characters');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
 // GET /api/admin/menu/categories - Get all categories with counts
 export async function GET(request: NextRequest) {
   try {
@@ -34,10 +63,23 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, slug, description, imageUrl, isActive = true, sortOrder = 0 } = body;
 
-    // Validate required fields
-    if (!name || !slug) {
+    // Basic validation
+    const validation = validateCategoryData({
+      name,
+      slug,
+      description,
+      imageUrl,
+      isActive,
+      sortOrder
+    });
+
+    if (!validation.isValid) {
       return NextResponse.json(
-        { success: false, error: 'Name and slug are required' },
+        { 
+          success: false, 
+          error: 'Category validation failed',
+          details: validation.errors 
+        },
         { status: 400 }
       );
     }

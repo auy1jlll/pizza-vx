@@ -19,6 +19,12 @@ import {
   List
 } from 'lucide-react';
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface CustomizationGroup {
   id: string;
   name: string;
@@ -61,6 +67,7 @@ interface CustomizationOption {
 export default function CustomizationsPage() {
   const [groups, setGroups] = useState<CustomizationGroup[]>([]);
   const [options, setOptions] = useState<CustomizationOption[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'groups' | 'options'>('groups');
@@ -76,14 +83,16 @@ export default function CustomizationsPage() {
     try {
       setLoading(true);
       
-      const [groupsResponse, optionsResponse] = await Promise.all([
+      const [groupsResponse, optionsResponse, categoriesResponse] = await Promise.all([
         fetch('/api/admin/menu/customization-groups'),
-        fetch('/api/admin/menu/customization-options')
+        fetch('/api/admin/menu/customization-options'),
+        fetch('/api/admin/menu/categories')
       ]);
 
-      const [groupsResult, optionsResult] = await Promise.all([
+      const [groupsResult, optionsResult, categoriesResult] = await Promise.all([
         groupsResponse.json(),
-        optionsResponse.json()
+        optionsResponse.json(),
+        categoriesResponse.json()
       ]);
 
       if (groupsResult.success) {
@@ -93,6 +102,16 @@ export default function CustomizationsPage() {
       if (optionsResult.success) {
         setOptions(optionsResult.data);
       }
+
+      // Categories response might be a direct array or wrapped in an object
+      if (Array.isArray(categoriesResult)) {
+        setCategories(categoriesResult);
+      } else if (categoriesResult.success && categoriesResult.data) {
+        setCategories(categoriesResult.data);
+      } else if (categoriesResult.categories) {
+        setCategories(categoriesResult.categories);
+      }
+      
     } catch (err) {
       setError('Unable to connect to server');
       console.error('Error fetching customizations:', err);
@@ -135,8 +154,6 @@ export default function CustomizationsPage() {
                          option.group.name.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
-
-  const uniqueCategories = [...new Set(groups.map(g => g.category?.slug).filter(Boolean))];
 
   if (loading) {
     return (
@@ -185,6 +202,107 @@ export default function CustomizationsPage() {
         </div>
 
         <div className="p-6">
+          {/* Instructions Section */}
+          <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 mb-8">
+            <div className="flex items-center mb-4">
+              <div className="bg-blue-500/20 p-3 rounded-xl mr-4">
+                <span className="text-2xl">💡</span>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white">Understanding Customization System</h2>
+                <p className="text-white/70">Learn how customization groups and options work together</p>
+              </div>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white mb-3">📋 Customization Groups</h3>
+                <div className="space-y-3">
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center mb-2">
+                      <span className="text-lg mr-2">⚪</span>
+                      <span className="font-medium text-white">Single Select</span>
+                    </div>
+                    <p className="text-white/70 text-sm">Customer picks ONE option (e.g., Size: Small/Medium/Large)</p>
+                  </div>
+                  
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center mb-2">
+                      <span className="text-lg mr-2">☑️</span>
+                      <span className="font-medium text-white">Multi Select</span>
+                    </div>
+                    <p className="text-white/70 text-sm">Customer picks MULTIPLE options (e.g., Toppings: Lettuce + Tomato + Cheese)</p>
+                  </div>
+                  
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center mb-2">
+                      <span className="text-lg mr-2">🔢</span>
+                      <span className="font-medium text-white">Quantity Select</span>
+                    </div>
+                    <p className="text-white/70 text-sm">Customer picks quantity for each option (e.g., Extra Cheese: 1x, 2x, 3x)</p>
+                  </div>
+                  
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center mb-2">
+                      <span className="text-lg mr-2">⚙️</span>
+                      <span className="font-medium text-white">Special Logic</span>
+                    </div>
+                    <p className="text-white/70 text-sm">Custom rules (e.g., Dinner Plates: "Pick 2 of 3 sides")</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white mb-3">🔧 How It Works</h3>
+                <div className="space-y-3">
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center mb-2">
+                      <span className="text-lg mr-2">1️⃣</span>
+                      <span className="font-medium text-white">Create Groups</span>
+                    </div>
+                    <p className="text-white/70 text-sm">Define categories like "Bread", "Condiments", "Protein"</p>
+                  </div>
+                  
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center mb-2">
+                      <span className="text-lg mr-2">2️⃣</span>
+                      <span className="font-medium text-white">Add Options</span>
+                    </div>
+                    <p className="text-white/70 text-sm">Fill groups with choices: White Bread ($0), Wheat Bread (+$0.50)</p>
+                  </div>
+                  
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center mb-2">
+                      <span className="text-lg mr-2">3️⃣</span>
+                      <span className="font-medium text-white">Link to Menu Items</span>
+                    </div>
+                    <p className="text-white/70 text-sm">Assign groups to menu items (Turkey Club → Bread + Condiments)</p>
+                  </div>
+                  
+                  <div className="bg-white/10 rounded-lg p-3">
+                    <div className="flex items-center mb-2">
+                      <span className="text-lg mr-2">✨</span>
+                      <span className="font-medium text-white">Customer Orders</span>
+                    </div>
+                    <p className="text-white/70 text-sm">Customers see customization options when ordering menu items</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6 bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <span className="text-lg mr-2">💰</span>
+                <span className="font-medium text-amber-300">Pricing Tips</span>
+              </div>
+              <p className="text-amber-200/80 text-sm">
+                • Set price modifiers for premium options (e.g., Avocado +$2.00)<br/>
+                • Mark common options as "Default" for faster ordering<br/>
+                • Use negative prices for discounts (e.g., No Cheese -$1.00)
+              </p>
+            </div>
+          </div>
+
           {/* Tabs */}
           <div className="flex space-x-1 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-1 mb-6">
             <button
@@ -265,9 +383,9 @@ export default function CustomizationsPage() {
                       >
                         <option value="all" className="bg-slate-800">All Categories</option>
                         <option value="global" className="bg-slate-800">Global</option>
-                        {uniqueCategories.map(category => (
-                          <option key={category} value={category} className="bg-slate-800 capitalize">
-                            {category?.replace('-', ' ')}
+                        {categories.map(category => (
+                          <option key={category.id} value={category.slug} className="bg-slate-800 capitalize">
+                            {category.name}
                           </option>
                         ))}
                       </select>

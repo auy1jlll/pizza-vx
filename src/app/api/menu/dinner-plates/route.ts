@@ -30,7 +30,17 @@ export async function GET(request: NextRequest) {
       orderBy: { sortOrder: 'asc' }
     });
 
-    return NextResponse.json(dinnerPlates);
+    return NextResponse.json({
+      success: true,
+      data: {
+        category: dinnerPlates[0]?.category || { 
+          id: 'dinner-plates', 
+          name: 'Dinner Plates', 
+          slug: 'dinner-plates' 
+        },
+        items: dinnerPlates
+      }
+    });
   } catch (error) {
     console.error('Database error fetching dinner plates:', error);
     return NextResponse.json(

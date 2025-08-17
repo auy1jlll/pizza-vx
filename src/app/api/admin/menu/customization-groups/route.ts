@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { MenuValidator } from '@/lib/validation/menu-validation';
 
 const prisma = new PrismaClient();
 
@@ -73,12 +74,29 @@ export async function POST(request: NextRequest) {
       options = []
     } = body;
 
-    // Validate required fields
-    if (!name || !type) {
+    // Comprehensive validation
+    const validationResult = MenuValidator.validateCustomizationGroup({
+      name,
+      categoryId,
+      description,
+      type,
+      isRequired,
+      minSelections,
+      maxSelections,
+      sortOrder,
+      isActive
+    });
+
+    if (!validationResult.isValid) {
       return NextResponse.json(
-        { error: 'Name and type are required' },
+        MenuValidator.formatValidationResponse(validationResult, 'Customization Group'),
         { status: 400 }
       );
+    }
+
+    // Show warnings if any
+    if (validationResult.warnings && validationResult.warnings.length > 0) {
+      console.log('Validation warnings:', validationResult.warnings);
     }
 
     // Validate type

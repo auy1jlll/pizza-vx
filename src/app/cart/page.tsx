@@ -99,6 +99,9 @@ export default function CartPage() {
     try {
       localStorage.setItem('menuCart', JSON.stringify(items));
       setMenuItems(items);
+      
+      // Trigger event for FloatingCartButton to update
+      window.dispatchEvent(new Event('menuCartUpdated'));
     } catch (error) {
       console.error('Error saving menu cart:', error);
     }
@@ -372,7 +375,7 @@ export default function CartPage() {
                           <div className="flex-1">
                             <div className="flex items-start justify-between mb-2">
                               <div>
-                                <h3 className="text-lg font-bold text-gray-800">{item.name}</h3>
+                                <h3 className="text-lg font-bold text-gray-800">{item.name || 'Unnamed Item'}</h3>
                                 {item.category && (
                                   <p className="text-gray-600 text-sm">{item.category}</p>
                                 )}
@@ -408,7 +411,8 @@ export default function CartPage() {
                               <div className="text-right">
                                 <p className="text-xl font-bold text-gray-800">
                                   ${(() => {
-                                    const price = Number(item.price) || 0;
+                                    // Handle both new 'price' field and legacy 'totalPrice' field (same as subtotal calculation)
+                                    const price = Number(item.price || item.totalPrice) || 0;
                                     const quantity = Number(item.quantity) || 1;
                                     const total = price * quantity;
                                     return isNaN(total) ? '0.00' : total.toFixed(2);

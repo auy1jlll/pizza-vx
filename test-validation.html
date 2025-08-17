@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Validation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .test-results { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Menu Validation System Test</h1>
+    <p>This page tests the validation system for menu categories, items, and customizations.</p>
+    
+    <div class="test-section">
+        <h2>1. Category Validation Tests</h2>
+        <button onclick="testValidCategory()">Test Valid Category</button>
+        <button onclick="testEmptyNameCategory()">Test Empty Name Category</button>
+        <button onclick="testInvalidSlugCategory()">Test Invalid Slug Category</button>
+        <div id="categoryResults" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Menu Item Validation Tests</h2>
+        <button onclick="testValidMenuItem()">Test Valid Menu Item</button>
+        <button onclick="testEmptyNameMenuItem()">Test Empty Name Item</button>
+        <button onclick="testNegativePriceMenuItem()">Test Negative Price Item</button>
+        <div id="menuItemResults" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Customization Group Tests</h2>
+        <button onclick="testValidCustomizationGroup()">Test Valid Group</button>
+        <button onclick="testInvalidTypeGroup()">Test Invalid Type Group</button>
+        <div id="customizationResults" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Cart Data Validation</h2>
+        <button onclick="validateCartData()">Validate Current Cart</button>
+        <button onclick="showCartData()">Show Cart Structure</button>
+        <div id="cartResults" class="test-results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3005';
+        
+        function showResult(elementId, title, success, message, details = null) {
+            const element = document.getElementById(elementId);
+            const className = success ? 'success' : 'error';
+            let html = `<div class="${className}">
+                <h4>${success ? '✅' : '❌'} ${title}</h4>
+                <p>${message}</p>
+            `;
+            if (details) {
+                html += `<pre>${JSON.stringify(details, null, 2)}</pre>`;
+            }
+            html += '</div>';
+            element.innerHTML += html;
+        }
+
+        // Category Tests
+        async function testValidCategory() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/menu/categories`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: 'Test Category',
+                        slug: 'test-category-' + Date.now(),
+                        description: 'A test category'
+                    })
+                });
+                
+                const result = await response.json();
+                showResult('categoryResults', 'Valid Category', 
+                    response.status === 200, 
+                    response.status === 200 ? 'Category created successfully' : 'Category creation failed',
+                    result
+                );
+            } catch (error) {
+                showResult('categoryResults', 'Valid Category', false, `Error: ${error.message}`);
+            }
+        }
+
+        async function testEmptyNameCategory() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/menu/categories`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: '',
+                        slug: 'empty-name-test'
+                    })
+                });
+                
+                const result = await response.json();
+                showResult('categoryResults', 'Empty Name Validation', 
+                    response.status === 400, 
+                    response.status === 400 ? 'Empty name correctly rejected' : 'Empty name validation failed',
+                    result
+                );
+            } catch (error) {
+                showResult('categoryResults', 'Empty Name Validation', false, `Error: ${error.message}`);
+            }
+        }
+
+        async function testInvalidSlugCategory() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/menu/categories`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: 'Valid Name',
+                        slug: 'Invalid Slug With Spaces!'
+                    })
+                });
+                
+                const result = await response.json();
+                showResult('categoryResults', 'Invalid Slug Validation', 
+                    response.status === 400, 
+                    response.status === 400 ? 'Invalid slug correctly rejected' : 'Invalid slug validation failed',
+                    result
+                );
+            } catch (error) {
+                showResult('categoryResults', 'Invalid Slug Validation', false, `Error: ${error.message}`);
+            }
+        }
+
+        // Menu Item Tests
+        async function testValidMenuItem() {
+            try {
+                // First get a category ID
+                const categoriesResponse = await fetch(`${API_BASE}/api/admin/menu/categories`);
+                const categoriesData = await categoriesResponse.json();
+                
+                if (!categoriesData || categoriesData.length === 0) {
+                    showResult('menuItemResults', 'Valid Menu Item', false, 'No categories found to test with');
+                    return;
+                }
+                
+                const categoryId = categoriesData[0].id;
+                
+                const response = await fetch(`${API_BASE}/api/admin/menu/items`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: 'Test Menu Item',
+                        categoryId: categoryId,
+                        basePrice: 12.99,
+                        description: 'A test menu item'
+                    })
+                });
+                
+                const result = await response.json();
+                showResult('menuItemResults', 'Valid Menu Item', 
+                    response.status === 200, 
+                    response.status === 200 ? 'Menu item created successfully' : 'Menu item creation failed',
+                    result
+                );
+            } catch (error) {
+                showResult('menuItemResults', 'Valid Menu Item', false, `Error: ${error.message}`);
+            }
+        }
+
+        async function testEmptyNameMenuItem() {
+            try {
+                const categoriesResponse = await fetch(`${API_BASE}/api/admin/menu/categories`);
+                const categoriesData = await categoriesResponse.json();
+                const categoryId = categoriesData[0]?.id;
+                
+                const response = await fetch(`${API_BASE}/api/admin/menu/items`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: '',
+                        categoryId: categoryId,
+                        basePrice: 12.99
+                    })
+                });
+                
+                const result = await response.json();
+                showResult('menuItemResults', 'Empty Name Validation', 
+                    response.status === 400, 
+                    response.status === 400 ? 'Empty name correctly rejected' : 'Empty name validation failed',
+                    result
+                );
+            } catch (error) {
+                showResult('menuItemResults', 'Empty Name Validation', false, `Error: ${error.message}`);
+            }
+        }
+
+        async function testNegativePriceMenuItem() {
+            try {
+                const categoriesResponse = await fetch(`${API_BASE}/api/admin/menu/categories`);
+                const categoriesData = await categoriesResponse.json();
+                const categoryId = categoriesData[0]?.id;
+                
+                const response = await fetch(`${API_BASE}/api/admin/menu/items`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: 'Valid Name',
+                        categoryId: categoryId,
+                        basePrice: -5.99
+                    })
+                });
+                
+                const result = await response.json();
+                showResult('menuItemResults', 'Negative Price Validation', 
+                    response.status === 400, 
+                    response.status === 400 ? 'Negative price correctly rejected' : 'Negative price validation failed',
+                    result
+                );
+            } catch (error) {
+                showResult('menuItemResults', 'Negative Price Validation', false, `Error: ${error.message}`);
+            }
+        }
+
+        // Customization Tests
+        async function testValidCustomizationGroup() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/menu/customization-groups`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: 'Test Group',
+                        type: 'SINGLE_SELECT',
+                        description: 'A test customization group'
+                    })
+                });
+                
+                const result = await response.json();
+                showResult('customizationResults', 'Valid Customization Group', 
+                    response.status === 200, 
+                    response.status === 200 ? 'Group created successfully' : 'Group creation failed',
+                    result
+                );
+            } catch (error) {
+                showResult('customizationResults', 'Valid Customization Group', false, `Error: ${error.message}`);
+            }
+        }
+
+        async function testInvalidTypeGroup() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/menu/customization-groups`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: 'Test Group',
+                        type: 'INVALID_TYPE'
+                    })
+                });
+                
+                const result = await response.json();
+                showResult('customizationResults', 'Invalid Type Validation', 
+                    response.status === 400, 
+                    response.status === 400 ? 'Invalid type correctly rejected' : 'Invalid type validation failed',
+                    result
+                );
+            } catch (error) {
+                showResult('customizationResults', 'Invalid Type Validation', false, `Error: ${error.message}`);
+            }
+        }
+
+        // Cart Validation
+        function validateCartData() {
+            const cartData = localStorage.getItem('menuCart');
+            const cartItems = localStorage.getItem('cartItems');
+            
+            if (!cartData && !cartItems) {
+                showResult('cartResults', 'Cart Validation', true, 'No cart data found - nothing to validate');
+                return;
+            }
+            
+            const issues = [];
+            
+            try {
+                if (cartData) {
+                    const cart = JSON.parse(cartData);
+                    if (cart.items && Array.isArray(cart.items)) {
+                        cart.items.forEach((item, index) => {
+                            if (!item.name || item.name.trim().length === 0) {
+                                issues.push(`Cart item ${index}: Missing or empty name`);
+                            }
+                            if (item.price === undefined && item.totalPrice === undefined && item.finalPrice === undefined) {
+                                issues.push(`Cart item ${index}: No price fields found`);
+                            }
+                        });
+                    }
+                }
+                
+                if (cartItems) {
+                    const items = JSON.parse(cartItems);
+                    if (Array.isArray(items)) {
+                        items.forEach((item, index) => {
+                            if (!item.name || item.name.trim().length === 0) {
+                                issues.push(`CartItems[${index}]: Missing or empty name`);
+                            }
+                        });
+                    }
+                }
+                
+                showResult('cartResults', 'Cart Data Validation', 
+                    issues.length === 0, 
+                    issues.length === 0 ? 'All cart data is valid' : `Found ${issues.length} validation issues`,
+                    issues.length > 0 ? issues : null
+                );
+                
+            } catch (error) {
+                showResult('cartResults', 'Cart Data Validation', false, `Error parsing cart data: ${error.message}`);
+            }
+        }
+
+        function showCartData() {
+            const cartData = localStorage.getItem('menuCart');
+            const cartItems = localStorage.getItem('cartItems');
+            
+            const data = {};
+            if (cartData) {
+                try {
+                    data.menuCart = JSON.parse(cartData);
+                } catch (e) {
+                    data.menuCart = 'Invalid JSON';
+                }
+            }
+            if (cartItems) {
+                try {
+                    data.cartItems = JSON.parse(cartItems);
+                } catch (e) {
+                    data.cartItems = 'Invalid JSON';
+                }
+            }
+            
+            showResult('cartResults', 'Cart Data Structure', true, 'Current cart data:', data);
+        }
+
+        // Clear results function
+        function clearResults() {
+            ['categoryResults', 'menuItemResults', 'customizationResults', 'cartResults'].forEach(id => {
+                document.getElementById(id).innerHTML = '';
+            });
+        }
+    </script>
+
+    <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+        <h3>📝 Test Instructions</h3>
+        <p>1. Make sure the development server is running on localhost:3005</p>
+        <p>2. Click the test buttons above to validate different aspects of the system</p>
+        <p>3. Green results indicate successful validation, red results indicate failures</p>
+        <p>4. Cart validation tests check your current localStorage cart data</p>
+        <button onclick="clearResults()" style="background: #6c757d;">Clear All Results</button>
+    </div>
+</body>
+</html>

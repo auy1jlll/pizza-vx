@@ -566,7 +566,7 @@ export default function CheckoutPage() {
                     <div className="flex-1">
                       <h3 className="font-medium text-gray-800">
                         {/* Handle both pizza items and menu items */}
-                        {(item as any).name || 'Custom Pizza'}
+                        {(item as any).name || 'Unnamed Item'}
                       </h3>
                       {item.size && (
                         <p className="text-sm text-gray-500">Size: {item.size.name}</p>
@@ -596,7 +596,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-gray-800">
-                        ${(((item as any).finalPrice || item.totalPrice) * item.quantity).toFixed(2)}
+                        ${(((item as any).finalPrice || item.totalPrice || (item as any).price || 0) * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>

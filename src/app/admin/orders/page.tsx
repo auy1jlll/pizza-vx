@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { useToast } from '@/components/ToastProvider';
+import { useSexyToast } from '@/components/SexyToastProvider';
 
 interface PizzaSize {
   id: string;
@@ -80,6 +81,7 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updateLoading, setUpdateLoading] = useState<string | null>(null);
   const { show: showToast } = useToast();
+  const sexyToast = useSexyToast();
 
   // Helper functions for order categorization
   const getOrderTypeIcon = (orderType: string): string => {
@@ -212,63 +214,78 @@ export default function AdminOrders() {
   };
 
   const clearAllOrders = async () => {
-    if (!confirm('Are you sure you want to clear ALL orders? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await fetch('/api/admin/orders?clearAll=true', {
-        method: 'DELETE'
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setOrders([]);
-        setSelectedOrder(null);
-        showToast(data.message || 'All orders cleared', { type: 'success' });
-      } else {
-        setError(data.error || 'Failed to clear orders');
+    sexyToast.showConfirm({
+      title: 'Clear All Orders',
+      message: 'Are you sure you want to clear ALL orders? This action cannot be undone.',
+      confirmText: 'Clear All',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          
+          const response = await fetch('/api/admin/orders?clearAll=true', {
+            method: 'DELETE'
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            setOrders([]);
+            setSelectedOrder(null);
+            sexyToast.showSuccess('All orders cleared successfully!');
+          } else {
+            setError(data.error || 'Failed to clear orders');
+            sexyToast.showError(data.error || 'Failed to clear orders');
+          }
+        } catch (err) {
+          setError('Failed to clear orders');
+          sexyToast.showError('Failed to clear orders');
+          console.error('Error clearing orders:', err);
+        } finally {
+          setLoading(false);
+        }
       }
-    } catch (err) {
-      setError('Failed to clear orders');
-      console.error('Error clearing orders:', err);
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const deleteOrder = async (orderId: string) => {
-    if (!confirm('Are you sure you want to delete this order?')) {
-      return;
-    }
-
-    try {
-      setUpdateLoading(orderId);
-      
-      const response = await fetch(`/api/admin/orders?orderId=${orderId}`, {
-        method: 'DELETE'
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setOrders(prev => prev.filter(order => order.id !== orderId));
-        if (selectedOrder?.id === orderId) {
-          setSelectedOrder(null);
+    sexyToast.showConfirm({
+      title: 'Delete Order',
+      message: 'Are you sure you want to delete this order? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          setUpdateLoading(orderId);
+          
+          const response = await fetch(`/api/admin/orders?orderId=${orderId}`, {
+            method: 'DELETE'
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            setOrders(prev => prev.filter(order => order.id !== orderId));
+            if (selectedOrder?.id === orderId) {
+              setSelectedOrder(null);
+            }
+            sexyToast.showSuccess('Order deleted successfully!');
+          } else {
+            setError(data.error || 'Failed to delete order');
+            sexyToast.showError(data.error || 'Failed to delete order');
+          }
+        } catch (err) {
+          setError('Failed to delete order');
+          sexyToast.showError('Failed to delete order');
+          console.error('Error deleting order:', err);
+        } finally {
+          setUpdateLoading(null);
         }
-      } else {
-        setError(data.error || 'Failed to delete order');
       }
-    } catch (err) {
-      setError('Failed to delete order');
-      console.error('Error deleting order:', err);
-    } finally {
-      setUpdateLoading(null);
-    }
+    });
   };
 
   const formatDate = (dateString: string) => {

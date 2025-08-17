@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiSettings } from 'react-icons/fi';
 import AdminLayout from '@/components/AdminLayout';
+import { useSexyToast } from '@/components/SexyToastProvider';
 
 interface CustomizationGroup {
   id: string;
@@ -31,6 +32,7 @@ interface CustomizationGroup {
 
 export default function CustomizationGroupsPage() {
   const router = useRouter();
+  const toast = useSexyToast();
   const [loading, setLoading] = useState(true);
   const [groups, setGroups] = useState<CustomizationGroup[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -64,23 +66,31 @@ export default function CustomizationGroupsPage() {
   };
 
   const handleDeleteGroup = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this customization group?')) return;
+    toast.showConfirm({
+      title: 'Delete Customization Group',
+      message: 'Are you sure you want to delete this customization group? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/admin/menu/customization-groups/${id}`, {
+            method: 'DELETE'
+          });
 
-    try {
-      const response = await fetch(`/api/admin/menu/customization-groups/${id}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        setGroups(groups.filter(group => group.id !== id));
-      } else {
-        const error = await response.json();
-        alert(error.error || 'Failed to delete customization group');
+          if (response.ok) {
+            setGroups(groups.filter(group => group.id !== id));
+            toast.showSuccess('Customization group deleted successfully!');
+          } else {
+            const error = await response.json();
+            toast.showError(error.error || 'Failed to delete customization group');
+          }
+        } catch (error) {
+          console.error('Error deleting customization group:', error);
+          toast.showError('Failed to delete customization group');
+        }
       }
-    } catch (error) {
-      console.error('Error deleting customization group:', error);
-      alert('Failed to delete customization group');
-    }
+    });
   };
 
   const filteredGroups = groups.filter(group => {

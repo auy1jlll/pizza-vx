@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { MenuValidator } from '@/lib/validation/menu-validation';
 
 // GET /api/admin/menu/items - Get all menu items with pagination and modifiers
 export async function GET(request: NextRequest) {
@@ -114,17 +115,32 @@ export async function POST(request: NextRequest) {
       customizationGroups: customizationGroups.length 
     });
 
-    // Validate required fields
-    if (!name || !categoryId || basePrice == null) {
-      console.log('Validation failed - missing required fields:', {
-        name: !!name,
-        categoryId: !!categoryId,
-        basePrice: basePrice != null
-      });
+    // Comprehensive validation
+    const validationResult = MenuValidator.validateItem({
+      name,
+      categoryId,
+      basePrice,
+      description,
+      imageUrl: undefined, // Not provided in this request
+      isActive,
+      isAvailable,
+      sortOrder,
+      preparationTime,
+      allergens,
+      nutritionInfo
+    });
+
+    if (!validationResult.isValid) {
+      console.log('Validation failed:', validationResult.errors);
       return NextResponse.json(
-        { error: 'Name, category ID, and base price are required' },
+        MenuValidator.formatValidationResponse(validationResult, 'Menu Item'),
         { status: 400 }
       );
+    }
+
+    // Show warnings if any
+    if (validationResult.warnings && validationResult.warnings.length > 0) {
+      console.log('Validation warnings:', validationResult.warnings);
     }
 
     // Validate category exists

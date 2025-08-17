@@ -64,7 +64,12 @@ export class CustomizationEngine {
    * Get all available menu items with their customization options
    */
   async getMenuData(categorySlug?: string) {
-    const where = categorySlug ? { category: { slug: categorySlug } } : {};
+    const where = categorySlug ? { 
+      category: { 
+        slug: categorySlug,
+        isActive: true 
+      } 
+    } : {};
 
     const menuItems = await this.prisma.menuItem.findMany({
       where: {
