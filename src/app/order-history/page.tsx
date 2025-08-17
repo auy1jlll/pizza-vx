@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useCart } from '@/contexts/CartContext';
+import { useToast } from '@/components/ToastProvider';
 import { useUser } from '@/contexts/UserContext';
 
 interface OrderItem {
@@ -78,6 +79,7 @@ export default function OrderHistory() {
   const [reorderLoading, setReorderLoading] = useState<Set<string>>(new Set());
   
   const { addDetailedPizza } = useCart();
+  const { show: showToast } = useToast();
   const { user } = useUser();
 
   // Auto-fill email if user is authenticated
@@ -167,10 +169,10 @@ export default function OrderHistory() {
       });
 
       // Show success message
-      alert('Item added to cart!');
+  showToast('Item added to cart!', { type: 'success' });
     } catch (error) {
       console.error('Error reordering item:', error);
-      alert('Failed to add item to cart. Please try again.');
+  showToast('Failed to add item to cart.', { type: 'error' });
     } finally {
       setReorderLoading(prev => {
         const newSet = new Set(prev);

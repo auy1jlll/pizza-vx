@@ -3,36 +3,32 @@ import jwt from 'jsonwebtoken';
 import prisma from '@/lib/prisma';
 import { CreateOrderSchema, validateSchema, createApiResponse, createApiError } from '@/lib/schemas';
 import { OrderService } from '@/services';
-import { orderRateLimit } from '@/lib/rate-limit';
+import { orderLimiter } from '@/lib/simple-rate-limit';
 
 export async function POST(request: NextRequest) {
-  // Apply rate limiting for order creation with error handling
   try {
-    const rateLimitResult = await new Promise((resolve) => {
-      orderRateLimit(request as any, {
-        status: (code: number) => ({
-          json: (data: any) => resolve({ error: true, status: code, data })
-        })
-      } as any, () => resolve({ error: false }));
-    });
-
-    if ((rateLimitResult as any).error) {
+    // Lightweight rate limiting (in-memory)
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+    const limitResult = orderLimiter.check('checkout', ip || undefined);
+    if (!limitResult.allowed) {
       return NextResponse.json(
-        (rateLimitResult as any).data,
-        { status: (rateLimitResult as any).status }
+        createApiError('Too many orders from this IP. Please wait before trying again.', 429),
+        { status: 429, headers: { 'Retry-After': Math.ceil((limitResult.resetAt - Date.now())/1000).toString() } }
       );
     }
-  } catch (rateLimitError) {
-    console.warn('Rate limiting error:', rateLimitError);
-    // Continue without rate limiting if there's an error
-  }
-
-  try {
     const requestData = await request.json();
+
+    // Debug logging to see what data is being sent
+    console.log('🛒 Checkout request received:');
+    console.log('- Order type:', requestData.orderType);
+    console.log('- Customer:', requestData.customer);
+    console.log('- Items count:', requestData.items?.length);
+    console.log('- Items:', JSON.stringify(requestData.items, null, 2));
 
     // Validate request data with Zod schema
     const validation = validateSchema(CreateOrderSchema, requestData);
     if (!validation.success) {
+      console.log('❌ Validation failed:', validation.error);
       return NextResponse.json(
         createApiError(`Validation error: ${validation.error}`, 400),
         { status: 400 }
@@ -111,13 +107,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       createApiResponse({
-        id: order?.id,
-        orderNumber: order?.orderNumber,
-        total: order?.total,
-        estimatedTime
-      }, 'Order placed successfully!')
+        message: `Your order will be ready in approximately ${estimatedTime}.`,
+        orderNumber: order.orderNumber,
+        estimatedTime,
+        orderId: order.id,
+      }),
+      { status: 201 }
     );
-
   } catch (error) {
     console.error('Checkout error:', error);
     return NextResponse.json(

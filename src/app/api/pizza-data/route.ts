@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { cacheService, CACHE_KEYS } from '@/lib/cache-service';
 import { HTTPCacheService } from '@/lib/http-cache';
 
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 // Cache for 5 minutes in development, 1 hour in production
 const CACHE_DURATION = process.env.NODE_ENV === 'production' ? 3600 : 300;

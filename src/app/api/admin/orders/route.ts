@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
+import { verifyAdminToken } from '@/lib/auth';
+import { adminLimiter } from '@/lib/simple-rate-limit';
 
 export async function GET(request: NextRequest) {
   try {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+  const limit = adminLimiter.check('admin-orders-get', ip);
+  if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
+  const user = verifyAdminToken(request);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     console.log('Fetching orders...');
 
     const orders = await prisma.order.findMany({
@@ -49,6 +54,11 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+  const limit = adminLimiter.check('admin-orders-patch', ip);
+  if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
+  const user = verifyAdminToken(request);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { orderId, status } = await request.json();
 
     if (!orderId || !status) {
@@ -101,6 +111,11 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+  const limit = adminLimiter.check('admin-orders-delete', ip);
+  if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
+  const user = verifyAdminToken(request);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { searchParams } = new URL(request.url);
     const orderId = searchParams.get('orderId');
     const clearAll = searchParams.get('clearAll');

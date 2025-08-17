@@ -44,6 +44,12 @@ export default function Home() {
                 🍀 Specialty Pizzas
               </Link>
               <Link 
+                href="/sandwiches"
+                className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold px-8 py-4 rounded-lg text-lg transition-all duration-300 shadow-2xl hover:scale-105 hover:shadow-amber-500/25"
+              >
+                🥪 Sandwiches
+              </Link>
+              <Link 
                 href="/order-history"
                 className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold px-8 py-4 rounded-lg text-lg transition-all duration-300 shadow-2xl hover:scale-105 hover:shadow-blue-500/25"
               >

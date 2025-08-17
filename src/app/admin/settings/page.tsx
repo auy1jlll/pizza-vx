@@ -13,7 +13,8 @@ import {
   AlertCircle,
   CheckCircle,
   Building,
-  Calculator
+  Calculator,
+  Shield
 } from 'lucide-react';
 
 interface SettingsState {
@@ -228,6 +229,13 @@ export default function SettingsPage() {
       icon: Bell,
       color: 'from-pink-500 to-pink-600',
     },
+    {
+      id: 'security',
+      title: 'Security',
+      description: 'Password management and security settings',
+      icon: Shield,
+      color: 'from-red-500 to-red-600',
+    },
   ];
 
   if (activeSection) {
@@ -304,6 +312,9 @@ export default function SettingsPage() {
               )}
               {activeSection === 'notifications' && (
                 <NotificationsSettings settings={settings} updateSetting={updateSetting} />
+              )}
+              {activeSection === 'security' && (
+                <SecuritySettings />
               )}
             </div>
           </div>
@@ -800,6 +811,161 @@ function NotificationsSettings({
             className="rounded border-white/20 bg-white/10 text-orange-500 focus:ring-orange-500"
           />
         </label>
+      </div>
+    </div>
+  );
+}
+
+function SecuritySettings() {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
+
+    // Client-side validation
+    if (newPassword !== confirmPassword) {
+      setMessage({ type: 'error', text: 'New passwords do not match' });
+      setLoading(false);
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setMessage({ type: 'error', text: 'New password must be at least 6 characters long' });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/change-password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: 'Password changed successfully!' });
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to change password' });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'An error occurred while changing password' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold text-white mb-2">Change Password</h3>
+        <p className="text-white/70 text-sm mb-6">
+          Update your admin account password. Make sure to use a strong, unique password.
+        </p>
+      </div>
+
+      {/* Alert Messages */}
+      {message && (
+        <div className={`p-4 rounded-lg flex items-center space-x-2 ${
+          message.type === 'success' 
+            ? 'bg-green-500/20 border border-green-500/30 text-green-300' 
+            : 'bg-red-500/20 border border-red-500/30 text-red-300'
+        }`}>
+          {message.type === 'success' ? (
+            <CheckCircle className="w-5 h-5" />
+          ) : (
+            <AlertCircle className="w-5 h-5" />
+          )}
+          <span>{message.text}</span>
+        </div>
+      )}
+
+      <form onSubmit={handlePasswordChange} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">
+            Current Password
+          </label>
+          <input
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            required
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            placeholder="Enter your current password"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">
+            New Password
+          </label>
+          <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+            minLength={6}
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            placeholder="Enter your new password (min 6 characters)"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">
+            Confirm New Password
+          </label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            minLength={6}
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            placeholder="Confirm your new password"
+          />
+        </div>
+
+        <div className="pt-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-500 disabled:to-gray-600 text-white font-medium rounded-lg transition-all shadow-lg disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+          >
+            <Shield className="w-5 h-5" />
+            <span>{loading ? 'Changing Password...' : 'Change Password'}</span>
+          </button>
+        </div>
+      </form>
+
+      {/* Security Tips */}
+      <div className="bg-white/5 rounded-lg p-6 mt-8">
+        <h4 className="text-white font-medium mb-3 flex items-center">
+          <Shield className="w-5 h-5 mr-2" />
+          Security Tips
+        </h4>
+        <ul className="space-y-2 text-sm text-white/70">
+          <li>• Use a strong password with at least 8 characters</li>
+          <li>• Include a mix of uppercase, lowercase, numbers, and symbols</li>
+          <li>• Don't reuse passwords from other accounts</li>
+          <li>• Change your password regularly</li>
+          <li>• Never share your admin credentials with others</li>
+        </ul>
       </div>
     </div>
   );

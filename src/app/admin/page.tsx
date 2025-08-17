@@ -6,8 +6,12 @@ import Link from 'next/link';
 
 interface OrderItem {
   id: string;
-  pizzaSize: { name: string; diameter: string };
-  toppings: Array<{ pizzaTopping: { name: string } }>;
+  pizzaSize?: { name: string; diameter: string };
+  toppings?: Array<{ pizzaTopping: { name: string } }>;
+  pizza?: { name: string };
+  menuItem?: { name: string };
+  name?: string;
+  quantity?: number;
 }
 
 interface RecentOrder {
@@ -36,6 +40,12 @@ interface DashboardStats {
     sauces: number;
     toppings: number;
   };
+  menuCounts: {
+    categories: number;
+    items: number;
+    customizationGroups: number;
+    customizationOptions: number;
+  };
 }
 
 // Helper functions
@@ -57,11 +67,27 @@ const formatDate = (date: string) => {
 
 const getOrderDescription = (orderItems: any[]) => {
   if (!orderItems || orderItems.length === 0) return 'No items';
+  
   const firstItem = orderItems[0];
-  if (orderItems.length === 1) {
-    return `${firstItem.quantity}x ${firstItem.pizza?.name || 'Custom Pizza'}`;
+  let itemName = 'Unknown Item';
+  
+  // Handle different item types safely
+  if (firstItem.pizza?.name) {
+    itemName = firstItem.pizza.name;
+  } else if (firstItem.pizzaSize?.name) {
+    itemName = `${firstItem.pizzaSize.name} Pizza`;
+  } else if (firstItem.menuItem?.name) {
+    itemName = firstItem.menuItem.name;
+  } else if (firstItem.name) {
+    itemName = firstItem.name;
+  } else {
+    itemName = 'Custom Pizza';
   }
-  return `${firstItem.quantity}x ${firstItem.pizza?.name || 'Custom Pizza'} + ${orderItems.length - 1} more`;
+  
+  if (orderItems.length === 1) {
+    return `${firstItem.quantity || 1}x ${itemName}`;
+  }
+  return `${firstItem.quantity || 1}x ${itemName} + ${orderItems.length - 1} more`;
 };
 
 const getStatusColor = (status: string) => {
@@ -134,15 +160,28 @@ export default function AdminDashboard() {
   };
 
   const getOrderDescription = (orderItems: OrderItem[]) => {
-    if (orderItems.length === 0) return 'No items';
+    if (!orderItems || orderItems.length === 0) return 'No items';
+    
     const firstItem = orderItems[0];
     const additionalCount = orderItems.length - 1;
-    const toppingsCount = firstItem.toppings.length;
     
-    let description = `${firstItem.pizzaSize.name} Pizza`;
-    if (toppingsCount > 0) {
-      description += ` (${toppingsCount} topping${toppingsCount > 1 ? 's' : ''})`;
+    let description = 'Unknown Item';
+    
+    // Safely handle different item structures
+    if (firstItem.pizzaSize?.name) {
+      const toppingsCount = firstItem.toppings?.length || 0;
+      description = `${firstItem.pizzaSize.name} Pizza`;
+      if (toppingsCount > 0) {
+        description += ` (${toppingsCount} topping${toppingsCount > 1 ? 's' : ''})`;
+      }
+    } else if (firstItem.pizza?.name) {
+      description = firstItem.pizza.name;
+    } else if (firstItem.menuItem?.name) {
+      description = firstItem.menuItem.name;
+    } else if (firstItem.name) {
+      description = firstItem.name;
     }
+    
     if (additionalCount > 0) {
       description += ` +${additionalCount} more`;
     }
@@ -151,12 +190,21 @@ export default function AdminDashboard() {
 
   const managementCards = [
     {
+      title: 'Menu Categories',
+      description: 'Manage menu categories, items, and customizations',
+      href: '/admin/menu-manager',
+      icon: '🍽️',
+      gradient: 'from-emerald-500 to-teal-600',
+      count: (stats?.menuCounts?.categories || 0),
+      unit: 'categories'
+    },
+    {
       title: 'Pizza Manager',
       description: 'Comprehensive pizza component management hub',
       href: '/admin/pizza-manager',
       icon: '🍕',
       gradient: 'from-orange-500 to-red-600',
-      count: (stats?.componentCounts.sizes || 0) + (stats?.componentCounts.crusts || 0) + (stats?.componentCounts.sauces || 0) + (stats?.componentCounts.toppings || 0),
+      count: (stats?.componentCounts?.sizes || 0) + (stats?.componentCounts?.crusts || 0) + (stats?.componentCounts?.sauces || 0) + (stats?.componentCounts?.toppings || 0),
       unit: 'components'
     },
     {

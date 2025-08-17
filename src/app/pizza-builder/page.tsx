@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useToast } from '@/components/ToastProvider';
 import { useSearchParams } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
 
@@ -236,6 +237,7 @@ export default function PizzaBuilder() {
   const specialtyId = searchParams.get('specialty');
   const selectedSizeId = searchParams.get('size'); // Get the selected size from URL
   const { cartItems, addPizza, addDetailedPizza, calculateSubtotal } = useCart();
+  const { show: showToast } = useToast();
   
   const [data, setData] = useState<PizzaBuilderData | null>(null);
   const [specialtyPizza, setSpecialtyPizza] = useState<SpecialtyPizza | null>(null);
@@ -254,6 +256,16 @@ export default function PizzaBuilder() {
     toppings: []
   });
 
+  // Debug selection changes
+  useEffect(() => {
+    console.log('[PizzaBuilder] Selection changed:', {
+      size: selection.size?.name,
+      crust: selection.crust?.name,
+      sauce: selection.sauce?.name,
+      toppingsCount: selection.toppings.length
+    });
+  }, [selection]);
+
   const tabs = [
     { id: 'SIZE', label: 'SIZE' },
     { id: 'SAUCE', label: 'SAUCE' },
@@ -263,15 +275,21 @@ export default function PizzaBuilder() {
   ];
 
   useEffect(() => {
+    console.log('[PizzaBuilder] Component mounting with specialtyId:', specialtyId, 'selectedSizeId:', selectedSizeId);
+    console.log('[PizzaBuilder] About to fetch pizza data...');
     fetchPizzaData();
     
     // Load specialty pizza if specified
     if (specialtyId) {
+      console.log('[PizzaBuilder] SpecialtyId found, fetching specialty pizza...');
       fetchSpecialtyPizza(specialtyId);
+    } else {
+      console.log('[PizzaBuilder] No specialtyId, this is fresh pizza building');
     }
   }, [specialtyId]);
 
   const fetchPizzaData = async () => {
+    console.log('[PizzaBuilder] fetchPizzaData started');
     try {
       // Force fresh data - no caching during debugging
       const response = await fetch(`/api/pizza-data?t=${Date.now()}`, {
@@ -282,8 +300,17 @@ export default function PizzaBuilder() {
         }
       });
       
+      console.log('[PizzaBuilder] Pizza data response status:', response.status);
       const data = await response.json();
+      console.log('[PizzaBuilder] Pizza data received:', {
+        sizes: data.sizes?.length,
+        crusts: data.crusts?.length,
+        sauces: data.sauces?.length,
+        toppings: data.toppings?.length
+      });
+      
       if (data.sizes && data.crusts && data.sauces && data.toppings) {
+        console.log('[PizzaBuilder] Setting pizza data...');
         setData(data);
         
         // Set default active topping category to first available
@@ -292,8 +319,9 @@ export default function PizzaBuilder() {
           setActiveToppingCategory(categories[0] as string);
         }
         
-        // Set default selections based on whether we're customizing a specialty pizza or building fresh
+        // Set default selections ONLY for fresh pizza building
         if (!specialtyId) {
+          console.log('[PizzaBuilder] Fresh pizza - setting defaults');
           // Fresh pizza building - use proper defaults
           const defaultSize = data.sizes.find((s: PizzaSize) => s.sortOrder === 2) || data.sizes[1] || data.sizes[0];
           const defaultCrust = data.crusts.find((c: PizzaCrust) => c.sortOrder === 1) || data.crusts[0];
@@ -316,43 +344,47 @@ export default function PizzaBuilder() {
             }] : []
           });
         } else {
-          // Specialty pizza customization - set minimal defaults that will be overridden
-          setSelection({
-            size: data.sizes[0] || null,
-            crust: data.crusts[0] || null,
-            crustCookingLevel: 'REGULAR',
-            sauce: data.sauces[0] || null,
-            sauceIntensity: 'REGULAR',
-            toppings: []
-          });
+          console.log('[PizzaBuilder] Specialty pizza - NOT setting defaults, waiting for specialty data');
         }
+        // For specialty pizzas, DON'T set any defaults here - wait for specialty data to load
+      } else {
+        console.error('[PizzaBuilder] Invalid pizza data structure:', data);
       }
     } catch (error) {
-      console.error('Error fetching pizza data:', error);
+      console.error('[PizzaBuilder] Error fetching pizza data:', error);
     } finally {
+      console.log('[PizzaBuilder] fetchPizzaData finished, setting loading to false');
       setLoading(false);
     }
   };
 
   const fetchSpecialtyPizza = async (specialtyId: string) => {
+    console.log('[PizzaBuilder] fetchSpecialtyPizza started for:', specialtyId);
     try {
       const response = await fetch(`/api/specialty-pizzas/${specialtyId}`);
+      console.log('[PizzaBuilder] Specialty pizza response status:', response.status);
       if (response.ok) {
         const specialty = await response.json();
+        console.log('[PizzaBuilder] Specialty pizza data received:', specialty.name);
         setSpecialtyPizza(specialty);
-        
-        // Load specialty pizza data into selection after main data is loaded
-        if (data) {
-          loadSpecialtyPizzaSelection(specialty);
-        }
+        // Note: Don't load selection here - let the useEffect handle it when both data and specialty are ready
+      } else {
+        console.error('[PizzaBuilder] Failed to fetch specialty pizza:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching specialty pizza:', error);
+      console.error('[PizzaBuilder] Error fetching specialty pizza:', error);
     }
   };
 
   const loadSpecialtyPizzaSelection = (specialty: SpecialtyPizza) => {
-    if (!data) return;
+    console.log('[PizzaBuilder] loadSpecialtyPizzaSelection called with:', specialty.name);
+    if (!data) {
+      console.log('[PizzaBuilder] No data available, returning');
+      return;
+    }
+    
+    console.log('[PizzaBuilder] Data available, loading specialty selection...');
+    console.log('[PizzaBuilder] Specialty object:', specialty);
     
     // Find the specialty pizza components in the data
     // Use the selected size from URL if available, otherwise use default
@@ -362,31 +394,50 @@ export default function PizzaBuilder() {
     const specialtyCrust = data.crusts.find(c => c.id === specialty.defaultCrustId) || data.crusts[0];
     const specialtySauce = data.sauces.find(s => s.id === specialty.defaultSauceId) || data.sauces[0];
     
+    console.log('[PizzaBuilder] Selected specialty size:', specialtySize?.name);
+    console.log('[PizzaBuilder] Selected specialty crust:', specialtyCrust?.name);
+    console.log('[PizzaBuilder] Selected specialty sauce:', specialtySauce?.name);
+    
+    // Check if specialty has 'toppings' or 'ingredients' property
+    const toppingsSource = specialty.toppings || (specialty as any).ingredients || [];
+    console.log('[PizzaBuilder] Toppings source:', toppingsSource);
+    
     // Convert specialty toppings to selection format
-    const specialtyToppings: SelectedTopping[] = specialty.toppings.map(t => ({
+    const specialtyToppings: SelectedTopping[] = toppingsSource.map((t: any) => ({
       toppingId: t.toppingId,
-      section: t.section,
+      section: t.section || 'WHOLE',
       quantity: 1,
-      intensity: t.intensity
+      intensity: t.intensity || 'REGULAR'
     }));
+    
+    console.log('[PizzaBuilder] Specialty toppings:', specialtyToppings.length, 'items');
     
     // Store the original specialty toppings for comparison
     setOriginalSpecialtyToppings([...specialtyToppings]);
     
-    // Update selection with specialty pizza data
-    setSelection({
+    const newSelection = {
       size: specialtySize,
       crust: specialtyCrust,
-      crustCookingLevel: specialty.crustCookingLevel,
+      crustCookingLevel: specialty.crustCookingLevel || 'REGULAR',
       sauce: specialtySauce,
-      sauceIntensity: specialty.sauceIntensity,
+      sauceIntensity: specialty.sauceIntensity || 'REGULAR',
       toppings: specialtyToppings
-    });
+    };
+    
+    console.log('[PizzaBuilder] Setting new selection:', newSelection);
+    
+    // Update selection with specialty pizza data
+    setSelection(newSelection);
+    
+    // Set active tab to SIZE so user sees the loaded data
+    setActiveTab('SIZE');
   };
 
   // Load specialty selection when both data and specialty are available
   useEffect(() => {
+    console.log('[PizzaBuilder] useEffect triggered - data:', !!data, 'specialtyPizza:', !!specialtyPizza);
     if (data && specialtyPizza) {
+      console.log('[PizzaBuilder] Both data and specialty available, loading selection...');
       loadSpecialtyPizzaSelection(specialtyPizza);
     }
   }, [data, specialtyPizza]);
@@ -686,7 +737,7 @@ export default function PizzaBuilder() {
 
   const handlePlaceOrder = async () => {
     if (!selection.size || !selection.crust || !selection.sauce || !data) {
-      alert('Please complete your pizza selection');
+      showToast('Please complete your pizza selection', { type: 'warning' });
       return;
     }
 

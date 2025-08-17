@@ -1,9 +1,7 @@
 // JWT Improvements Service - Refresh Tokens + Short-lived Access Tokens
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export interface TokenPair {
   accessToken: string;

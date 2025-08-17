@@ -1,7 +1,5 @@
 // Brute Force Protection Service
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export interface LoginAttempt {
   ipAddress: string;

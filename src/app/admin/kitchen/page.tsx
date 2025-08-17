@@ -1,6 +1,10 @@
 'use client';
 
+// Force dynamic rendering to avoid build-time prerender errors due to client-only APIs
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
+import { useToast } from '@/components/ToastProvider';
 import { Clock, Printer, AlertCircle, Timer, Phone, MapPin, User, Maximize2, Minimize2 } from 'lucide-react';
 
 interface OrderItem {
@@ -44,6 +48,7 @@ const KitchenDisplay = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const { show: showToast } = useToast();
 
   // Update current time every second
   useEffect(() => {
@@ -149,7 +154,7 @@ const KitchenDisplay = () => {
       // Refresh orders after updating
       fetchOrders();
     } catch (error) {
-      alert('Failed to update order status. Please try again.');
+  showToast('Failed to update order status. Please try again.', { type: 'error' });
     }
   };
 

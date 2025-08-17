@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { verifyAdminToken } from '@/lib/auth';
 import { cacheService, CACHE_KEYS } from '@/lib/cache-service';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 // GET /api/admin/toppings - Fetch all toppings (with caching)
 export async function GET(request: NextRequest) {

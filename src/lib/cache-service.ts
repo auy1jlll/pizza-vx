@@ -23,6 +23,10 @@ export class CacheService {
   }
 
   private initializeDefaultCaches(): void {
+    // Prevent duplicate initialization if singleton reused (e.g. hot reload)
+    if (this.caches.size > 0) {
+      return; // Already initialized
+    }
     // Toppings cache - Updated infrequently
     this.createCache('toppings', {
       ttl: 1000 * 60 * 30, // 30 minutes
@@ -219,9 +223,8 @@ export class CacheService {
     console.log('[Cache] Starting cache warmup...');
     
     try {
-      // Import PrismaClient here to avoid circular dependencies
-      const { PrismaClient } = await import('@prisma/client');
-      const prisma = new PrismaClient();
+  // Use shared Prisma instance
+  const { default: prisma } = await import('@/lib/prisma');
 
       // Warmup toppings
       const toppings = await prisma.pizzaTopping.findMany({
@@ -265,8 +268,7 @@ export class CacheService {
       });
       this.set('specialty-pizzas', 'all-available', specialtyPizzas);
 
-      await prisma.$disconnect();
-      console.log('[Cache] Cache warmup completed successfully');
+  console.log('[Cache] Cache warmup completed successfully');
     } catch (error) {
       console.error('[Cache] Cache warmup failed:', error);
     }

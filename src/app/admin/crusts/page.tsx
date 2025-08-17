@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import Link from 'next/link';
+import { useToast } from '@/components/ToastProvider';
 
 interface PizzaCrust {
   id: string;
@@ -23,6 +24,7 @@ export default function PizzaCrustsAdmin() {
     description: '',
     priceModifier: 0
   });
+  const { show: showToast } = useToast();
 
   // Helper functions for crust categorization
   const getCrustType = (name: string): string => {
@@ -100,11 +102,11 @@ export default function PizzaCrustsAdmin() {
         setFormData({ name: '', description: '', priceModifier: 0 });
       } else {
         const errorMessage = data.error || 'Failed to save crust';
-        alert(errorMessage);
+        showToast(errorMessage, { type: 'error' });
       }
     } catch (error) {
       console.error('Error saving crust:', error);
-      alert('Network error. Please check your connection and try again.');
+      showToast('Network error. Please check your connection and try again.', { type: 'error' });
     }
   };
 

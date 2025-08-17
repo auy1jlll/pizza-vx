@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useSettings } from './SettingsContext';
 
 // Define the cart item structure
@@ -40,6 +40,7 @@ export interface CartItem {
     quantity: number; // Added quantity (1 = full, 0.5 = half, etc.)
     section: 'LEFT' | 'RIGHT' | 'WHOLE'; // Changed from optional side to required section
     isActive?: boolean;
+  intensity?: 'LIGHT' | 'REGULAR' | 'EXTRA'; // Optional explicit intensity for kitchen details
   }>;
   quantity: number;
   notes?: string;
@@ -64,15 +65,44 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const { getTaxAmount } = useSettings();
 
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem('cartItems');
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        setCartItems(parsed);
+      }
+    } catch (error) {
+      console.error('Error loading cart from localStorage:', error);
+    }
+  }, []);
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    } catch (error) {
+      console.error('Error saving cart to localStorage:', error);
+    }
+  }, [cartItems]);
+
   const addPizza = (pizza: Omit<CartItem, 'id'>) => {
     const newPizza: CartItem = {
       ...pizza,
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     };
-    setCartItems(prev => [...prev, newPizza]);
+    console.log('📦 Adding pizza to cart state:', newPizza);
+    setCartItems(prev => {
+      const updated = [...prev, newPizza];
+      console.log('📊 Cart updated. New count:', updated.length);
+      return updated;
+    });
   };
 
   const addDetailedPizza = (pizzaData: any) => {
+    console.log('🍕 Adding detailed pizza to cart:', pizzaData);
+    
     // Convert detailed pizza data to CartItem format
     const cartItem: Omit<CartItem, 'id'> = {
       size: pizzaData.size || {
@@ -107,7 +137,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         category: topping.category || '',
         price: Number(topping.price || topping.priceModifier || 0),
         quantity: topping.quantity || (topping.intensity === 'LIGHT' ? 0.75 : topping.intensity === 'EXTRA' ? 1.5 : 1),
-        section: topping.section || topping.side || 'WHOLE'
+  section: topping.section || topping.side || 'WHOLE',
+  intensity: topping.intensity || (topping.quantity && topping.quantity < 1 ? 'LIGHT' : topping.quantity && topping.quantity > 1 ? 'EXTRA' : 'REGULAR')
       })),
       quantity: pizzaData.quantity || 1,
       notes: pizzaData.notes || '',
@@ -115,7 +146,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       totalPrice: pizzaData.totalPrice || 0
     };
     
+    console.log('🛒 Converted cart item:', cartItem);
     addPizza(cartItem);
+    console.log('✅ Pizza added to cart');
   };
 
   const removePizza = (id: string) => {

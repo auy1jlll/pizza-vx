@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/ToastProvider';
 import { useCart, CartItem } from '@/contexts/CartContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { 
@@ -28,6 +30,8 @@ interface EnhancedCheckoutProps {
 export default function EnhancedCheckout({ isOpen, onClose }: EnhancedCheckoutProps) {
   const { cartItems, calculateSubtotal, clearCart } = useCart();
   const { settings, getTaxAmount } = useSettings();
+  const { show: showToast } = useToast();
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -53,8 +57,6 @@ export default function EnhancedCheckout({ isOpen, onClose }: EnhancedCheckoutPr
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
-  const [orderComplete, setOrderComplete] = useState(false);
-  const [orderNumber, setOrderNumber] = useState('');
 
   const subtotal = calculateSubtotal();
   const tax = getTaxAmount(subtotal);
@@ -161,17 +163,19 @@ export default function EnhancedCheckout({ isOpen, onClose }: EnhancedCheckoutPr
 
       if (response.ok) {
         const result = await response.json();
-        setOrderNumber(result.orderNumber || `PZ-${Math.floor(Math.random() * 1000)}`);
-        setOrderComplete(true);
+        showToast('Order placed successfully!', { type: 'success' });
         clearCart();
+        onClose();
+        // Correctly access the orderId from the 'data' property of the API response
+        router.push(`/order/${result.data.orderId}`);
       } else {
         const error = await response.json();
         console.error('Checkout error:', error);
-        alert(`Order failed: ${response.status} - ${JSON.stringify(error)}`);
+        showToast(`Order failed: ${response.status}`, { type: 'error' });
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      alert('Order failed due to a network error. Please try again.');
+      showToast('Network error placing order. Please try again.', { type: 'error' });
     } finally {
       setIsProcessing(false);
     }
@@ -182,39 +186,6 @@ export default function EnhancedCheckout({ isOpen, onClose }: EnhancedCheckoutPr
   };
 
   if (!isOpen) return null;
-
-  if (orderComplete) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check className="w-8 h-8 text-green-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Confirmed!</h2>
-          <p className="text-gray-600 mb-4">Thank you! Your order #{orderNumber} has been received.</p>
-          <div className="bg-orange-50 p-4 rounded-lg mb-6">
-            <div className="flex items-center justify-center mb-2">
-              <Clock className="w-5 h-5 text-orange-600 mr-2" />
-              <span className="font-semibold text-orange-800">
-                {formData.orderType === 'delivery' ? 'Delivery Time: 35-45 mins' : 'Ready for Pickup: 15-20 mins'}
-              </span>
-            </div>
-            <p className="text-sm text-orange-700">
-              {formData.orderType === 'delivery' 
-                ? 'We\'ll call you when the driver is on the way!' 
-                : 'We\'ll text you when your order is ready to pickup.'}
-            </p>
-          </div>
-          <button 
-            onClick={onClose}
-            className="w-full bg-orange-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-700 transition-colors"
-          >
-            Continue Shopping
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-orange-50 to-amber-50 z-50 overflow-y-auto">

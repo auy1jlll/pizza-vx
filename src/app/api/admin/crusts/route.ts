@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { verifyAdminToken } from '@/lib/auth';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 // GET /api/admin/crusts - Fetch all crusts
 export async function GET(request: NextRequest) {

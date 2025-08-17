@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { adminLimiter } from '@/lib/simple-rate-limit';
 
 // GET /api/admin/components - Fetch all pizza components in one request
 export async function GET(request: NextRequest) {
   try {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+  const limit = adminLimiter.check('admin-components-get', ip);
+  if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     // Verify admin authentication
     const user = verifyAdminToken(request);
     if (!user) {

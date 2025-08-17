@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
+import { verifyAdminToken } from '@/lib/auth';
 
 // PUT /api/admin/crusts/[id] - Update crust
 export async function PUT(
@@ -9,6 +8,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+  const user = verifyAdminToken(request as NextRequest);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { id } = await params;
     const { name, description, priceModifier } = await request.json();
     
@@ -42,6 +43,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+  const user = verifyAdminToken(request as NextRequest);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { id } = await params;
     
     await prisma.pizzaCrust.delete({

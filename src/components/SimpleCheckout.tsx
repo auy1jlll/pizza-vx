@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
+import { useToast } from '@/components/ToastProvider';
 
 interface SimpleCheckoutProps {
   isOpen: boolean;
@@ -9,7 +10,11 @@ interface SimpleCheckoutProps {
 }
 
 export default function SimpleCheckout({ isOpen, onClose }: SimpleCheckoutProps) {
-  const { items, clearCart, getTotalPrice } = useCart();
+  // Adapt to current CartContext shape (cartItems, calculateSubtotal, calculateTotal)
+  const { cartItems, clearCart, calculateSubtotal, calculateTotal } = useCart();
+  const { show: showToast } = useToast();
+  const getSubtotal = () => calculateSubtotal();
+  const getDisplayTotal = () => calculateTotal();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
@@ -38,51 +43,51 @@ export default function SimpleCheckout({ isOpen, onClose }: SimpleCheckoutProps)
           zip: customerInfo.zip,
           instructions: ''
         },
-        items: items.map(item => ({
+        items: cartItems.map(item => ({
           id: item.id,
           size: {
-            id: item.sizeId || 'size-default',
-            name: item.sizeName || 'Medium',
-            diameter: '12"',
-            basePrice: 12.99,
+            id: item.size?.id || 'size-default',
+            name: item.size?.name || 'Medium',
+            diameter: item.size?.diameter || '12"',
+            basePrice: item.size?.basePrice || item.basePrice || 12.99,
             isActive: true,
             sortOrder: 1
           },
           crust: {
-            id: item.crustId || 'crust-default',
-            name: item.crustName || 'Traditional',
-            description: 'Traditional crust',
-            priceModifier: 0,
+            id: item.crust?.id || 'crust-default',
+            name: item.crust?.name || 'Traditional',
+            description: item.crust?.description || 'Traditional crust',
+            priceModifier: item.crust?.priceModifier || 0,
             isActive: true,
             sortOrder: 1
           },
           sauce: {
-            id: item.sauceId || 'sauce-default',
-            name: item.sauceName || 'Tomato',
-            description: 'Tomato sauce',
-            color: '#FF0000',
-            spiceLevel: 1,
-            priceModifier: 0,
+            id: item.sauce?.id || 'sauce-default',
+            name: item.sauce?.name || 'Tomato',
+            description: item.sauce?.description || 'Tomato sauce',
+            color: item.sauce?.color || '#FF0000',
+            spiceLevel: item.sauce?.spiceLevel || 1,
+            priceModifier: item.sauce?.priceModifier || 0,
             isActive: true,
             sortOrder: 1
           },
-          toppings: item.detailedToppings?.map(t => ({
-            id: t.toppingId || 'topping-default',
-            name: t.toppingName,
-            price: t.price,
-            quantity: 1,
+          toppings: item.toppings.map(t => ({
+            id: t.id || 'topping-default',
+            name: t.name,
+            price: t.price || 0,
+            quantity: t.quantity || 1,
             section: t.section || 'WHOLE',
-            intensity: t.intensity || 'REGULAR'
-          })) || [],
+            intensity: 'REGULAR'
+          })),
           quantity: item.quantity || 1,
           notes: item.notes || '',
-          basePrice: item.totalPrice || item.price || 15.99,
-          totalPrice: item.totalPrice || item.price || 15.99
+          basePrice: item.basePrice || 12.99,
+          totalPrice: item.totalPrice || item.basePrice || 12.99
         })),
-        subtotal: getTotalPrice(),
+        subtotal: getSubtotal(),
         deliveryFee: 3.99,
-        tax: getTotalPrice() * 0.08,
-        total: getTotalPrice() + 3.99 + (getTotalPrice() * 0.08)
+        tax: getSubtotal() * 0.08,
+        total: getSubtotal() + 3.99 + (getSubtotal() * 0.08)
       };
 
       console.log('🚀 Sending simple order:', orderData);
@@ -112,13 +117,13 @@ export default function SimpleCheckout({ isOpen, onClose }: SimpleCheckoutProps)
         clearCart();
       } else {
         const errorText = await response.text();
-        console.error('❌ Order failed:', errorText);
-        alert(`Order failed: ${response.status} - ${errorText}`);
+  console.error('❌ Order failed:', errorText);
+  showToast(`Order failed: ${response.status}`, { type: 'error' });
       }
 
     } catch (error) {
-      console.error('❌ Network error:', error);
-      alert('Network error. Please try again.');
+  console.error('❌ Network error:', error);
+  showToast('Network error. Please try again.', { type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -162,20 +167,20 @@ export default function SimpleCheckout({ isOpen, onClose }: SimpleCheckoutProps)
         {/* Cart Items */}
         <div className="mb-6">
           <h3 className="font-semibold mb-3">Your Order:</h3>
-          {items.map(item => (
+          {cartItems.map(item => {
+            const displayName = item.size?.name ? `${item.size.name} Pizza` : 'Custom Pizza';
+            return (
             <div key={item.id} className="border-b pb-2 mb-2">
-              <div className="font-medium">{item.name}</div>
+              <div className="font-medium">{displayName}</div>
               <div className="text-sm text-gray-600">
-                {item.sizeName} • {item.crustName} • {item.sauceName}
+                {item.crust?.name || 'Crust'} • {item.sauce?.name || 'Sauce'}
               </div>
               <div className="text-sm text-gray-600">
-                Qty: {item.quantity} • ${(item.totalPrice || item.price || 0).toFixed(2)}
+                Qty: {item.quantity} • ${(item.totalPrice || item.basePrice || 0).toFixed(2)}
               </div>
             </div>
-          ))}
-          <div className="font-bold text-lg mt-4">
-            Total: ${getTotalPrice().toFixed(2)}
-          </div>
+          );})}
+          <div className="font-bold text-lg mt-4">Subtotal: ${getSubtotal().toFixed(2)}</div>
         </div>
 
         {/* Customer Form */}
@@ -242,7 +247,7 @@ export default function SimpleCheckout({ isOpen, onClose }: SimpleCheckoutProps)
               disabled={loading}
               className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:opacity-50"
             >
-              {loading ? 'Placing Order...' : `Place Order - $${(getTotalPrice() + 3.99 + (getTotalPrice() * 0.08)).toFixed(2)}`}
+              {loading ? 'Placing Order...' : `Place Order - $${(getSubtotal() + 3.99 + (getSubtotal() * 0.08)).toFixed(2)}`}
             </button>
             <button
               type="button"

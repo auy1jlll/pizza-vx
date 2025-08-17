@@ -1,203 +1,95 @@
-# Pizza Builder Pro - Standalone Application
+# RestoApp - Multi-Category Restaurant Ordering System
 
-A complete pizza builder application built with Next.js, TypeScript, Prisma, and Tailwind CSS. This is a fully isolated application that runs independently from any other systems.
+A comprehensive restaurant ordering system that supports multiple menu categories including Pizza, Sandwiches, Salads, Seafood, and Dinner Plates.
 
-## 🚀 Features
+## 🚀 Quick Start (Development)
 
-### Customer Experience
-- **Interactive Pizza Builder**: Customize size, crust, sauce, and toppings
-- **Real-time Pricing**: See price updates as you build your pizza
-- **Responsive Design**: Works perfectly on desktop and mobile
-- **Intuitive Interface**: Easy-to-use step-by-step builder
+```bash
+# Install dependencies
+npm install
 
-### Admin Management
-- **Dashboard Overview**: Quick stats and navigation
-- **Component Management**: Manage sizes, crusts, sauces, and toppings
-- **Order Management**: View and track pizza orders
-- **User Management**: Handle customer accounts
+# Start development environment (runs on port 3001)
+docker-compose -f docker-compose.dev.yml up -d
+npm run dev
+```
 
-### Technical Features
-- **Complete Isolation**: No dependencies on external systems
-- **Database Ready**: Prisma ORM with PostgreSQL support
-- **Type Safety**: Full TypeScript implementation
-- **Modern Stack**: Next.js 15 with App Router
+Access the application:
+- **Web App**: http://localhost:3001
+- **Admin Panel**: http://localhost:3001/admin/login  
+- **API Health**: http://localhost:3001/api/health
 
-## 🛠️ Technology Stack
+## 🍽️ Menu Categories
 
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Database**: Prisma ORM (PostgreSQL ready)
-- **Authentication**: NextAuth (configured)
-- **State Management**: React hooks
+### Pizza
+- Custom sizes and toppings
+- Specialty pizzas
+- Build-your-own options
 
-## 📦 Installation
+### Sandwiches  
+- Subs and sandwiches
+- Condiments and toppings
+- Size variations
 
-### Prerequisites
-- Node.js 18+ installed
-- PostgreSQL database (optional - runs with mock data)
+### Salads
+- Fresh salads with proteins
+- Dressing options
+- Customizable toppings
 
-### Setup Steps
+### Seafood
+- Various preparation styles
+- Side dish options
+- Seasonal selections
 
-1. **Install Dependencies**
-   `ash
-   npm install
-   `
+### Dinner Plates
+- Main dishes with sides
+- "2 of 3" side selection logic
+- Premium entrees
 
-2. **Environment Configuration**
-   Update .env file with your settings:
-   `nv
-   DATABASE_URL="postgresql://username:password@localhost:5432/pizza_builder_db"
-   NEXTAUTH_URL="http://localhost:3000"
-   NEXTAUTH_SECRET="your-secret-key"
-   `
+## 🛠️ Development vs Production
 
-3. **Database Setup** (Optional)
-   `ash
-   # Generate Prisma client
-   npx prisma generate
-   
-   # Run migrations (if using database)
-   npx prisma migrate dev
-   
-   # Seed database (if using database)
-   node prisma/seed.js
-   `
+**RestoApp (Development)**: Port 3001, Database: restodb
+**Pizza-Builder-App (Production)**: Port 3000, Database: pizzadb
 
-4. **Start Development Server**
-   `ash
-   npm run dev
-   `
+Both can run simultaneously without conflicts.
 
-5. **Access Application**
-   - **Home Page**: http://localhost:3000
-   - **Pizza Builder**: http://localhost:3000/pizza-builder
-   - **Admin Dashboard**: http://localhost:3000/admin
+## 📋 Implementation Roadmap
 
-## 🏗️ Project Structure
+1. **Data Model Refactoring** - Multi-category support
+2. **Generic Customization Engine** - Category-agnostic logic  
+3. **Multi-Category UI Framework** - Flexible components
+4. **Enhanced Cart System** - Mixed category orders
+5. **Menu Management System** - Admin interface
+6. **Testing & QA** - Comprehensive test suite
+7. **Migration Strategy** - Zero-downtime deployment
 
-`
-pizza-builder-app/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   └── pizza-builder/     # Pizza builder API
-│   │   ├── admin/                 # Admin interface
-│   │   ├── pizza-builder/         # Customer pizza builder
-│   │   ├── layout.tsx             # App layout with navigation
-│   │   └── page.tsx               # Home page
-│   └── ...
-├── prisma/
-│   ├── schema.prisma              # Database schema
-│   └── seed.js                    # Development seed data
-├── public/                        # Static assets
-└── package.json                   # Dependencies
-`
+## 🔧 Technology Stack
 
-## 🎯 Usage
+- **Frontend**: Next.js 15, React, TailwindCSS
+- **Backend**: Next.js API Routes, Prisma ORM
+- **Database**: PostgreSQL 14
+- **Authentication**: NextAuth.js with JWT
+- **Containerization**: Docker & Docker Compose
+- **Development**: Hot reload with volume mounts
 
-### For Customers
-1. Visit the home page
-2. Click "Start Building Your Pizza"
-3. Choose size, crust, sauce, and toppings
-4. Review your order and submit
+## 📁 Project Structure
 
-### For Administrators
-1. Navigate to /admin
-2. Use the dashboard to manage:
-   - Pizza sizes and pricing
-   - Crust types and modifiers
-   - Sauce varieties and spice levels
-   - Toppings and categories
-   - Orders and customers
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── api/               # API endpoints
+│   ├── admin/             # Admin interface
+│   ├── (categories)/      # Menu category pages
+│   └── components/        # Shared components
+├── lib/                   # Utilities and services
+├── types/                 # TypeScript definitions
+└── styles/               # Global styles
 
-## 🔧 Configuration
-
-### Database Modes
-- **Mock Data Mode**: Runs without database (current setup)
-- **Database Mode**: Connect to PostgreSQL for persistence
-
-### Customization
-- **Styling**: Modify Tailwind classes in components
-- **Data**: Update mock data in API route or connect database
-- **Features**: Add new components and functionality
+prisma/
+├── schema.prisma         # Database schema
+├── migrations/           # Database migrations
+└── seed.ts              # Initial data seeding
+```
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
-1. Push to GitHub repository
-2. Connect to Vercel
-3. Set environment variables
-4. Deploy automatically
-
-### Docker
-`ash
-# Build image
-docker build -t pizza-builder-app .
-
-# Run container
-docker run -p 3000:3000 pizza-builder-app
-`
-
-### Traditional Hosting
-`ash
-# Build for production
-npm run build
-
-# Start production server
-npm start
-`
-
-## 📝 API Endpoints
-
-### Pizza Builder API
-- GET /api/pizza-builder - Get all pizza components
-- POST /api/pizza-builder - Create pizza order
-
-### Future Admin APIs
-- GET/POST/PUT/DELETE /api/admin/sizes - Manage pizza sizes
-- GET/POST/PUT/DELETE /api/admin/crusts - Manage crusts
-- GET/POST/PUT/DELETE /api/admin/sauces - Manage sauces
-- GET/POST/PUT/DELETE /api/admin/toppings - Manage toppings
-
-## 🎨 Features Overview
-
-### Pizza Customization
-- **4 Pizza Sizes**: Small (10"), Medium (12"), Large (14"), Extra Large (16")
-- **4 Crust Types**: Thin, Regular, Thick, Stuffed
-- **4 Sauce Options**: Marinara, White, BBQ, Spicy Marinara
-- **11+ Toppings**: Meats, vegetables, and premium cheeses
-
-### Admin Management
-- Component management for all pizza options
-- Real-time pricing configuration
-- Order tracking and management
-- User account administration
-
-## 🔄 Development Status
-
-- ✅ **Core Pizza Builder**: Fully functional
-- ✅ **Real-time Pricing**: Working
-- ✅ **Responsive Design**: Complete
-- ✅ **Order Creation**: Mock implementation
-- ✅ **Admin Dashboard**: Navigation ready
-- 🔄 **Database Integration**: Ready for connection
-- 🔄 **Admin CRUD Operations**: Framework ready
-- 🔄 **Authentication**: Configured, needs implementation
-
-## 🤝 Contributing
-
-This is a standalone application designed for easy customization and extension. Feel free to:
-- Add new pizza components
-- Enhance the admin interface
-- Integrate payment processing
-- Add customer accounts
-- Implement real-time order tracking
-
-## 📄 License
-
-This project is a standalone pizza builder application created for demonstration and development purposes.
-
----
-
-**Pizza Builder Pro** - Build your perfect pizza! 🍕
+See `DEPLOYMENT_GUIDE.md` for comprehensive deployment instructions including VPS, cloud platforms, and container orchestration.

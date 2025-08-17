@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { adminLimiter } from '@/lib/simple-rate-limit';
 
 // Get all settings
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+  const limit = adminLimiter.check('admin-settings-get', ip);
+  if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     const settings = await prisma.appSetting.findMany({
       orderBy: { key: 'asc' }
     });
@@ -48,6 +52,9 @@ export async function GET() {
 // Update multiple settings
 export async function PUT(request: NextRequest) {
   try {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+  const limit = adminLimiter.check('admin-settings-put', ip);
+  if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     const { settings } = await request.json();
 
     if (!settings || typeof settings !== 'object') {

@@ -9,10 +9,12 @@ async function testAdminLogin() {
     password: 'admin123'
   });
 
+  const base = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+  const url = new URL('/api/auth/login', base);
   const options = {
-    hostname: 'localhost',
-    port: 3001,
-    path: '/api/auth/login',
+    hostname: url.hostname,
+    port: url.port || 80,
+    path: url.pathname,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -84,10 +86,12 @@ async function testAuthenticatedRequest(cookies) {
     return;
   }
 
+  const base = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+  const url = new URL('/api/admin/sizes', base);
   const options = {
-    hostname: 'localhost',
-    port: 3001,
-    path: '/api/admin/sizes',
+    hostname: url.hostname,
+    port: url.port || 80,
+    path: url.pathname,
     method: 'GET',
     headers: {
       'Cookie': cookies.join('; ')

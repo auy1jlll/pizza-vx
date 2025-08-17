@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { verifyAdminToken } from '@/lib/auth';
+import { cacheService, CACHE_KEYS } from '@/lib/cache-service';
+import prisma from '@/lib/prisma';
 
 // PUT /api/admin/toppings/[id] - Update topping
 export async function PUT(
@@ -9,6 +9,10 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const { id } = await params;
     const { name, category, price, available } = await request.json();
     
@@ -46,11 +50,18 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const { id } = await params;
     
     await prisma.pizzaTopping.delete({
       where: { id }
     });
+    // Invalidate related caches
+    cacheService.invalidate('toppings');
+    cacheService.invalidate('pizza-data');
     
     return NextResponse.json({ message: 'Topping deleted successfully' });
   } catch (error) {

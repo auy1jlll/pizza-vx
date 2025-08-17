@@ -8,7 +8,7 @@ export const emailSchema = z.string().email();
 
 // Enums for constants
 export const OrderStatus = z.enum(['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'COMPLETED', 'CANCELLED']);
-export const OrderType = z.enum(['PICKUP', 'DELIVERY']);
+export const OrderType = z.enum(['PICKUP', 'DELIVERY', 'pickup', 'delivery']).transform(val => val.toUpperCase() as 'PICKUP' | 'DELIVERY');
 export const ToppingSection = z.enum(['LEFT', 'RIGHT', 'WHOLE']);
 export const ToppingIntensity = z.enum(['LIGHT', 'REGULAR', 'EXTRA']);
 export const SettingType = z.enum(['STRING', 'NUMBER', 'BOOLEAN', 'JSON']);
@@ -57,7 +57,7 @@ export const PizzaToppingSchema = z.object({
   isGlutenFree: z.boolean(),
 });
 
-// Cart and Order Schemas
+// Cart and Order Schemas - Flexible for both Pizza and Menu Items
 export const CartToppingSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -67,16 +67,59 @@ export const CartToppingSchema = z.object({
   intensity: ToppingIntensity.optional(),
 });
 
+// Flexible customization schema (works for pizza toppings AND menu item options)
+export const CustomizationSchema = z.object({
+  optionId: z.string(),
+  name: z.string().optional(),
+  
+  // Pizza-specific fields (optional for non-pizza items)
+  pizzaHalf: z.enum(['whole', 'left', 'right']).default('whole').optional(),
+  
+  // General fields
+  quantity: z.number().int().min(1).default(1),
+  priceModifier: z.number().min(0).default(0),
+  
+  // Legacy support for old pizza structure
+  toppingId: z.string().optional(), // maps to optionId
+  half: z.enum(['whole', 'left', 'right']).optional(), // maps to pizzaHalf
+  section: ToppingSection.optional(), // legacy pizza support
+  intensity: ToppingIntensity.optional(), // legacy pizza support
+  price: z.number().optional(),
+});
+
+// Flexible order item schema that supports both pizza and menu items
 export const CartItemSchema = z.object({
+  // Common fields for all items
   id: z.string().optional(),
-  size: PizzaSizeSchema,
-  crust: PizzaCrustSchema,
-  sauce: PizzaSauceSchema,
-  toppings: z.array(CartToppingSchema),
+  type: z.enum(['pizza', 'menu']).optional(), // To identify item type
   quantity: z.number().min(1, 'Quantity must be at least 1'),
-  notes: z.string().optional(),
   basePrice: nonNegativeNumber,
   totalPrice: nonNegativeNumber,
+  notes: z.string().optional(),
+  
+  // Menu item fields (for sandwiches, salads, etc.)
+  menuItemId: z.string().optional(),
+  name: z.string().optional(),
+  category: z.string().optional(),
+  customizations: z.array(CustomizationSchema).optional(),
+  
+  // Pizza-specific fields (legacy support)
+  size: PizzaSizeSchema.optional(),
+  crust: PizzaCrustSchema.optional(), 
+  sauce: PizzaSauceSchema.optional(),
+  toppings: z.array(CartToppingSchema).optional(),
+  
+  // Pizza size/crust/sauce IDs (alternative format)
+  sizeId: z.string().optional(),
+  crustId: z.string().optional(),
+  sauceId: z.string().optional(),
+}).refine((data) => {
+  // Either pizza fields OR menu item fields must be present
+  const hasPizzaFields = data.size || data.sizeId;
+  const hasMenuFields = data.menuItemId;
+  return hasPizzaFields || hasMenuFields;
+}, {
+  message: "Item must be either a pizza (with size) or a menu item (with menuItemId)"
 });
 
 // Customer Information Schema
@@ -173,6 +216,7 @@ export const SpecialtyPizzaSchema = z.object({
 // Export type definitions
 export type CartItem = z.infer<typeof CartItemSchema>;
 export type CartTopping = z.infer<typeof CartToppingSchema>;
+export type Customization = z.infer<typeof CustomizationSchema>;
 export type CustomerInfo = z.infer<typeof CustomerInfoSchema>;
 export type DeliveryInfo = z.infer<typeof DeliveryInfoSchema>;
 export type CreateOrder = z.infer<typeof CreateOrderSchema>;

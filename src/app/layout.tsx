@@ -4,9 +4,16 @@ import Link from "next/link";
 import { CartProvider } from '@/contexts/CartContext';
 import { UserProvider } from '@/contexts/UserContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
-import UnifiedCart from '@/components/UnifiedCart';
-import ToastContainer from '@/components/ToastContainer';
 import AuthNav from '@/components/AuthNav';
+import { ToastProvider } from '@/components/ToastProvider';
+import FloatingCartButton from '@/components/FloatingCartButton';
+// Instrumentation is only meaningful on the Node server; defer to runtime dynamic import
+if (typeof window === 'undefined') {
+  // Dynamic import so that any Edge compilation path can tree-shake / skip Node APIs
+  import('@/instrumentation').then(m => m.register()).catch(err => {
+    console.warn('[INSTRUMENT] registration failed', err);
+  });
+}
 
 export const metadata: Metadata = {
   title: "Pizza Builder Pro",
@@ -26,6 +33,7 @@ export default function RootLayout({
         <UserProvider>
           <SettingsProvider>
             <CartProvider>
+              <ToastProvider>
           <nav className="bg-gradient-to-r from-emerald-800 to-green-700 shadow-lg border-b border-green-600">
             <div className="container mx-auto px-4">
               <div className="flex justify-between items-center py-4">
@@ -39,6 +47,12 @@ export default function RootLayout({
                     className="text-white hover:text-orange-300 transition-colors font-medium"
                   >
                     Home
+                  </Link>
+                  <Link 
+                    href="/menu" 
+                    className="text-white hover:text-orange-300 transition-colors font-medium"
+                  >
+                    Full Menu
                   </Link>
                   <Link 
                     href="/specialty-pizzas" 
@@ -68,8 +82,7 @@ export default function RootLayout({
             {children}
           </main>
           
-          <UnifiedCart />
-          <ToastContainer />
+          <FloatingCartButton />
           
           <footer className="bg-gray-900 text-white py-8 mt-16">
             <div className="container mx-auto px-4 text-center">
@@ -79,7 +92,8 @@ export default function RootLayout({
               </p>
             </div>
           </footer>
-          </CartProvider>
+        </ToastProvider>
+      </CartProvider>
           </SettingsProvider>
         </UserProvider>
       </body>

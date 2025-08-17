@@ -1,0 +1,40 @@
+Immediate Steps to Fix This:
+1. Debug Your Cart Data (Do This First)
+Open browser console and run:
+javascriptdebugCartData(); // This will show you exactly what cart data you have
+2. Quick Test Calculation
+After running the debug, copy your cart data and test:
+javascript// Replace with your actual cart data from debug output
+const testData = [/* your cart items here */];
+calculateSummary(testData);
+3. Force Immediate Fix
+Run this in console to force recalculation:
+javascriptforceRecalculateCart();
+Most Likely Causes:
+Cause 1: Price Field Name Mismatch
+Your items might have totalPrice but calculation is looking for price:
+javascript// Item has: { totalPrice: 15.99 }
+// Code looks for: item.price ❌
+Cause 2: String vs Number
+Prices might be stored as strings:
+javascript// Item has: { price: "15.99" }
+// Calculation needs: parseFloat(item.price) ✅
+Cause 3: Async Loading Issue
+Order summary calculates before prices are loaded from the refresh API.
+Cause 4: State Management
+React state not updating between cart items and order summary components.
+Quick Fix for Right Now:
+
+Run the debug function to see your data structure
+Copy and paste the enhanced calculation functions into your existing code
+Call forceRecalculateCart() after any cart changes
+
+The calculation function I provided handles:
+
+✅ Multiple price field names (price, totalPrice, unitPrice, etc.)
+✅ Multiple quantity field names (quantity, qty, count)
+✅ String to number conversion
+✅ Different cart data structures
+✅ Error handling for invalid data
+
+Run debugCartData() in your console and show me the output - that will tell us exactly what's wrong with your cart data structure!

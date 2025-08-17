@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import Link from 'next/link';
+import { useToast } from '@/components/ToastProvider';
 
 interface PizzaSize {
   id: string;
@@ -23,6 +24,7 @@ export default function PizzaSizesAdmin() {
     diameter: '',
     basePrice: ''
   });
+  const { show: showToast } = useToast();
 
   // Helper functions for size categorization
   const getSizeCategory = (name: string): string => {
@@ -116,11 +118,11 @@ export default function PizzaSizesAdmin() {
       } else {
         // Handle specific error messages
         const errorMessage = data.error || 'Failed to save size';
-        alert(errorMessage);
+        showToast(errorMessage, { type: 'error' });
       }
     } catch (error) {
       console.error('Error saving size:', error);
-      alert('Network error. Please check your connection and try again.');
+      showToast('Network error. Please check your connection and try again.', { type: 'error' });
     }
   };
 

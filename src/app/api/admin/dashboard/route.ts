@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
+import { verifyAdminToken } from '@/lib/auth';
+import { adminLimiter } from '@/lib/simple-rate-limit';
 
 export async function GET(request: NextRequest) {
   try {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+  const limit = adminLimiter.check('admin-dashboard-get', ip);
+  if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
+  const user = verifyAdminToken(request);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     console.log('Fetching dashboard stats...');
 
     // Get current date ranges
@@ -113,6 +118,14 @@ export async function GET(request: NextRequest) {
       prisma.pizzaTopping.count({ where: { isActive: true } })
     ]);
 
+    // Menu counts
+    const menuCounts = await Promise.all([
+      prisma.menuCategory.count({ where: { isActive: true } }),
+      prisma.menuItem.count({ where: { isActive: true } }),
+      prisma.customizationGroup.count({ where: { isActive: true } }),
+      prisma.customizationOption.count({ where: { isActive: true } })
+    ]);
+
     const stats = {
       totalRevenue: totalRevenueResult._sum?.total || 0,
       todayOrders: todayOrders,
@@ -130,6 +143,12 @@ export async function GET(request: NextRequest) {
         crusts: componentCounts[1],
         sauces: componentCounts[2],
         toppings: componentCounts[3]
+      },
+      menuCounts: {
+        categories: menuCounts[0],
+        items: menuCounts[1],
+        customizationGroups: menuCounts[2],
+        customizationOptions: menuCounts[3]
       }
     };
 

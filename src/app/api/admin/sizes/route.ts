@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { verifyAdminToken } from '@/lib/auth';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
+import { adminLimiter } from '@/lib/simple-rate-limit';
 
 // GET /api/admin/sizes - Fetch all sizes
 export async function GET(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+    const limit = adminLimiter.check('admin-sizes-get', ip);
+    if (!limit.allowed) {
+      return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
+    }
     // Verify admin authentication
     const user = verifyAdminToken(request);
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const sizes = await prisma.pizzaSize.findMany({
       orderBy: { createdAt: 'desc' }
@@ -27,11 +29,14 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/sizes - Create new size
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+    const limit = adminLimiter.check('admin-sizes-post', ip);
+    if (!limit.allowed) {
+      return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
+    }
     // Verify admin authentication
     const user = verifyAdminToken(request);
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const { name, diameter, basePrice } = await request.json();
     
@@ -69,10 +74,13 @@ export async function POST(request: NextRequest) {
 // PUT /api/admin/sizes/[id] - Update size (for future use)
 export async function PUT(request: NextRequest) {
   try {
-    const user = verifyAdminToken(request);
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+    const limit = adminLimiter.check('admin-sizes-put', ip);
+    if (!limit.allowed) {
+      return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     }
+    const user = verifyAdminToken(request);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const { name, diameter, basePrice } = await request.json();
     const url = new URL(request.url);
@@ -101,10 +109,13 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/admin/sizes/[id] - Delete size (for future use)
 export async function DELETE(request: NextRequest) {
   try {
-    const user = verifyAdminToken(request);
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+    const limit = adminLimiter.check('admin-sizes-delete', ip);
+    if (!limit.allowed) {
+      return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     }
+    const user = verifyAdminToken(request);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const url = new URL(request.url);
     const id = url.searchParams.get('id');

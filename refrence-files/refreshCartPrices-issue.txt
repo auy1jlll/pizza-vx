@@ -1,0 +1,55 @@
+I found the issue! Your refreshCartPrices function is trying to calculate prices for items that don't exist anymore (you deleted 2 items from cart), and it's likely failing on the calculatePizzaPrice or calculateMenuItemPrice functions when they can't find the items.
+Here's the problem and solutions:Cart Price Refresh FixesCode // FIXED VERSION OF refreshCartPrices with proper error handling
+
+/**
+ * Get current prices for all items in cart
+ */
+export async function refreshCartPrices(cartData: any): Promise<CartPriceData> {
+  try {
+    console.log('Refreshing prices for cartThe Root Problems:
+
+Your refreshCartPrices function is trying to calculate prices for deleted items - when calculatePizzaPrice or calculateMenuItemPrice can't find the items in the database, they're probably throwing errors.
+No error handling - When the price calculation fails, it's causing 500 errors that trigger retries.
+Cart not cleared after checkout - The items you deleted are still in your cart state/localStorage.
+
+Immediate Fixes:
+1. Stop the Error Loop (Right Now)
+javascript// In browser console:
+localStorage.clear(); // This will clear your cart
+location.reload(); // Refresh the page
+2. Add to Your Checkout Success Handler
+javascript// After successful checkout, add this:
+localStorage.removeItem('cart');
+localStorage.removeItem('cartItems'); 
+localStorage.removeItem('pizzaItems');
+localStorage.removeItem('menuItems');
+
+// If using React state:
+setCartItems([]);
+setPizzaItems([]);
+setMenuItems([]);
+3. Check Your Database
+The deleted items might still have references in your database. Run this to check:
+sql-- See if deleted items still exist
+SELECT * FROM pizzaItems WHERE id IN (1, 2); -- Replace with your deleted IDs
+SELECT * FROM menuItems WHERE id IN (3, 4); -- Replace with your deleted IDs
+4. Update Your API Calls
+Make sure your frontend isn't calling refresh-prices for empty carts:
+javascript// Only refresh prices if cart has items
+if (cartItems.length > 0) {
+    refreshCartPrices(cartData);
+}
+Key Changes Needed:
+
+Replace your current refreshCartPrices with my enhanced version that has proper error handling
+Add cart clearing to your checkout success
+Fix the React component that's calling refresh-prices repeatedly
+
+The enhanced version I provided will:
+
+✅ Handle missing items gracefully
+✅ Continue processing other items if one fails
+✅ Return valid empty responses instead of crashing
+✅ Log detailed information for debugging
+
+Which part should we fix first - the immediate error loop, or the cart clearing after checkout?

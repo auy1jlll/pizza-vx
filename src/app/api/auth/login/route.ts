@@ -1,30 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
-import { authRateLimit } from '@/lib/rate-limit';
+import prisma from '@/lib/prisma';
+// Replaced express-rate-limit with lightweight in-memory limiter
+import { authLimiter } from '@/lib/simple-rate-limit';
 import { BruteForceProtectionService } from '@/lib/brute-force-protection';
 import { JWTService } from '@/lib/jwt-service';
+import { z } from 'zod';
 
-const prisma = new PrismaClient();
 const bruteForceProtection = new BruteForceProtectionService();
 const jwtService = new JWTService();
 
-export async function POST(request: NextRequest) {
-  // Apply rate limiting for authentication
-  const rateLimitResult = await new Promise((resolve) => {
-    authRateLimit(request as any, {
-      status: (code: number) => ({
-        json: (data: any) => resolve({ error: true, status: code, data })
-      })
-    } as any, () => resolve({ error: false }));
-  });
+const loginSchema = z.object({
+  username: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(1, { message: "Password is required" }),
+});
 
-  if ((rateLimitResult as any).error) {
-    return NextResponse.json(
-      (rateLimitResult as any).data,
-      { status: (rateLimitResult as any).status }
-    );
+export async function POST(request: NextRequest) {
+  // Apply lightweight auth rate limiting
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
+  const limit = authLimiter.check('auth-login', ip);
+  if (!limit.allowed) {
+    return NextResponse.json({
+      error: 'Too many login attempts. Please wait before retrying.',
+      retryAfterSeconds: Math.ceil((limit.resetAt - Date.now()) / 1000)
+    }, { status: 429, headers: { 'Retry-After': Math.ceil((limit.resetAt - Date.now()) / 1000).toString() } });
   }
 
   // Get client info for brute force protection
@@ -34,14 +34,17 @@ export async function POST(request: NextRequest) {
   const userAgent = request.headers.get('user-agent') || 'unknown';
 
   try {
-    const { username, password } = await request.json();
+    const body = await request.json();
+    const validation = loginSchema.safeParse(body);
 
-    if (!username || !password) {
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'Username and password are required' },
+        { error: "Invalid request data", issues: validation.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
+    
+    const { username, password } = validation.data;
 
     // TEMPORARILY DISABLED: Check if IP/email is locked out
     // const lockoutStatus = await bruteForceProtection.isLockedOut(clientIP, username);
@@ -113,7 +116,7 @@ export async function POST(request: NextRequest) {
       },
       process.env.JWT_SECRET || 'fallback-secret',
       { 
-        expiresIn: '24h',
+        expiresIn: '60m',
         issuer: 'pizza-builder-app'
       }
     );
@@ -134,7 +137,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 24 * 60 * 60 // 24 hours
+      maxAge: 60 * 60 // 1 hour
     });
 
     // Also set admin-token for backward compatibility
@@ -142,7 +145,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 24 * 60 * 60 // 24 hours
+      maxAge: 60 * 60 // 1 hour
     });
 
     return response;

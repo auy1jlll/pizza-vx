@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
+import { useToast } from '@/components/ToastProvider';
 
 interface PizzaSize {
   id: string;
@@ -78,6 +79,7 @@ export default function AdminOrders() {
   const [error, setError] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updateLoading, setUpdateLoading] = useState<string | null>(null);
+  const { show: showToast } = useToast();
 
   // Helper functions for order categorization
   const getOrderTypeIcon = (orderType: string): string => {
@@ -227,7 +229,7 @@ export default function AdminOrders() {
       if (data.success) {
         setOrders([]);
         setSelectedOrder(null);
-        alert(data.message);
+        showToast(data.message || 'All orders cleared', { type: 'success' });
       } else {
         setError(data.error || 'Failed to clear orders');
       }

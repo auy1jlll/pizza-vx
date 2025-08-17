@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
+import { useToast } from '@/components/ToastProvider';
 
 interface SpecialtyPizzaSize {
   id: string;
@@ -56,6 +57,7 @@ export default function SpecialtyPizzasAdmin() {
     isActive: true
   });
   const [sizePricing, setSizePricing] = useState<Record<string, { price: number, isAvailable: boolean }>>({});
+  const { show: showToast } = useToast();
 
   // Pizza categories
   const categories = [
@@ -148,13 +150,13 @@ export default function SpecialtyPizzasAdmin() {
 
       if (response.ok) {
         setFormData(prev => ({ ...prev, imageUrl: result.imageUrl }));
-        alert('Image uploaded successfully!');
+        showToast('Image uploaded successfully! 📸', { type: 'success' });
       } else {
-        alert(result.error || 'Failed to upload image');
+        showToast(result.error || 'Failed to upload image', { type: 'error' });
       }
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload image');
+      showToast('Failed to upload image', { type: 'error' });
     } finally {
       setImageUploading(false);
     }

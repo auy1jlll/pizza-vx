@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { CreateOrderSchema, validateSchema, createApiResponse, createApiError } from '@/lib/schemas';
 
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +17,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { items, customer, delivery, orderType, subtotal, deliveryFee, tax, total, notes } = validation.data;
+  const { items, customer, delivery, orderType, notes } = validation.data;
 
     // Check if user is authenticated
     let authenticatedUserId = null;
@@ -41,7 +40,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!customerInfo || !customerInfo.name || !customerInfo.email || !customerInfo.phone) {
+  if (!customer || !customer.name || !customer.email || !customer.phone) {
       return NextResponse.json(
         { error: 'Customer information is required' },
         { status: 400 }
@@ -73,10 +72,10 @@ export async function POST(request: NextRequest) {
     const minimumOrderAmount = settingsMap.minimumOrder || 15.00;
 
     // Calculate totals using global settings
-    const subtotal = items.reduce((total: number, item: any) => total + (item.price * item.quantity), 0);
-    const tax = +(subtotal * taxRate).toFixed(2); // Apply global tax rate
-    const deliveryFee = subtotal < minimumOrderAmount ? deliveryFeeAmount : 0; // Use global minimum order and delivery fee
-    const total = +(subtotal + tax + deliveryFee).toFixed(2);
+  const subtotal = items.reduce((t: number, item: any) => t + (item.price * item.quantity), 0);
+  const tax = +(subtotal * taxRate).toFixed(2); // Apply global tax rate
+  const deliveryFee = subtotal < minimumOrderAmount ? deliveryFeeAmount : 0; // Use global minimum order and delivery fee
+  const total = +(subtotal + tax + deliveryFee).toFixed(2);
 
     // Generate order number
     const orderNumber = `BO${Date.now().toString().slice(-6)}${Math.random().toString(36).substr(2, 3).toUpperCase()}`;
@@ -86,14 +85,14 @@ export async function POST(request: NextRequest) {
       data: {
         orderNumber,
         userId: authenticatedUserId, // Associate with user if authenticated
-        customerName: customerInfo.name,
-        customerEmail: customerInfo.email,
-        customerPhone: customerInfo.phone,
-        orderType: customerInfo.orderType || 'DELIVERY',
-        deliveryAddress: customerInfo.address,
-        deliveryCity: customerInfo.city,
-        deliveryZip: customerInfo.zip,
-        deliveryInstructions: customerInfo.instructions,
+  customerName: customer.name,
+  customerEmail: customer.email,
+  customerPhone: customer.phone,
+  orderType: orderType || 'DELIVERY',
+  deliveryAddress: delivery?.address || null,
+  deliveryCity: delivery?.city || null,
+  deliveryZip: delivery?.zip || null,
+  deliveryInstructions: delivery?.instructions || null,
         subtotal,
         deliveryFee,
         tax,
@@ -129,59 +128,37 @@ export async function POST(request: NextRequest) {
 
     // Create order items
     for (const item of items) {
-      // Handle pizza builder cart items (from regular pizza builder or specialty pizza customization)
-      if (item.sizeId && item.crustId && item.sauceId) {
-        const orderItem = await prisma.orderItem.create({
-          data: {
-            orderId: order.id,
-            pizzaSizeId: item.sizeId,
-            pizzaCrustId: item.crustId,
-            pizzaSauceId: item.sauceId,
-            quantity: 1, // Pizza builder items are always quantity 1
-            basePrice: item.totalPrice,
-            totalPrice: item.totalPrice,
-            notes: item.specialtyPizzaName ? `Based on: ${item.specialtyPizzaName}` : 'Custom Pizza'
-          }
-        });
+      // Conform to current CartItem schema: item.size, item.crust, item.sauce, item.toppings
+      if (!item.size?.id || !item.crust?.id || !item.sauce?.id) {
+        return NextResponse.json({ error: 'Missing size/crust/sauce in cart item' }, { status: 400 });
+      }
 
-        // Add toppings for this order item
-        if (item.toppings && item.toppings.length > 0) {
-          for (const topping of item.toppings) {
-            await prisma.orderItemTopping.create({
-              data: {
-                orderItemId: orderItem.id,
-                pizzaToppingId: topping.toppingId,
-                quantity: 1,
-                section: topping.section,
-                intensity: topping.intensity,
-                price: topping.price
-              }
-            });
-          }
+      const orderItem = await prisma.orderItem.create({
+        data: {
+          orderId: order.id,
+          pizzaSizeId: item.size.id,
+            pizzaCrustId: item.crust.id,
+            pizzaSauceId: item.sauce.id,
+            quantity: item.quantity || 1,
+            basePrice: item.basePrice,
+            totalPrice: item.totalPrice,
+            notes: item.notes || 'Custom Pizza'
         }
-      }
-      // Handle legacy specialty pizza items (from direct add to cart)
-      else if (item.type === 'specialty') {
-        await prisma.orderItem.create({
-          data: {
-            orderId: order.id,
-            pizzaSizeId: defaultSize.id,
-            pizzaCrustId: defaultCrust.id,
-            pizzaSauceId: defaultSauce.id,
-            quantity: item.quantity,
-            basePrice: item.price,
-            totalPrice: item.price * item.quantity,
-            notes: `Specialty Pizza: ${item.name} (ID: ${item.specialtyPizzaId})`
-          }
-        });
-      }
-      else {
-        // Log unknown item format for debugging
-        console.warn('Unknown cart item format:', item);
-        return NextResponse.json(
-          { error: 'Invalid pizza components in cart item' },
-          { status: 400 }
-        );
+      });
+
+      if (item.toppings && item.toppings.length > 0) {
+        for (const topping of item.toppings) {
+          await prisma.orderItemTopping.create({
+            data: {
+              orderItemId: orderItem.id,
+              pizzaToppingId: topping.id,
+              quantity: 1,
+              section: topping.section,
+              intensity: topping.intensity || 'REGULAR',
+              price: topping.price
+            }
+          });
+        }
       }
     }
 
@@ -202,6 +179,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
+    // Do not disconnect shared prisma
   }
 }

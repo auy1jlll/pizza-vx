@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/ToastProvider';
 import { useCart } from '@/contexts/CartContext';
 import { useSettings } from '@/contexts/SettingsContext';
 
@@ -12,6 +14,8 @@ interface CheckoutModalProps {
 export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
   const { cartItems, calculateSubtotal, calculateTotal, clearCart } = useCart();
   const { settings, getTaxAmount } = useSettings();
+  const { show: showToast } = useToast();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
@@ -61,17 +65,18 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
 
       if (response.ok) {
         const result = await response.json();
-        alert(`Order placed successfully! Order #${result.orderNumber}`);
+        showToast('Order placed successfully!', { type: 'success' });
         clearCart();
         onClose();
+        router.push(`/order/${result.orderId}`);
       } else {
         const error = await response.json();
         console.error('Checkout error:', error);
-        alert(`Order failed: ${response.status} - ${JSON.stringify(error)}`);
+        showToast(`Order failed: ${response.status}`, { type: 'error' });
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      alert('Order failed due to a network error. Please try again.');
+      showToast('Network error placing order. Please try again.', { type: 'error' });
     } finally {
       setLoading(false);
     }
