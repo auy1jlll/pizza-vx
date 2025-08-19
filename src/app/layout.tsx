@@ -7,7 +7,7 @@ import { AppSettingsProvider } from '@/contexts/AppSettingsContext';
 import { ToastProvider } from '@/components/ToastProvider';
 import { SexyToastProvider } from '@/components/SexyToastProvider';
 import FloatingCartButton from '@/components/FloatingCartButton';
-import DynamicNavigation from '@/components/Navigation';
+import HybridNavigation from '@/components/HybridNavigation';
 import DynamicFooter from '@/components/DynamicFooter';
 import { generateMetadata as generateDynamicMetadata } from '@/lib/dynamic-metadata';
 
@@ -36,7 +36,7 @@ export default function RootLayout({
               <CartProvider>
                 <ToastProvider>
                   <SexyToastProvider>
-                    <DynamicNavigation />
+                    <HybridNavigation />
                   
                   <main>
                     {children}

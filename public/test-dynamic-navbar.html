@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Navbar Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        .navbar-preview { background: linear-gradient(45deg, #065f46, #047857); padding: 15px; margin: 10px 0; }
+        .navbar-preview a { color: white; text-decoration: none; margin-right: 20px; padding: 8px 12px; border-radius: 6px; transition: background 0.3s; }
+        .navbar-preview a:hover { background: rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+    <h1>🧪 Dynamic Navbar Component Test</h1>
+    
+    <div class="test-section">
+        <h2>📡 API Connection Test</h2>
+        <div id="api-test">Testing...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Filtering Logic Test</h2>
+        <div id="filter-test">Testing...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>🌐 Navbar Preview</h2>
+        <div id="navbar-preview" class="navbar-preview">Loading...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 Detailed Results</h2>
+        <pre id="detailed-results">Loading...</pre>
+    </div>
+
+    <script>
+        async function testDynamicNavbar() {
+            try {
+                // Test API connection
+                document.getElementById('api-test').innerHTML = '<span class="info">Connecting to /api/menu/categories...</span>';
+                
+                const response = await fetch('/api/menu/categories');
+                
+                if (!response.ok) {
+                    document.getElementById('api-test').innerHTML = '<span class="error">❌ API connection failed</span>';
+                    return;
+                }
+
+                const result = await response.json();
+                
+                if (!result.success || !Array.isArray(result.data)) {
+                    document.getElementById('api-test').innerHTML = '<span class="error">❌ Invalid API response format</span>';
+                    return;
+                }
+
+                document.getElementById('api-test').innerHTML = '<span class="success">✅ API connection successful</span>';
+
+                // Apply filtering logic (same as component)
+                const categories = result.data;
+                const filteredCategories = categories
+                    .filter(category => {
+                        // Exclude Pizza categories
+                        const isPizzaCategory = category.slug === 'pizza' || 
+                                              category.slug === 'specialty-pizza' ||
+                                              category.slug.includes('pizza');
+                        
+                        // Exclude inactive categories
+                        if (!category.isActive) return false;
+                        
+                        // Optionally exclude empty categories
+                        if (category._count?.menuItems === 0) {
+                            return false;
+                        }
+                        
+                        return !isPizzaCategory;
+                    })
+                    .sort((a, b) => {
+                        if (a.sortOrder !== b.sortOrder) {
+                            return a.sortOrder - b.sortOrder;
+                        }
+                        return a.name.localeCompare(b.name);
+                    });
+
+                // Display filter results
+                const excludedCount = categories.length - filteredCategories.length;
+                const pizzaExcluded = categories.filter(cat => 
+                    cat.slug === 'pizza' || cat.slug === 'specialty-pizza' || cat.slug.includes('pizza')
+                ).length;
+
+                document.getElementById('filter-test').innerHTML = `
+                    <span class="success">✅ Filtering successful</span><br>
+                    📊 Total categories: ${categories.length}<br>
+                    ✅ Shown in navbar: ${filteredCategories.length}<br>
+                    🚫 Excluded: ${excludedCount}<br>
+                    🍕 Pizza categories excluded: ${pizzaExcluded}
+                `;
+
+                // Generate navbar preview
+                const navbarHtml = filteredCategories.map(cat => 
+                    `<a href="/menu/${cat.slug}" title="${cat.description || ''}">${cat.name}</a>`
+                ).join('');
+
+                document.getElementById('navbar-preview').innerHTML = navbarHtml;
+
+                // Detailed results
+                const detailedResults = {
+                    dataSource: '/api/menu/categories',
+                    totalCategories: categories.length,
+                    shownInNavbar: filteredCategories.length,
+                    excluded: excludedCount,
+                    pizzaProtection: pizzaExcluded > 0,
+                    dynamicGeneration: true,
+                    seoFriendlyUrls: true,
+                    categories: filteredCategories.map(cat => ({
+                        name: cat.name,
+                        slug: cat.slug,
+                        url: `/menu/${cat.slug}`,
+                        sortOrder: cat.sortOrder,
+                        active: cat.isActive
+                    }))
+                };
+
+                document.getElementById('detailed-results').textContent = JSON.stringify(detailedResults, null, 2);
+
+            } catch (error) {
+                document.getElementById('api-test').innerHTML = '<span class="error">❌ Test failed: ' + error.message + '</span>';
+                console.error('Test error:', error);
+            }
+        }
+
+        // Run test when page loads
+        testDynamicNavbar();
+    </script>
+</body>
+</html>

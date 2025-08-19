@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import { useAppSettingsContext } from '@/contexts/AppSettingsContext';
 import AuthNav from '@/components/AuthNav';
+import DynamicMenuNavbar from '@/components/DynamicMenuNavbar';
 
 export default function DynamicNavigation() {
   const { settings, loading } = useAppSettingsContext();
@@ -20,71 +21,83 @@ export default function DynamicNavigation() {
     : 'Omar Pizza'; // Consistent placeholder that matches expected content
 
   return (
-    <nav className="bg-gradient-to-r from-emerald-800 to-green-700 shadow-lg border-b border-green-600">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-4">
-          <div className="flex flex-col">
-            <Link href="/" className="text-2xl font-bold text-white hover:text-orange-300 transition-colors">
-              🍕 <span className="text-orange-300">{appName}</span>
-            </Link>
-            {isHydrated && settings.app_tagline && (
-              <p className="text-sm text-green-200 italic ml-8">
-                {settings.app_tagline}
-              </p>
-            )}
-          </div>
-          
-          <div className="flex items-center space-x-6">
-            <Link 
-              href="/" 
-              className="text-white hover:text-orange-300 transition-colors font-medium"
-            >
-              Home
-            </Link>
+    <>
+      <nav className="bg-gradient-to-r from-emerald-800 to-green-700 shadow-lg border-b border-green-600">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex flex-col">
+              <Link href="/" className="text-2xl font-bold text-white hover:text-orange-300 transition-colors">
+                🍕 <span className="text-orange-300">{appName}</span>
+              </Link>
+              {isHydrated && settings.app_tagline && (
+                <p className="text-sm text-green-200 italic ml-8">
+                  {settings.app_tagline}
+                </p>
+              )}
+            </div>
             
-            {(isHydrated ? settings.enable_menu_ordering : true) && (
+            <div className="flex items-center space-x-6">
               <Link 
-                href="/menu" 
+                href="/" 
                 className="text-white hover:text-orange-300 transition-colors font-medium"
               >
-                Menu
+                Home
               </Link>
-            )}
+              
+              {(isHydrated ? settings.enable_menu_ordering : true) && (
+                <Link 
+                  href="/menu" 
+                  className="text-white hover:text-orange-300 transition-colors font-medium"
+                >
+                  Menu
+                </Link>
+              )}
 
-            {(isHydrated ? settings.enable_pizza_builder : true) && (
+              {(isHydrated ? settings.enable_pizza_builder : true) && (
+                <Link 
+                  href="/build-pizza" 
+                  className="text-white hover:text-orange-300 transition-colors font-medium"
+                >
+                  Pizza Builder
+                </Link>
+              )}
+              
               <Link 
-                href="/build-pizza" 
+                href="/cart" 
                 className="text-white hover:text-orange-300 transition-colors font-medium"
               >
-                Pizza Builder
+                Cart
               </Link>
-            )}
-            
-            <Link 
-              href="/cart" 
-              className="text-white hover:text-orange-300 transition-colors font-medium"
-            >
-              Cart
-            </Link>
 
-            <Link 
-              href="/contact" 
-              className="text-white hover:text-orange-300 transition-colors font-medium"
-            >
-              Contact
-            </Link>
+              <Link 
+                href="/contact" 
+                className="text-white hover:text-orange-300 transition-colors font-medium"
+              >
+                Contact
+              </Link>
 
-            <Link 
-              href="/settings-demo" 
-              className="text-white hover:text-orange-300 transition-colors font-medium"
-            >
-              Settings
-            </Link>
-            
-            <AuthNav />
+              <Link 
+                href="/settings-demo" 
+                className="text-white hover:text-orange-300 transition-colors font-medium"
+              >
+                Settings
+              </Link>
+              
+              <AuthNav />
+            </div>
           </div>
         </div>
+      </nav>
+      
+      {/* Dynamic Menu Categories Navbar */}
+      <div className="bg-gradient-to-r from-green-700 to-emerald-600 shadow-md border-b border-green-600">
+        <div className="container mx-auto px-4 py-3">
+          <DynamicMenuNavbar 
+            className="navbar-menu"
+            hideEmptyCategories={true}
+          />
+        </div>
       </div>
-    </nav>
+    </>
   );
 }
