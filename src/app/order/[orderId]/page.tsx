@@ -1,11 +1,15 @@
 import { OrderDetails } from '@/components/OrderDetails';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import type { Order, OrderItem, PizzaSize, PizzaTopping, PizzaSauce, PizzaCrust, OrderItemTopping, MenuItem } from '@prisma/client';
+import type { Order, OrderItem, PizzaSize, PizzaTopping, PizzaSauce, PizzaCrust, OrderItemTopping, MenuItem, OrderItemCustomization, CustomizationOption } from '@prisma/client';
 
 // Re-define types here to match what the page and component expect
 type ToppingInfo = OrderItemTopping & {
   pizzaTopping: PizzaTopping;
+};
+
+type CustomizationInfo = OrderItemCustomization & {
+  customizationOption: CustomizationOption;
 };
 
 type FullOrderItem = OrderItem & {
@@ -14,6 +18,7 @@ type FullOrderItem = OrderItem & {
   pizzaSauce?: PizzaSauce | null;
   menuItem?: MenuItem | null;
   toppings: ToppingInfo[];
+  customizations: CustomizationInfo[];
 };
 
 type FullOrder = Order & {
@@ -39,6 +44,12 @@ async function getOrder(id: string): Promise<FullOrder | null> {
             toppings: {
               include: {
                 pizzaTopping: true,
+              },
+            },
+            // Include menu item customizations for proper display
+            customizations: {
+              include: {
+                customizationOption: true,
               },
             },
           },

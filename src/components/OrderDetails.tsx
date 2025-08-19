@@ -1,8 +1,12 @@
-import type { Order, OrderItem, PizzaSize, PizzaTopping, PizzaSauce, PizzaCrust, OrderItemTopping, MenuItem } from '@prisma/client';
+import type { Order, OrderItem, PizzaSize, PizzaTopping, PizzaSauce, PizzaCrust, OrderItemTopping, MenuItem, OrderItemCustomization, CustomizationOption } from '@prisma/client';
 
 // Define more detailed types to reflect the nested includes from Prisma
 type ToppingInfo = OrderItemTopping & {
   pizzaTopping: PizzaTopping;
+};
+
+type CustomizationInfo = OrderItemCustomization & {
+  customizationOption: CustomizationOption;
 };
 
 type FullOrderItem = OrderItem & {
@@ -11,6 +15,7 @@ type FullOrderItem = OrderItem & {
   pizzaSauce?: PizzaSauce | null;
   menuItem?: MenuItem | null;
   toppings: ToppingInfo[];
+  customizations: CustomizationInfo[];
 };
 
 // This is the main type for the order object expected by the component
@@ -68,6 +73,22 @@ export function OrderDetails({ order }: OrderDetailsProps) {
                   {item.pizzaSauce && <p>Sauce: {item.pizzaSauce.name}</p>}
                   {item.toppings.length > 0 && (
                     <p>Toppings: {item.toppings.map(t => t.pizzaTopping.name).join(', ')}</p>
+                  )}
+                  
+                  {/* Show menu item customizations with detailed display like cart page */}
+                  {item.customizations && item.customizations.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-xs text-gray-400 mb-1">Customizations:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {item.customizations.map((customization) => (
+                          <span key={customization.id} className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs">
+                            {customization.customizationOption.name}
+                            {customization.quantity > 1 && ` (${customization.quantity}x)`}
+                            {customization.price > 0 && ` (+$${customization.price.toFixed(2)})`}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   )}
                   
                   {/* Hide notes if they contain malformed customization data */}

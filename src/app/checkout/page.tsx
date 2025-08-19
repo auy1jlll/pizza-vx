@@ -92,16 +92,38 @@ export default function CheckoutPage() {
     loadCartAndRefreshPrices();
   }, [pizzaItems]);
 
-  // Calculate menu subtotal with current prices (same logic as cart page)
+  // Calculate menu subtotal with current prices AND customizations (FIXED)
   const calculateMenuSubtotal = () => {
-    if (!currentPrices?.menuItems) {
-      return menuItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-    }
-    
     return menuItems.reduce((total, item) => {
-      const currentPrice = currentPrices.menuItems.find((p: any) => p.id === item.id);
-      const price = currentPrice ? currentPrice.currentPrice : item.price;
-      return total + (price * item.quantity);
+      // Start with base price (prefer fresh price from API if available)
+      const currentPrice = currentPrices?.menuItems?.find((p: any) => p.id === item.id);
+      let basePrice = currentPrice ? currentPrice.currentPrice : (item.price || item.totalPrice || 0);
+      
+      // Add customization prices
+      let customizationTotal = 0;
+      if (item.customizations && Array.isArray(item.customizations)) {
+        item.customizations.forEach((customGroup: any) => {
+          if (typeof customGroup === 'object' && customGroup !== null) {
+            // Handle grouped customizations with selections
+            if (customGroup.selections && Array.isArray(customGroup.selections)) {
+              customGroup.selections.forEach((selection: any) => {
+                if (selection.price && !isNaN(selection.price)) {
+                  const quantity = selection.quantity || 1;
+                  customizationTotal += selection.price * quantity;
+                }
+              });
+            }
+            // Handle direct customization prices
+            else if (customGroup.price && !isNaN(customGroup.price)) {
+              const quantity = customGroup.quantity || 1;
+              customizationTotal += customGroup.price * quantity;
+            }
+          }
+        });
+      }
+      
+      const totalItemPrice = basePrice + customizationTotal;
+      return total + (totalItemPrice * item.quantity);
     }, 0);
   };
 
@@ -116,6 +138,22 @@ export default function CheckoutPage() {
     const tax = getTaxAmount(subtotal);
     const deliveryFee = (subtotal > 0 && orderType === 'DELIVERY') ? 3.99 : 0;
     return subtotal + tax + deliveryFee;
+  };
+
+  // Helper function to get proper item name (especially for pizzas)
+  const getItemDisplayName = (item: any) => {
+    // For menu items, use the name or menuItemName
+    if (item.name || item.menuItemName) {
+      return item.name || item.menuItemName;
+    }
+    
+    // For pizza items, construct name from size
+    if (item.size) {
+      return `${item.size.name || 'Custom'} Pizza`;
+    }
+    
+    // Fallback
+    return 'Custom Item';
   };
 
   // Redirect if cart is empty (but only after initial loading is complete and not during order success)
@@ -589,26 +627,13 @@ export default function CheckoutPage() {
                   <div key={item.id} className="flex justify-between items-start">
                     <div className="flex-1">
                       <h3 className="font-medium text-gray-800">
-                        {/* Handle both pizza items and menu items */}
-                        {(item as any).name || 'Unnamed Item'}
+                        {/* Use helper function for proper naming */}
+                        {getItemDisplayName(item)}
                       </h3>
+                      
+                      {/* Pizza-specific details */}
                       {item.size && (
                         <p className="text-sm text-gray-500">Size: {item.size.name}</p>
-                      )}
-                      {(item as any).customizations && (item as any).customizations.length > 0 && (
-                        <div className="text-sm text-gray-500">
-                          {(item as any).customizations.map((custom: any, idx: number) => (
-                            <div key={idx}>
-                              {custom.groupName}: {custom.optionName}
-                              {custom.quantity > 1 && ` (${custom.quantity})`}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {item.toppings && item.toppings.length > 0 && (
-                        <div className="text-sm text-gray-500">
-                          <p>Toppings: {item.toppings.map((t: any) => t.name).join(', ')}</p>
-                        </div>
                       )}
                       {item.crust && (
                         <p className="text-sm text-gray-500">Crust: {item.crust.name}</p>
@@ -616,7 +641,47 @@ export default function CheckoutPage() {
                       {item.sauce && (
                         <p className="text-sm text-gray-500">Sauce: {item.sauce.name}</p>
                       )}
-                      <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                      {item.toppings && item.toppings.length > 0 && (
+                        <div className="text-sm text-gray-500">
+                          <p>Toppings: {item.toppings.map((t: any) => t.name).join(', ')}</p>
+                        </div>
+                      )}
+                      
+                      {/* Menu item customizations - detailed display like cart page */}
+                      {(item as any).customizations && (item as any).customizations.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-xs text-gray-400 mb-1">Customizations:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {(item as any).customizations.map((customGroup: any, idx: number) => {
+                              if (typeof customGroup === 'string') {
+                                return (
+                                  <span key={idx} className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs">
+                                    {customGroup}
+                                  </span>
+                                );
+                              } else if (customGroup.groupName && customGroup.selections) {
+                                return customGroup.selections.map((selection: any, selIdx: number) => (
+                                  <span key={`${idx}-${selIdx}`} className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs">
+                                    {customGroup.groupName}: {selection.optionName}
+                                    {selection.quantity > 1 && ` (${selection.quantity}x)`}
+                                    {selection.price > 0 && ` (+$${selection.price.toFixed(2)})`}
+                                  </span>
+                                ));
+                              } else {
+                                return (
+                                  <span key={idx} className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs">
+                                    {customGroup.optionName || customGroup.name || 'Unknown'}
+                                    {(customGroup.quantity && customGroup.quantity > 1) && ` (${customGroup.quantity}x)`}
+                                    {customGroup.price && customGroup.price > 0 && ` (+$${customGroup.price.toFixed(2)})`}
+                                  </span>
+                                );
+                              }
+                            })}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <p className="text-sm text-gray-500 mt-1">Qty: {item.quantity}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-gray-800">
