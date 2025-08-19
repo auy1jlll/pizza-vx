@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ToastProvider';
+import { useAppSettingsContext } from '@/contexts/AppSettingsContext';
 
 interface PizzaSize {
   id: string;
@@ -67,6 +68,7 @@ export default function PizzaBuilderEnhanced() {
     toppings: []
   });
   const { show: showToast } = useToast();
+  const { settings } = useAppSettingsContext();
 
   useEffect(() => {
     fetchPizzaData();
@@ -187,7 +189,7 @@ export default function PizzaBuilderEnhanced() {
             <div>
               <h1 className="text-4xl font-bold text-gray-900 flex items-center">
                 <span className="inline-block w-12 h-12 bg-gradient-to-br from-yellow-200 to-orange-300 rounded-full text-2xl flex items-center justify-center mr-3 shadow-md border border-orange-400">🍕</span>
-                Pizza Builder Pro
+                {settings.app_name || 'Pizza Builder Pro'}
               </h1>
               <p className="text-gray-600 mt-2">Create your perfect pizza masterpiece</p>
             </div>

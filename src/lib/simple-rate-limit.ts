@@ -58,4 +58,4 @@ export class SimpleRateLimiter {
 // Specialized instances (can add more as needed)
 export const orderLimiter = new SimpleRateLimiter({ windowMs: 5 * 60 * 1000, max: 5 });
 export const authLimiter = new SimpleRateLimiter({ windowMs: 15 * 60 * 1000, max: 10 });
-export const adminLimiter = new SimpleRateLimiter({ windowMs: 15 * 60 * 1000, max: 100 });
+export const adminLimiter = new SimpleRateLimiter({ windowMs: 15 * 60 * 1000, max: 200 }); // Increased from 100 to 200 for kitchen display

@@ -1,0 +1,7 @@
+name,slug,description,image_url,display_order,is_active
+"Deli Subs","deli-subs","Fresh submarine sandwiches made to order","subs-category.jpg",1,true
+"Dinner Plates","dinner-plates","Hearty dinner meals with sides","dinner-category.jpg",2,true
+"Soups & Salads","soups-salads","Fresh salads and homemade soups","soup-salad-category.jpg",3,true
+"Appetizers","appetizers","Delicious starters and finger foods","appetizers-category.jpg",4,true
+"Desserts","desserts","Sweet treats and homemade desserts","desserts-category.jpg",5,true
+"Beverages","beverages","Hot and cold drinks","beverages-category.jpg",6,true

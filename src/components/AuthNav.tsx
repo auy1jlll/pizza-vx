@@ -3,10 +3,17 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useUser } from '@/contexts/UserContext';
+import { useAppSettingsContext } from '@/contexts/AppSettingsContext';
 
 export default function AuthNav() {
   const { user, logout, loading } = useUser();
+  const { settings } = useAppSettingsContext();
   const [showDropdown, setShowDropdown] = useState(false);
+
+  // If user accounts are disabled, don't show auth options
+  if (!settings.enable_user_accounts) {
+    return null;
+  }
 
   if (loading) {
     return (

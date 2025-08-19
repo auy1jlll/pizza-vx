@@ -76,7 +76,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: '/admin/kitchen', label: 'Kitchen Display', icon: '🍳' },
     { href: '/admin/pizza-manager', label: 'Pizza Manager', icon: '🍕' },
     { href: '/admin/menu-manager', label: 'Menu Manager', icon: '🍽️' },
-    { href: '/admin/settings', label: 'Settings', icon: '⚙️' },
+    { href: '/admin/global-settings', label: 'Global Settings', icon: '🌐' },
   ];
 
   return (

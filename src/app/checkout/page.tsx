@@ -5,11 +5,15 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ToastProvider';
 import { useCart } from '@/contexts/CartContext';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useAppSettingsContext } from '@/contexts/AppSettingsContext';
+import { useUser } from '@/contexts/UserContext';
 import { ArrowLeft, CreditCard, Truck, User, MapPin, Phone, Mail } from 'lucide-react';
 
 export default function CheckoutPage() {
   const { cartItems: pizzaItems, calculateSubtotal: calculatePizzaSubtotal, clearCart } = useCart();
   const { settings, getTaxAmount } = useSettings();
+  const { settings: appSettings } = useAppSettingsContext();
+  const { user } = useUser();
   const { show: showToast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -19,6 +23,7 @@ export default function CheckoutPage() {
   const [currentPrices, setCurrentPrices] = useState<any>(null);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [newOrderId, setNewOrderId] = useState<string | null>(null);
+  const [checkoutAsGuest, setCheckoutAsGuest] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     email: '',
@@ -27,7 +32,22 @@ export default function CheckoutPage() {
     city: '',
     zip: ''
   });
-  const [orderType, setOrderType] = useState<'PICKUP' | 'DELIVERY'>('DELIVERY');
+  const [orderType, setOrderType] = useState<'PICKUP' | 'DELIVERY'>('PICKUP');
+
+  // Check if guest checkout is allowed and user is not logged in
+  const showGuestCheckout = appSettings.enable_guest_checkout && !user;
+  
+  // Check if delivery is enabled from app settings
+  const isDeliveryEnabled = appSettings.deliveryEnabled === true;
+
+  // Set default order type based on delivery availability
+  useEffect(() => {
+    if (isDeliveryEnabled) {
+      setOrderType('DELIVERY');
+    } else {
+      setOrderType('PICKUP');
+    }
+  }, [isDeliveryEnabled]);
 
   // Load both pizza and menu items
   useEffect(() => {
@@ -351,25 +371,29 @@ export default function CheckoutPage() {
                   <h2 className="text-xl font-bold text-gray-800">Order Type</h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <label className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                    orderType === 'DELIVERY' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="orderType"
-                      value="DELIVERY"
-                      checked={orderType === 'DELIVERY'}
-                      onChange={(e) => setOrderType(e.target.value as 'DELIVERY')}
-                      className="w-4 h-4 text-green-600"
-                    />
-                    <div className="flex items-center space-x-2">
-                      <Truck className="w-5 h-5 text-gray-600" />
-                      <span className="font-medium">Delivery</span>
-                    </div>
-                    <span className="text-sm text-gray-500 ml-auto">$3.99</span>
-                  </label>
+                <div className={`grid grid-cols-1 ${isDeliveryEnabled ? 'md:grid-cols-2' : ''} gap-4`}>
+                  {/* Delivery Option - Only show if delivery is enabled */}
+                  {isDeliveryEnabled && (
+                    <label className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                      orderType === 'DELIVERY' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'
+                    }`}>
+                      <input
+                        type="radio"
+                        name="orderType"
+                        value="DELIVERY"
+                        checked={orderType === 'DELIVERY'}
+                        onChange={(e) => setOrderType(e.target.value as 'DELIVERY')}
+                        className="w-4 h-4 text-green-600"
+                      />
+                      <div className="flex items-center space-x-2">
+                        <Truck className="w-5 h-5 text-gray-600" />
+                        <span className="font-medium">Delivery</span>
+                      </div>
+                      <span className="text-sm text-gray-500 ml-auto">$3.99</span>
+                    </label>
+                  )}
 
+                  {/* Pickup Option - Always available */}
                   <label className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
                     orderType === 'PICKUP' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'
                   }`}>

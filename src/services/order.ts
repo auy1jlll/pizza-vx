@@ -117,14 +117,38 @@ export class OrderService extends BaseService {
       parts.push(`(${item.category})`);
     }
     
-    // Add customizations
+    // Add customizations - handle both string and object formats
     if (Array.isArray(item.customizations) && item.customizations.length > 0) {
       const customizationDetails = item.customizations.map((customization: any) => {
-        const modifier = customization.priceModifier > 0 ? ` (+$${customization.priceModifier.toFixed(2)})` : 
-                        customization.priceModifier < 0 ? ` (-$${Math.abs(customization.priceModifier).toFixed(2)})` : '';
-        return `${customization.groupName}: ${customization.optionName}${modifier}`;
-      });
-      parts.push(`| ${customizationDetails.join(' | ')}`);
+        // Handle string format (legacy from bulk import)
+        if (typeof customization === 'string') {
+          return customization;
+        }
+        
+        // Handle object format (proper structure from formatForCart API)
+        if (customization.groupName && customization.selections) {
+          return customization.selections.map((selection: any) => {
+            const modifier = selection.price > 0 ? ` (+$${selection.price.toFixed(2)})` : 
+                            selection.price < 0 ? ` (-$${Math.abs(selection.price).toFixed(2)})` : '';
+            const quantity = selection.quantity > 1 ? ` (${selection.quantity})` : '';
+            return `${customization.groupName}: ${selection.optionName}${quantity}${modifier}`;
+          }).join(', ');
+        }
+        
+        // Handle legacy object format (groupName, optionName at top level)
+        if (customization.groupName && customization.optionName) {
+          const modifier = customization.priceModifier > 0 ? ` (+$${customization.priceModifier.toFixed(2)})` : 
+                          customization.priceModifier < 0 ? ` (-$${Math.abs(customization.priceModifier).toFixed(2)})` : '';
+          return `${customization.groupName}: ${customization.optionName}${modifier}`;
+        }
+        
+        // Fallback for unknown format
+        return 'Customization';
+      }).filter(Boolean);
+      
+      if (customizationDetails.length > 0) {
+        parts.push(`| ${customizationDetails.join(' | ')}`);
+      }
     }
     
     return parts.join(' ');

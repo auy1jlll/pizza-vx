@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { requireAdmin } from '@/lib/auth';
-import { adminLimiter } from '@/lib/simple-rate-limit';
+import { verifyAdminToken } from '@/lib/auth';
+import { configurableAdminLimiter } from '@/lib/configurable-rate-limit';
 
 export async function GET(request: NextRequest) {
   try {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
-    const limit = adminLimiter.check('admin-kitchen-orders-get', ip);
+    const limit = await configurableAdminLimiter.check('admin-kitchen-orders-get', ip);
     if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
-    // Require admin authentication
-    const user = await requireAdmin(request);
+    
+    // Check admin authentication
+    const user = verifyAdminToken(request);
     if (!user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized: Admin access required' },
         { status: 401 }
       );
     }

@@ -1,0 +1,28 @@
+menu_item_name,group_name,group_type,display_order,is_required,max_selections
+"American Sub","Bread Choice","single",1,true,1
+"American Sub","Size","single",2,true,1
+"American Sub","Add-ons","multiple",3,false,5
+"American Sub","Extras","multiple",4,false,3
+"Italian Sub","Bread Choice","single",1,true,1
+"Italian Sub","Size","single",2,true,1
+"Italian Sub","Add-ons","multiple",3,false,5
+"Italian Sub","Extras","multiple",4,false,3
+"Turkey Club Sub","Bread Choice","single",1,true,1
+"Turkey Club Sub","Size","single",2,true,1
+"Turkey Club Sub","Add-ons","multiple",3,false,5
+"Veggie Sub","Bread Choice","single",1,true,1
+"Veggie Sub","Size","single",2,true,1
+"Veggie Sub","Add-ons","multiple",3,false,5
+"Chicken Parmesan","Pasta Choice","single",1,true,1
+"Chicken Parmesan","Add-ons","multiple",2,false,3
+"Grilled Salmon","Cooking Style","single",1,true,1
+"Grilled Salmon","Side Choice","single",2,true,1
+"BBQ Ribs","Sauce Level","single",1,true,1
+"BBQ Ribs","Side Choice","single",2,true,1
+"Chicken Noodle Soup","Size","single",1,true,1
+"Chicken Noodle Soup","Add-ons","multiple",2,false,2
+"Caesar Salad","Size","single",1,true,1
+"Caesar Salad","Protein Add-on","single",2,false,1
+"Garden Salad","Size","single",1,true,1
+"Garden Salad","Dressing","single",2,true,1
+"Garden Salad","Protein Add-on","single",3,false,1

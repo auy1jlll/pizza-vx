@@ -7,7 +7,8 @@ import { AppSettingsProvider } from '@/contexts/AppSettingsContext';
 import { ToastProvider } from '@/components/ToastProvider';
 import { SexyToastProvider } from '@/components/SexyToastProvider';
 import FloatingCartButton from '@/components/FloatingCartButton';
-import DynamicNavigation from '@/components/DynamicNavigation';
+import DynamicNavigation from '@/components/Navigation';
+import DynamicFooter from '@/components/DynamicFooter';
 import { generateMetadata as generateDynamicMetadata } from '@/lib/dynamic-metadata';
 
 // Instrumentation is only meaningful on the Node server; defer to runtime dynamic import
@@ -43,14 +44,7 @@ export default function RootLayout({
                   
                   <FloatingCartButton />
                   
-                  <footer className="bg-gray-900 text-white py-8 mt-16">
-                    <div className="container mx-auto px-4 text-center">
-                      <p>&copy; 2025 Pizza Builder Pro. Built with Next.js, TypeScript, and Tailwind CSS.</p>
-                      <p className="mt-2 text-sm text-gray-400">
-                        Standalone pizza builder application with complete isolation.
-                      </p>
-                    </div>
-                  </footer>
+                  <DynamicFooter />
                 </SexyToastProvider>
               </ToastProvider>
             </CartProvider>

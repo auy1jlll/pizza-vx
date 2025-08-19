@@ -45,7 +45,7 @@ export default function SandwichesPage() {
   const fetchSandwiches = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/menu/sandwiches');
+      const response = await fetch('/api/menu/deli-subs');
       
       if (!response.ok) {
         throw new Error('Failed to fetch sandwiches');

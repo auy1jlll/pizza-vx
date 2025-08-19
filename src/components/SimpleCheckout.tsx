@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { useToast } from '@/components/ToastProvider';
 
 interface SimpleCheckoutProps {
@@ -12,6 +13,7 @@ interface SimpleCheckoutProps {
 export default function SimpleCheckout({ isOpen, onClose }: SimpleCheckoutProps) {
   // Adapt to current CartContext shape (cartItems, calculateSubtotal, calculateTotal)
   const { cartItems, clearCart, calculateSubtotal, calculateTotal } = useCart();
+  const { getTaxAmount } = useSettings();
   const { show: showToast } = useToast();
   const getSubtotal = () => calculateSubtotal();
   const getDisplayTotal = () => calculateTotal();
@@ -86,8 +88,8 @@ export default function SimpleCheckout({ isOpen, onClose }: SimpleCheckoutProps)
         })),
         subtotal: getSubtotal(),
         deliveryFee: 3.99,
-        tax: getSubtotal() * 0.08,
-        total: getSubtotal() + 3.99 + (getSubtotal() * 0.08)
+        tax: getTaxAmount(getSubtotal()),
+        total: getSubtotal() + 3.99 + getTaxAmount(getSubtotal())
       };
 
       console.log('🚀 Sending simple order:', orderData);
@@ -247,7 +249,7 @@ export default function SimpleCheckout({ isOpen, onClose }: SimpleCheckoutProps)
               disabled={loading}
               className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:opacity-50"
             >
-              {loading ? 'Placing Order...' : `Place Order - $${(getSubtotal() + 3.99 + (getSubtotal() * 0.08)).toFixed(2)}`}
+              {loading ? 'Placing Order...' : `Place Order - $${(getSubtotal() + 3.99 + getTaxAmount(getSubtotal())).toFixed(2)}`}
             </button>
             <button
               type="button"

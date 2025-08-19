@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import Link from 'next/link';
+import { useAppSettingsContext } from '@/contexts/AppSettingsContext';
 
 interface OrderItem {
   id: string;
@@ -110,6 +111,7 @@ const getStatusColor = (status: string) => {
 };
 
 export default function AdminDashboard() {
+  const { settings } = useAppSettingsContext();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -255,7 +257,7 @@ export default function AdminDashboard() {
                 <span className="text-5xl mr-3">🍕</span>
                 <div>
                   <div className="bg-gradient-to-r from-orange-400 to-pink-400 bg-clip-text text-transparent">
-                    Pizza Builder Pro
+                    {settings.app_name || 'Pizza Builder Pro'}
                   </div>
                   <div className="text-xl text-white/80 font-normal">Admin Dashboard</div>
                 </div>

@@ -159,7 +159,7 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
           id: `menu-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           type: 'menu',
           menuItemId: selectedItem.id,
-          menuItemName: selectedItem.name,
+          name: selectedItem.name, // Fixed: changed from menuItemName to name
           basePrice: selectedItem.basePrice,
           price: Math.round(currentPrice * 100) / 100, // Fix precision and use 'price' field for cart compatibility
           totalPrice: currentPrice, // Keep for backward compatibility
@@ -315,7 +315,19 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
             >
               <ArrowLeft className="w-6 h-6 text-white" />
             </button>
-            <div className="text-4xl">{getCategoryIcon(category)}</div>
+            <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-700/50 flex-shrink-0">
+              {menuData.category.imageUrl ? (
+                <img 
+                  src={menuData.category.imageUrl} 
+                  alt={menuData.category.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-3xl">
+                  {getCategoryIcon(category)}
+                </div>
+              )}
+            </div>
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-white">
                 {menuData.category.name}
@@ -350,11 +362,21 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
                 key={item.id}
                 className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden hover:border-white/40 transition-all duration-300 hover:scale-105 shadow-xl"
               >
-                {/* Item Image Placeholder */}
-                <div className="h-48 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-                  <div className="text-6xl opacity-50">
-                    {getCategoryIcon(category)}
-                  </div>
+                {/* Item Image */}
+                <div className="h-48 bg-gradient-to-br from-gray-700 to-gray-800 overflow-hidden">
+                  {item.imageUrl ? (
+                    <img 
+                      src={item.imageUrl} 
+                      alt={item.name}
+                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="text-6xl opacity-50">
+                        {getCategoryIcon(category)}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Item Details */}

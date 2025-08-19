@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "recraft": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@recraft-ai/mcp-recraft-server@latest"
+      ],
+      "env": {
+        "RECRAFT_API_KEY": "YOUR_RECRAFT_API_KEY_HERE",
+        "IMAGE_STORAGE_DIRECTORY": "C:\\Users\\auy1j\\Desktop\\restoApp\\generated-images",
+        "RECRAFT_REMOTE_RESULTS_STORAGE": "0"
+      }
+    }
+  }
+}

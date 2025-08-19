@@ -54,7 +54,14 @@ export async function POST(request: NextRequest) {
     // Check if user is authenticated
     let authenticatedUserId = null;
     try {
-      const token = request.cookies.get('token')?.value;
+      // Check for user-token (customer) first, then fallback to other tokens
+      let token = request.cookies.get('user-token')?.value;
+      
+      // Fallback to other token names for compatibility
+      if (!token) {
+        token = request.cookies.get('token')?.value;
+      }
+      
       if (token) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
         authenticatedUserId = decoded.userId;

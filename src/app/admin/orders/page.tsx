@@ -604,7 +604,7 @@ export default function AdminOrders() {
                           <span>Subtotal:</span>
                           <span>{formatCurrency(selectedOrder.subtotal)}</span>
                         </div>
-                        {selectedOrder.deliveryFee > 0 && (
+                        {selectedOrder.orderType === 'DELIVERY' && (
                           <div className="flex justify-between text-gray-300">
                             <span>Delivery Fee:</span>
                             <span>{formatCurrency(selectedOrder.deliveryFee)}</span>

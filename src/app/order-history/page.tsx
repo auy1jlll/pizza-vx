@@ -377,7 +377,7 @@ export default function OrderHistory() {
                             <span>Subtotal:</span>
                             <span>${order.subtotal.toFixed(2)}</span>
                           </div>
-                          {order.deliveryFee > 0 && (
+                          {order.orderType === 'DELIVERY' && (
                             <div className="flex justify-between">
                               <span>Delivery Fee:</span>
                               <span>${order.deliveryFee.toFixed(2)}</span>

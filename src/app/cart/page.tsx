@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { ShoppingCart, Plus, Minus, Trash2, ArrowLeft } from 'lucide-react';
 
 interface MenuCartItem {
   id: string;
   name: string;
+  menuItemName?: string; // For backward compatibility with existing cart items
   price: number;
   totalPrice?: number; // For backward compatibility with existing cart items
   quantity: number;
@@ -32,6 +34,7 @@ interface PizzaCartItem {
 export default function CartPage() {
   const router = useRouter();
   const { cartItems: pizzaItems, removePizza, updatePizzaQuantity, calculateSubtotal, calculateTotal } = useCart();
+  const { settings, getTaxAmount } = useSettings();
   const [menuItems, setMenuItems] = useState<MenuCartItem[]>([]);
   const [pricesLoading, setPricesLoading] = useState(true);
   const [currentPrices, setCurrentPrices] = useState<any>(null);
@@ -199,18 +202,17 @@ export default function CartPage() {
   const pizzaSubtotal = isNaN(calculatePizzaSubtotal()) ? 0 : calculatePizzaSubtotal();
   const menuSubtotal = isNaN(calculateMenuSubtotal()) ? 0 : calculateMenuSubtotal();
   const combinedSubtotal = pizzaSubtotal + menuSubtotal;
-  const tax = combinedSubtotal * 0.0875; // 8.75% tax
-  const deliveryFee = combinedSubtotal > 0 ? 3.99 : 0;
-  const grandTotal = combinedSubtotal + tax + deliveryFee;
+  const tax = getTaxAmount(combinedSubtotal); // Use dynamic tax rate from settings
+  // Delivery fee will be calculated in checkout after user selects order type
+  const grandTotal = combinedSubtotal + tax;
 
   // Debug logging for totals
   console.log('💰 CART TOTALS CALCULATION:');
   console.log(`  Pizza subtotal: $${pizzaSubtotal.toFixed(2)}`);
   console.log(`  Menu subtotal: $${menuSubtotal.toFixed(2)}`);
   console.log(`  Combined subtotal: $${combinedSubtotal.toFixed(2)}`);
-  console.log(`  Tax (8.75%): $${tax.toFixed(2)}`);
-  console.log(`  Delivery fee: $${deliveryFee.toFixed(2)}`);
-  console.log(`  Grand total: $${grandTotal.toFixed(2)}`);
+  console.log(`  Tax (${settings.taxRate}%): $${tax.toFixed(2)}`);
+  console.log(`  Grand total (before delivery): $${grandTotal.toFixed(2)}`);
   console.log(`  Pizza items count: ${pizzaItems.length}`);
   console.log(`  Menu items count: ${menuItems.length}`);
   console.log(`  Prices loading: ${pricesLoading}`);
@@ -375,10 +377,19 @@ export default function CartPage() {
                           <div className="flex-1">
                             <div className="flex items-start justify-between mb-2">
                               <div>
-                                <h3 className="text-lg font-bold text-gray-800">{item.name || 'Unnamed Item'}</h3>
+                                <h3 className="text-lg font-bold text-gray-800">
+                                  {item.name || item.menuItemName || 'Unnamed Item'}
+                                  {(!item.name && !item.menuItemName) && (
+                                    <span className="text-red-500 text-sm ml-2">(DEBUG: Missing name)</span>
+                                  )}
+                                </h3>
                                 {item.category && (
                                   <p className="text-gray-600 text-sm">{item.category}</p>
                                 )}
+                                {/* Debug info */}
+                                <div className="text-xs text-gray-400 mt-1">
+                                  ID: {item.id} | Type: {(item as any).type} | MenuItemId: {(item as any).menuItemId}
+                                </div>
                               </div>
                               <button
                                 onClick={() => removeMenuItem(item.id)}
@@ -388,7 +399,41 @@ export default function CartPage() {
                               </button>
                             </div>
 
-                            <div className="flex items-center justify-between">
+            {/* Customizations Display */}
+            {item.customizations && item.customizations.length > 0 && (
+              <div className="mb-3">
+                <p className="text-sm text-gray-500 mb-1">Customizations:</p>
+                <div className="flex flex-wrap gap-1">
+                  {item.customizations.map((customGroup: any, idx: number) => {
+                    if (typeof customGroup === 'string') {
+                      // Simple string format: "Bread Type: Small Sub Roll"
+                      return (
+                        <span key={idx} className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs">
+                          {customGroup}
+                        </span>
+                      );
+                    } else if (customGroup.groupName && customGroup.selections) {
+                      // New format with groupName and selections array
+                      return customGroup.selections.map((selection: any, selIdx: number) => (
+                        <span key={`${idx}-${selIdx}`} className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs">
+                          {customGroup.groupName}: {selection.optionName}
+                          {selection.quantity > 1 && ` (${selection.quantity}x)`}
+                          {selection.price > 0 && ` (+$${selection.price.toFixed(2)})`}
+                        </span>
+                      ));
+                    } else {
+                      // Legacy format for backward compatibility
+                      return (
+                        <span key={idx} className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs">
+                          {customGroup.optionName || customGroup.name || 'Unknown'}
+                          {customGroup.quantity > 1 && ` (${customGroup.quantity}x)`}
+                        </span>
+                      );
+                    }
+                  })}
+                </div>
+              </div>
+            )}                            <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                 <div className="flex items-center bg-gray-100 rounded-full">
                                   <button
@@ -452,12 +497,8 @@ export default function CartPage() {
                     <span>${combinedSubtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
-                    <span>Tax (8.75%)</span>
+                    <span>Tax ({settings.taxRate}%)</span>
                     <span>${tax.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>Delivery Fee</span>
-                    <span>${deliveryFee.toFixed(2)}</span>
                   </div>
                   <div className="border-t pt-4">
                     <div className="flex justify-between text-xl font-bold text-gray-800">

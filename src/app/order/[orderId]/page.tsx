@@ -1,7 +1,7 @@
 import { OrderDetails } from '@/components/OrderDetails';
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import type { Order, OrderItem, PizzaSize, PizzaTopping, PizzaSauce, PizzaCrust, OrderItemTopping } from '@prisma/client';
+import type { Order, OrderItem, PizzaSize, PizzaTopping, PizzaSauce, PizzaCrust, OrderItemTopping, MenuItem } from '@prisma/client';
 
 // Re-define types here to match what the page and component expect
 type ToppingInfo = OrderItemTopping & {
@@ -9,9 +9,10 @@ type ToppingInfo = OrderItemTopping & {
 };
 
 type FullOrderItem = OrderItem & {
-  pizzaSize: PizzaSize;
-  pizzaCrust: PizzaCrust;
-  pizzaSauce: PizzaSauce;
+  pizzaSize?: PizzaSize | null;
+  pizzaCrust?: PizzaCrust | null;
+  pizzaSauce?: PizzaSauce | null;
+  menuItem?: MenuItem | null;
   toppings: ToppingInfo[];
 };
 
@@ -26,26 +27,44 @@ interface OrderConfirmationPageProps {
 }
 
 async function getOrder(id: string): Promise<FullOrder | null> {
-  const order = await prisma.order.findUnique({
-    where: { id },
-    include: {
-      orderItems: {
-        include: {
-          pizzaSize: true,
-          pizzaCrust: true,
-          pizzaSauce: true,
-          toppings: {
-            include: {
-              pizzaTopping: true,
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        orderItems: {
+          include: {
+            pizzaSize: true,
+            pizzaCrust: true,
+            pizzaSauce: true,
+            toppings: {
+              include: {
+                pizzaTopping: true,
+              },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  // The type assertion is necessary because Prisma's include type is not specific enough
-  return order as FullOrder | null;
+    // Manually fetch menuItem data for each order item that has menuItemId
+    if (order) {
+      for (const item of order.orderItems) {
+        const orderItem = item as any;
+        if (orderItem.menuItemId) {
+          const menuItem = await prisma.menuItem.findUnique({
+            where: { id: orderItem.menuItemId }
+          });
+          orderItem.menuItem = menuItem;
+        }
+      }
+    }
+
+    // The type assertion is necessary because Prisma's include type is not specific enough
+    return order as FullOrder | null;
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    return null;
+  }
 }
 
 export default async function OrderConfirmationPage({ params }: OrderConfirmationPageProps) {

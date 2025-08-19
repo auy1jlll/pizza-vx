@@ -1,4 +1,4 @@
-import type { Order, OrderItem, PizzaSize, PizzaTopping, PizzaSauce, PizzaCrust, OrderItemTopping } from '@prisma/client';
+import type { Order, OrderItem, PizzaSize, PizzaTopping, PizzaSauce, PizzaCrust, OrderItemTopping, MenuItem } from '@prisma/client';
 
 // Define more detailed types to reflect the nested includes from Prisma
 type ToppingInfo = OrderItemTopping & {
@@ -6,9 +6,10 @@ type ToppingInfo = OrderItemTopping & {
 };
 
 type FullOrderItem = OrderItem & {
-  pizzaSize: PizzaSize;
-  pizzaCrust: PizzaCrust;
-  pizzaSauce: PizzaSauce;
+  pizzaSize?: PizzaSize | null;
+  pizzaCrust?: PizzaCrust | null;
+  pizzaSauce?: PizzaSauce | null;
+  menuItem?: MenuItem | null;
   toppings: ToppingInfo[];
 };
 
@@ -51,15 +52,31 @@ export function OrderDetails({ order }: OrderDetailsProps) {
             <div key={item.id} className="flex justify-between items-start">
               <div className="flex-grow">
                 <p className="font-semibold text-gray-800">
-                  {item.quantity}x {item.pizzaSize?.name || 'Custom'} Pizza
+                  {item.quantity}x {
+                    item.menuItem ? (
+                      // Menu item (sandwich, salad, etc.)
+                      item.menuItem.name
+                    ) : (
+                      // Pizza item
+                      `${item.pizzaSize?.name || 'Custom'} Pizza`
+                    )
+                  }
                 </p>
                 <div className="text-sm text-gray-600 pl-3 mt-1">
+                  {/* Show pizza details if it's a pizza */}
                   {item.pizzaCrust && <p>Crust: {item.pizzaCrust.name}</p>}
                   {item.pizzaSauce && <p>Sauce: {item.pizzaSauce.name}</p>}
                   {item.toppings.length > 0 && (
                     <p>Toppings: {item.toppings.map(t => t.pizzaTopping.name).join(', ')}</p>
                   )}
-                  {item.notes && <p className="italic mt-1">Notes: "{item.notes}"</p>}
+                  
+                  {/* Hide notes if they contain malformed customization data */}
+                  {item.notes && 
+                   !item.notes.includes('undefined: undefined') && 
+                   !item.notes.includes('**') && 
+                   item.notes.length < 100 && (
+                    <p className="italic mt-1">Notes: "{item.notes}"</p>
+                  )}
                 </div>
               </div>
               <p className="font-semibold text-gray-800">{formatCurrency(item.totalPrice)}</p>
@@ -95,10 +112,12 @@ export function OrderDetails({ order }: OrderDetailsProps) {
           <p className="text-gray-600">Subtotal</p>
           <p className="text-gray-800 font-medium">{formatCurrency(order.subtotal)}</p>
         </div>
-        <div className="flex justify-between text-sm">
-          <p className="text-gray-600">Delivery Fee</p>
-          <p className="text-gray-800 font-medium">{formatCurrency(order.deliveryFee)}</p>
-        </div>
+        {order.orderType === 'DELIVERY' && (
+          <div className="flex justify-between text-sm">
+            <p className="text-gray-600">Delivery Fee</p>
+            <p className="text-gray-800 font-medium">{formatCurrency(order.deliveryFee)}</p>
+          </div>
+        )}
         <div className="flex justify-between text-sm">
           <p className="text-gray-600">Tax</p>
           <p className="text-gray-800 font-medium">{formatCurrency(order.tax)}</p>

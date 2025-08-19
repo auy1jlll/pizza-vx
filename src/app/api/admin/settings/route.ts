@@ -12,6 +12,15 @@ export async function GET(request: NextRequest) {
       orderBy: { key: 'asc' }
     });
 
+    // Check if requesting raw array format for settings management
+    const url = new URL(request.url);
+    const format = url.searchParams.get('format');
+    
+    if (format === 'array') {
+      // Return array format for settings management page
+      return NextResponse.json({ settings });
+    }
+
     // Convert to key-value object for easier frontend consumption
     const settingsObject: Record<string, any> = settings.reduce((acc: Record<string, any>, setting) => {
       let value: any = setting.value;
@@ -35,7 +44,25 @@ export async function GET(request: NextRequest) {
           value = setting.value;
       }
       
-      acc[setting.key] = value;
+      // Map database keys to frontend expected keys
+      let mappedKey = setting.key;
+      switch (setting.key) {
+        case 'businessName':
+          mappedKey = 'business_name';
+          break;
+        case 'businessEmail':
+          mappedKey = 'business_email';
+          break;
+        case 'businessPhone':
+          mappedKey = 'business_phone';
+          break;
+        case 'businessAddress':
+          mappedKey = 'business_address';
+          break;
+        // Add other mappings as needed
+      }
+      
+      acc[mappedKey] = value;
       return acc;
     }, {});
 

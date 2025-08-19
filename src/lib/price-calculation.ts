@@ -95,7 +95,7 @@ const priceCache = new PriceCache();
 export function calculatePizzaPrice(
   config: PizzaConfiguration,
   data: PizzaData,
-  taxRate: number = 0.08875 // NY tax rate as default
+  taxRate: number = 0.0825 // Updated to match database setting (8.25%)
 ): PriceBreakdown {
   // Check cache first
   const cached = priceCache.get(config);

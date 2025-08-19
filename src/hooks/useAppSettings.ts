@@ -42,6 +42,7 @@ interface AppSettings {
   enable_menu_ordering: boolean;
   enable_user_accounts: boolean;
   enable_guest_checkout: boolean;
+  deliveryEnabled: boolean;
   
   // Operations
   tax_rate: number;
@@ -70,17 +71,17 @@ interface AppSettings {
   refund_policy_url: string;
 }
 
-// Default fallback settings
-const defaultSettings: AppSettings = {
-  app_name: 'Pizza Builder Pro',
+// SSR-safe initial settings - matches expected content to prevent hydration issues
+const ssrSafeSettings: AppSettings = {
+  app_name: 'Omar Pizza',
   app_tagline: 'Build your perfect pizza',
-  business_name: 'Pizza Builder Pro',
+  business_name: 'Omar Pizza',
   business_slogan: 'Crafted to Perfection',
   business_phone: '(555) 123-PIZZA',
-  business_email: 'orders@pizzabuilderpro.com',
+  business_email: 'orders@omarpizza.com',
   business_address: '123 Pizza Street',
-  business_website: 'https://pizzabuilderpro.com',
-  meta_title: 'Pizza Builder Pro',
+  business_website: 'https://omarpizza.com',
+  meta_title: 'Omar Pizza',
   meta_description: 'Build your perfect pizza',
   meta_keywords: 'pizza, custom pizza, pizza builder',
   facebook_url: '',
@@ -101,6 +102,7 @@ const defaultSettings: AppSettings = {
   enable_menu_ordering: true,
   enable_user_accounts: true,
   enable_guest_checkout: true,
+  deliveryEnabled: true,
   tax_rate: 8.25,
   delivery_fee: 3.99,
   minimum_order: 15.00,
@@ -114,9 +116,9 @@ const defaultSettings: AppSettings = {
     saturday: { open: '12:00', close: '23:00', closed: false },
     sunday: { open: '12:00', close: '21:00', closed: false }
   },
-  welcome_message: 'Welcome to Pizza Builder Pro!',
+  welcome_message: 'Welcome to Omar Pizza!',
   welcome_subtitle: 'Create your perfect pizza',
-  footer_text: '© 2025 Pizza Builder Pro. All rights reserved.',
+  footer_text: '© 2025 Omar Pizza. All rights reserved.',
   footer_description: 'Experience the art of pizza making.',
   terms_url: '/terms',
   privacy_url: '/privacy',
@@ -124,7 +126,7 @@ const defaultSettings: AppSettings = {
 };
 
 export function useAppSettings() {
-  const [settings, setSettings] = useState<AppSettings>(defaultSettings);
+  const [settings, setSettings] = useState<AppSettings>(ssrSafeSettings);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -143,14 +145,19 @@ export function useAppSettings() {
       
       const data = await response.json();
       
-      // Merge fetched settings with defaults
-      const mergedSettings = { ...defaultSettings, ...data.settings };
-      setSettings(mergedSettings);
+      // Use fetched settings directly - they should be complete from database
+      if (data.settings && Object.keys(data.settings).length > 0) {
+        setSettings(data.settings);
+      } else {
+        console.warn('No settings returned from API, using SSR-safe fallback');
+        setSettings(ssrSafeSettings);
+      }
       setError(null);
     } catch (err) {
       console.error('Error fetching app settings:', err);
       setError(err instanceof Error ? err.message : 'Failed to load settings');
-      // Keep using default settings on error
+      // Keep using SSR-safe settings on error to prevent hydration issues
+      setSettings(ssrSafeSettings);
     } finally {
       setLoading(false);
     }

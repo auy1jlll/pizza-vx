@@ -235,8 +235,18 @@ export default function MenuPage() {
                 
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="text-4xl mb-2">
-                      {getCategoryIcon(category.slug)}
+                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-700/50 flex-shrink-0">
+                      {category.imageUrl ? (
+                        <img 
+                          src={category.imageUrl} 
+                          alt={category.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-2xl">
+                          {getCategoryIcon(category.slug)}
+                        </div>
+                      )}
                     </div>
                     <div className="text-right">
                       <div className="text-sm text-gray-400">

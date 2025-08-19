@@ -1,0 +1,73 @@
+menu_item_name,group_name,option_name,price_modifier,is_default,display_order,is_available
+"American Sub","Bread Choice","White Sub Roll",0.00,true,1,true
+"American Sub","Bread Choice","Wheat Sub Roll",0.50,false,2,true
+"American Sub","Bread Choice","Italian Herb Roll",0.75,false,3,true
+"American Sub","Size","6 inch",0.00,true,1,true
+"American Sub","Size","12 inch",4.00,false,2,true
+"American Sub","Add-ons","Extra Cheese",1.50,false,1,true
+"American Sub","Add-ons","Bacon",2.00,false,2,true
+"American Sub","Add-ons","Avocado",1.75,false,3,true
+"American Sub","Add-ons","Extra Meat",3.00,false,4,true
+"American Sub","Add-ons","Pickles",0.50,false,5,true
+"American Sub","Extras","Chips",1.99,false,1,true
+"American Sub","Extras","Cookie",1.50,false,2,true
+"American Sub","Extras","Drink",2.50,false,3,true
+"Italian Sub","Bread Choice","White Sub Roll",0.00,true,1,true
+"Italian Sub","Bread Choice","Wheat Sub Roll",0.50,false,2,true
+"Italian Sub","Bread Choice","Italian Herb Roll",0.75,false,3,true
+"Italian Sub","Size","6 inch",0.00,true,1,true
+"Italian Sub","Size","12 inch",4.00,false,2,true
+"Italian Sub","Add-ons","Extra Cheese",1.50,false,1,true
+"Italian Sub","Add-ons","Hot Peppers",0.50,false,2,true
+"Italian Sub","Add-ons","Extra Meat",3.00,false,3,true
+"Italian Sub","Add-ons","Olives",0.75,false,4,true
+"Italian Sub","Add-ons","Pickles",0.50,false,5,true
+"Italian Sub","Extras","Chips",1.99,false,1,true
+"Italian Sub","Extras","Cookie",1.50,false,2,true
+"Italian Sub","Extras","Drink",2.50,false,3,true
+"Turkey Club Sub","Bread Choice","White Sub Roll",0.00,true,1,true
+"Turkey Club Sub","Bread Choice","Wheat Sub Roll",0.50,false,2,true
+"Turkey Club Sub","Size","6 inch",0.00,true,1,true
+"Turkey Club Sub","Size","12 inch",4.00,false,2,true
+"Turkey Club Sub","Add-ons","Extra Bacon",2.50,false,1,true
+"Turkey Club Sub","Add-ons","Extra Cheese",1.50,false,2,true
+"Turkey Club Sub","Add-ons","Avocado",1.75,false,3,true
+"Veggie Sub","Bread Choice","White Sub Roll",0.00,true,1,true
+"Veggie Sub","Bread Choice","Wheat Sub Roll",0.50,false,2,true
+"Veggie Sub","Size","6 inch",0.00,true,1,true
+"Veggie Sub","Size","12 inch",4.00,false,2,true
+"Veggie Sub","Add-ons","Extra Cheese",1.50,false,1,true
+"Veggie Sub","Add-ons","Extra Avocado",1.75,false,2,true
+"Veggie Sub","Add-ons","Hummus",1.00,false,3,true
+"Chicken Parmesan","Pasta Choice","Spaghetti",0.00,true,1,true
+"Chicken Parmesan","Pasta Choice","Penne",0.00,false,2,true
+"Chicken Parmesan","Pasta Choice","Fettuccine",0.00,false,3,true
+"Chicken Parmesan","Add-ons","Extra Cheese",2.00,false,1,true
+"Chicken Parmesan","Add-ons","Garlic Bread",3.50,false,2,true
+"Chicken Parmesan","Add-ons","Side Salad",4.99,false,3,true
+"Grilled Salmon","Cooking Style","Medium",0.00,true,1,true
+"Grilled Salmon","Cooking Style","Medium Well",0.00,false,2,true
+"Grilled Salmon","Cooking Style","Well Done",0.00,false,3,true
+"Grilled Salmon","Side Choice","Rice Pilaf",0.00,true,1,true
+"Grilled Salmon","Side Choice","Mashed Potatoes",0.00,false,2,true
+"Grilled Salmon","Side Choice","Roasted Vegetables",0.00,false,3,true
+"BBQ Ribs","Sauce Level","Regular",0.00,true,1,true
+"BBQ Ribs","Sauce Level","Extra Sauce",0.50,false,2,true
+"BBQ Ribs","Sauce Level","Light Sauce",0.00,false,3,true
+"BBQ Ribs","Side Choice","Fries",0.00,true,1,true
+"BBQ Ribs","Side Choice","Onion Rings",1.50,false,2,true
+"BBQ Ribs","Side Choice","Mac & Cheese",2.00,false,3,true
+"Chicken Noodle Soup","Size","Cup",0.00,true,1,true
+"Chicken Noodle Soup","Size","Bowl",3.00,false,2,true
+"Chicken Noodle Soup","Add-ons","Crackers",0.50,false,1,true
+"Chicken Noodle Soup","Add-ons","Bread Roll",1.50,false,2,true
+"Caesar Salad","Size","Small",0.00,true,1,true
+"Caesar Salad","Size","Large",4.00,false,2,true
+"Caesar Salad","Protein Add-on","Grilled Chicken",5.00,false,1,true
+"Garden Salad","Size","Small",0.00,true,1,true
+"Garden Salad","Size","Large",3.00,false,2,true
+"Garden Salad","Dressing","Ranch",0.00,true,1,true
+"Garden Salad","Dressing","Italian",0.00,false,2,true
+"Garden Salad","Dressing","Caesar",0.00,false,3,true
+"Garden Salad","Dressing","Balsamic",0.00,false,4,true
+"Garden Salad","Protein Add-on","Grilled Chicken",5.00,false,1,true

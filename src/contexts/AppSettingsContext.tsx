@@ -32,6 +32,7 @@ interface AppSettings {
   enable_menu_ordering: boolean;
   enable_user_accounts: boolean;
   enable_guest_checkout: boolean;
+  deliveryEnabled: boolean;
   tax_rate: number;
   delivery_fee: number;
   minimum_order: number;

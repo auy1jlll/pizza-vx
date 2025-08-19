@@ -6,12 +6,13 @@ export const dynamic = 'force-dynamic';
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ToastProvider';
 import { Clock, Printer, AlertCircle, Timer, Phone, MapPin, User, Maximize2, Minimize2 } from 'lucide-react';
+import { KitchenConfig } from '@/lib/kitchen-config';
 
 interface OrderItem {
   id: string;
-  pizzaSize: { name: string; diameter: number; };
-  pizzaCrust: { name: string; };
-  pizzaSauce: { name: string; };
+  pizzaSize?: { name: string; diameter: number; } | null;
+  pizzaCrust?: { name: string; } | null;
+  pizzaSauce?: { name: string; } | null;
   quantity: number;
   totalPrice: number;
   notes?: string;
@@ -50,6 +51,55 @@ const KitchenDisplay = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { show: showToast } = useToast();
 
+  // Helper function to parse menu item information from notes
+  const parseMenuItemInfo = (notes: string) => {
+    if (!notes) return null;
+    
+    // Extract item name and category: **Item Name** (category)
+    const mainMatch = notes.match(/\*\*(.*?)\*\*\s*\((.*?)\)/);
+    if (!mainMatch) return null;
+    
+    const itemName = mainMatch[1];
+    const category = mainMatch[2];
+    
+    // Extract customizations (everything after the first |)
+    const parts = notes.split(' | ');
+    const rawCustomizations = parts.slice(1).filter(part => part.trim() !== '');
+    
+    // Clean up customizations - remove generic "Customization" entries and undefined values
+    const cleanCustomizations = rawCustomizations
+      .map(customization => {
+        // Remove undefined values and empty entries
+        const cleaned = customization
+          .replace(/undefined: undefined/g, '')
+          .replace(/\+\$[\d.]+/g, '') // Remove price modifiers for cleaner display
+          .replace(/undefined/g, '')
+          .replace(/,\s*,/g, ',') // Remove double commas
+          .replace(/:\s*,/g, ':')  // Remove colons followed by commas
+          .replace(/^\s*[:,]\s*|\s*[:,]\s*$/g, '') // Remove leading/trailing colons and commas
+          .trim();
+        
+        // Filter out generic "Customization" entries and empty results
+        if (cleaned === 'Customization' || cleaned === '' || cleaned.length < 2) {
+          return null;
+        }
+        
+        return cleaned;
+      })
+      .filter(Boolean); // Remove null/empty entries
+    
+    return {
+      name: itemName,
+      category: category,
+      customizations: cleanCustomizations
+    };
+  };
+
+  // Helper function to determine if an item is a pizza or menu item
+  const isPizzaItem = (item: OrderItem) => {
+    return item.pizzaSize && item.pizzaCrust && item.pizzaSauce;
+  };
+
   // Update current time every second
   useEffect(() => {
     const timer = setInterval(() => {
@@ -61,15 +111,40 @@ const KitchenDisplay = () => {
   // Fetch orders from API
   const fetchOrders = async () => {
     try {
-      const response = await fetch('/api/admin/kitchen/orders');
+      const response = await fetch('/api/admin/kitchen/orders', {
+        credentials: 'include' // Include cookies for authentication
+      });
+      
       if (!response.ok) {
-        if (response.status === 401) {
-          setError('Authentication required');
+        if (response.status === 401 || response.status === 403) {
+          setError('Authentication required - please login as admin');
+          // Redirect to login page after a short delay
+          setTimeout(() => {
+            window.location.href = '/admin/login';
+          }, 2000);
           setOrders([]);
           return;
         }
+        if (response.status === 429) {
+          console.log('Rate limited, will retry in 30 seconds...');
+          setError('Rate limited - retrying in 30 seconds...');
+          // Don't clear orders, just show the error temporarily
+          setTimeout(() => {
+            setError(null);
+            fetchOrders(); // Retry after 30 seconds
+          }, 30000);
+          return;
+        }
         if (response.status === 500) {
-          setError('Server error - please try again');
+          const errorText = await response.text();
+          if (errorText.includes('Unauthorized') || errorText.includes('Admin access required')) {
+            setError('Admin authentication required - redirecting to login...');
+            setTimeout(() => {
+              window.location.href = '/admin/login';
+            }, 2000);
+          } else {
+            setError('Server error - please try again');
+          }
           setOrders([]);
           return;
         }
@@ -106,9 +181,53 @@ const KitchenDisplay = () => {
   };
 
   useEffect(() => {
-    fetchOrders();
-    const interval = setInterval(fetchOrders, 5000); // Refresh every 5 seconds
-    return () => clearInterval(interval);
+    // Check authentication first
+    const checkAuth = async () => {
+      try {
+        const authResponse = await fetch('/api/auth/admin', {
+          credentials: 'include'
+        });
+        
+        if (!authResponse.ok) {
+          setError('Admin authentication required - redirecting to login...');
+          setTimeout(() => {
+            window.location.href = '/admin/login';
+          }, 2000);
+          return;
+        }
+        
+        const authData = await authResponse.json();
+        if (authData.role !== 'ADMIN') {
+          setError('Admin access required - redirecting to login...');
+          setTimeout(() => {
+            window.location.href = '/admin/login';
+          }, 2000);
+          return;
+        }
+        
+        // If authenticated, start fetching orders
+        fetchOrders();
+        
+        // Set up dynamic polling interval
+        const setupPolling = async () => {
+          const pollingInterval = await KitchenConfig.getPollingInterval();
+          console.log(`🔄 Kitchen display polling every ${pollingInterval/1000} seconds`);
+          return setInterval(fetchOrders, pollingInterval);
+        };
+        
+        setupPolling().then(interval => {
+          return () => clearInterval(interval);
+        });
+        
+        // Fallback cleanup
+        return () => {};
+        
+      } catch (error) {
+        setError('Network error - please check your connection');
+      }
+    };
+    
+    checkAuth();
   }, []);
 
   // Calculate elapsed time for each order
@@ -162,7 +281,7 @@ const KitchenDisplay = () => {
   const printOrder = (order: Order) => {
     const printContent = `
 ================================
-        PIZZA KITCHEN ORDER
+        KITCHEN ORDER
 ================================
 Order #: ${order.orderNumber}
 Time: ${new Date(order.createdAt).toLocaleTimeString()}
@@ -175,9 +294,20 @@ ${order.deliveryAddress ? `Address: ${order.deliveryAddress}, ${order.deliveryCi
 --------------------------------
 ITEMS:
 --------------------------------
-${(order.items || []).map(item => 
-  `${item.quantity}x ${item.pizzaSize?.name || 'Unknown'}" ${item.pizzaCrust?.name || 'Unknown'}\n   Sauce: ${item.pizzaSauce?.name || 'Unknown'}${(item.toppings || []).length > 0 ? `\n   Toppings: ${(item.toppings || []).map(t => `${t.quantity}x ${t.pizzaTopping?.name || 'Unknown'} (${t.section || 'WHOLE'}, ${(t.intensity || 'REGULAR').toLowerCase()})`).join(', ')}` : ''}${item.notes ? `\n   *${item.notes}` : ''}\n   Price: $${item.totalPrice?.toFixed(2) || '0.00'}`
-).join('\n\n')}
+${(order.items || []).map(item => {
+  if (isPizzaItem(item)) {
+    // Pizza item formatting
+    return `${item.quantity}x ${item.pizzaSize?.name || 'Unknown'}" ${item.pizzaCrust?.name || 'Unknown'}\n   Sauce: ${item.pizzaSauce?.name || 'Unknown'}${(item.toppings || []).length > 0 ? `\n   Toppings: ${(item.toppings || []).map(t => `${t.quantity}x ${t.pizzaTopping?.name || 'Unknown'} (${t.section || 'WHOLE'}, ${(t.intensity || 'REGULAR').toLowerCase()})`).join(', ')}` : ''}${item.notes ? `\n   *${item.notes}` : ''}\n   Price: $${item.totalPrice?.toFixed(2) || '0.00'}`;
+  } else {
+    // Menu item formatting
+    const menuInfo = parseMenuItemInfo(item.notes || '');
+    if (menuInfo) {
+      return `${item.quantity}x ${menuInfo.name} (${menuInfo.category})${menuInfo.customizations.length > 0 ? `\n   Customizations: ${menuInfo.customizations.join(', ')}` : ''}\n   Price: $${item.totalPrice?.toFixed(2) || '0.00'}`;
+    } else {
+      return `${item.quantity}x Menu Item\n   Details: ${item.notes || 'No details'}\n   Price: $${item.totalPrice?.toFixed(2) || '0.00'}`;
+    }
+  }
+}).join('\n\n')}
 
 --------------------------------
 ${order.notes ? `ORDER NOTES:\n${order.notes}\n--------------------------------\n` : ''}${order.deliveryInstructions ? `DELIVERY INSTRUCTIONS:\n${order.deliveryInstructions}\n--------------------------------\n` : ''}
@@ -292,7 +422,7 @@ Status: ${order.status.toUpperCase()}
       {/* Header */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-4xl font-bold text-white">Pizza Kitchen Display</h1>
+          <h1 className="text-4xl font-bold text-white">Kitchen Display System</h1>
           <div className="flex items-center gap-4">
             <button
               onClick={toggleFullscreen}
@@ -379,68 +509,131 @@ Status: ${order.status.toUpperCase()}
                 <div className="mb-4">
                   <div className="text-sm text-gray-300 mb-3 font-semibold">{(order.items || []).length} items • ${order.total?.toFixed(2) || '0.00'}</div>
                   <div className="space-y-3">
-                    {(order.items || []).map((item, idx) => (
-                      <div key={idx} className="bg-gray-700/50 p-3 rounded border-l-4 border-blue-500">
-                        {/* Pizza Base Info */}
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="font-semibold text-white">
-                            <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs mr-2">
-                              {item?.quantity || 0}x
-                            </span>
-                            {item?.pizzaSize?.name || 'Unknown'}" {item?.pizzaCrust?.name || 'Unknown'}
-                          </div>
-                          <div className="text-green-400 font-semibold">${(item?.totalPrice || 0).toFixed(2)}</div>
-                        </div>
-                        
-                        {/* Sauce */}
-                        <div className="text-sm mb-2">
-                          <span className="text-orange-400 font-medium">Sauce:</span> {item?.pizzaSauce?.name || 'Unknown'}
-                        </div>
-                        
-                        {/* Toppings */}
-                        {item?.toppings && item.toppings.length > 0 && (
-                          <div className="text-sm mb-2">
-                            <div className="text-yellow-400 font-medium mb-1">Toppings:</div>
-                            <div className="space-y-1 ml-2">
-                              {item.toppings.map((topping, tIdx) => (
-                                <div key={tIdx} className="flex justify-between items-center">
-                                  <span className="text-gray-300">
-                                    {topping.pizzaTopping?.name || 'Unknown'} 
-                                    <span className="text-blue-400 ml-1">({topping.quantity || 1}x)</span>
+                    {(order.items || []).map((item, idx) => {
+                      const isPizza = isPizzaItem(item);
+                      const menuInfo = isPizza ? null : parseMenuItemInfo(item.notes || '');
+                      
+                      return (
+                        <div key={idx} className={`p-3 rounded border-l-4 ${isPizza ? 'bg-gray-700/50 border-blue-500' : 'bg-purple-700/30 border-purple-500'}`}>
+                          {isPizza ? (
+                            // Pizza Item Display
+                            <>
+                              {/* Pizza Base Info */}
+                              <div className="flex justify-between items-start mb-2">
+                                <div className="font-semibold text-white">
+                                  <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs mr-2">
+                                    {item?.quantity || 0}x
                                   </span>
-                                  <div className="flex gap-2 text-xs">
-                                    <span className={`px-2 py-1 rounded ${
-                                      topping.section === 'WHOLE' ? 'bg-green-600' :
-                                      topping.section === 'LEFT' ? 'bg-blue-600' :
-                                      topping.section === 'RIGHT' ? 'bg-purple-600' : 'bg-gray-600'
-                                    }`}>
-                                      {topping.section === 'WHOLE' ? 'Whole' :
-                                       topping.section === 'LEFT' ? 'Left' :
-                                       topping.section === 'RIGHT' ? 'Right' : 'Whole'}
-                                    </span>
-                                    <span className={`px-2 py-1 rounded ${
-                                      topping.intensity === 'LIGHT' ? 'bg-yellow-600' :
-                                      topping.intensity === 'EXTRA' ? 'bg-red-600' : 'bg-orange-600'
-                                    }`}>
-                                      {topping.intensity === 'LIGHT' ? 'Light' :
-                                       topping.intensity === 'EXTRA' ? 'Extra' : 'Regular'}
-                                    </span>
+                                  {item?.pizzaSize?.name || 'Unknown'}" {item?.pizzaCrust?.name || 'Unknown'}
+                                </div>
+                                <div className="text-green-400 font-semibold">${(item?.totalPrice || 0).toFixed(2)}</div>
+                              </div>
+                              
+                              {/* Sauce */}
+                              <div className="text-sm mb-2">
+                                <span className="text-orange-400 font-medium">Sauce:</span> {item?.pizzaSauce?.name || 'Unknown'}
+                              </div>
+                              
+                              {/* Toppings */}
+                              {item?.toppings && item.toppings.length > 0 && (
+                                <div className="text-sm mb-2">
+                                  <div className="text-yellow-400 font-medium mb-1">Toppings:</div>
+                                  <div className="space-y-1 ml-2">
+                                    {item.toppings.map((topping, tIdx) => (
+                                      <div key={tIdx} className="flex justify-between items-center">
+                                        <span className="text-gray-300">
+                                          {topping.pizzaTopping?.name || 'Unknown'} 
+                                          <span className="text-blue-400 ml-1">({topping.quantity || 1}x)</span>
+                                        </span>
+                                        <div className="flex gap-2 text-xs">
+                                          <span className={`px-2 py-1 rounded ${
+                                            topping.section === 'WHOLE' ? 'bg-green-600' :
+                                            topping.section === 'LEFT' ? 'bg-blue-600' :
+                                            topping.section === 'RIGHT' ? 'bg-purple-600' : 'bg-gray-600'
+                                          }`}>
+                                            {topping.section === 'WHOLE' ? 'Whole' :
+                                             topping.section === 'LEFT' ? 'Left' :
+                                             topping.section === 'RIGHT' ? 'Right' : 'Whole'}
+                                          </span>
+                                          <span className={`px-2 py-1 rounded ${
+                                            topping.intensity === 'LIGHT' ? 'bg-yellow-600' :
+                                            topping.intensity === 'EXTRA' ? 'bg-red-600' : 'bg-orange-600'
+                                          }`}>
+                                            {topping.intensity === 'LIGHT' ? 'Light' :
+                                             topping.intensity === 'EXTRA' ? 'Extra' : 'Regular'}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    ))}
                                   </div>
                                 </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Item Details */}
-                        {item?.notes && (
-                          <div className="bg-blue-900/40 border border-blue-600 p-2 rounded mt-2">
-                            <span className="text-blue-400 font-medium text-xs">Pizza Details:</span>
-                            <div className="text-blue-300 text-sm mt-1 whitespace-pre-line">{item.notes}</div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                              )}
+                              
+                              {/* Pizza Notes */}
+                              {item?.notes && (
+                                <div className="bg-blue-900/40 border border-blue-600 p-2 rounded mt-2">
+                                  <span className="text-blue-400 font-medium text-xs">Pizza Details:</span>
+                                  <div className="text-blue-300 text-sm mt-1 whitespace-pre-line">{item.notes}</div>
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            // Menu Item Display
+                            <>
+                              {/* Menu Item Header */}
+                              <div className="flex justify-between items-start mb-2">
+                                <div className="font-semibold text-white">
+                                  <span className="bg-purple-600 text-white px-2 py-1 rounded text-xs mr-2">
+                                    {item?.quantity || 0}x
+                                  </span>
+                                  {menuInfo ? menuInfo.name : 'Menu Item'}
+                                </div>
+                                <div className="text-green-400 font-semibold">${(item?.totalPrice || 0).toFixed(2)}</div>
+                              </div>
+                              
+                              {/* Category */}
+                              {menuInfo && (
+                                <div className="text-sm mb-2">
+                                  <span className="text-purple-400 font-medium">Category:</span> 
+                                  <span className="bg-purple-600 text-white px-2 py-1 rounded text-xs ml-2">
+                                    {menuInfo.category}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* Customizations */}
+                              {menuInfo && menuInfo.customizations.length > 0 && (
+                                <div className="text-sm mb-2">
+                                  <div className="text-yellow-400 font-medium mb-1">Customizations:</div>
+                                  <div className="space-y-1 ml-2">
+                                    {menuInfo.customizations.map((customization, cIdx) => (
+                                      <div key={cIdx} className="text-gray-300 text-sm">
+                                        • {customization}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Show default message if no meaningful customizations */}
+                              {menuInfo && menuInfo.customizations.length === 0 && (
+                                <div className="text-sm mb-2">
+                                  <div className="text-gray-400 font-medium">Standard preparation</div>
+                                </div>
+                              )}
+                              
+                              {/* Menu Item Notes */}
+                              {!menuInfo && item?.notes && (
+                                <div className="bg-purple-900/40 border border-purple-600 p-2 rounded mt-2">
+                                  <span className="text-purple-400 font-medium text-xs">Item Details:</span>
+                                  <div className="text-purple-300 text-sm mt-1 whitespace-pre-line">{item.notes}</div>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 

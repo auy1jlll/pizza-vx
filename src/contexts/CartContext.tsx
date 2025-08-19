@@ -174,9 +174,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
-      const itemPrice = Number(item.totalPrice) || 0;
+      // Calculate actual subtotal (pre-tax) from item components
+      const basePrice = Number(item.basePrice) || 0;
+      const crustPrice = Number(item.crust?.priceModifier) || 0;
+      const saucePrice = Number(item.sauce?.priceModifier) || 0;
+      const toppingsPrice = (item.toppings || []).reduce((sum, topping) => {
+        return sum + (Number(topping.price) * Number(topping.quantity));
+      }, 0);
+      
+      const itemSubtotal = basePrice + crustPrice + saucePrice + toppingsPrice;
       const itemQuantity = Number(item.quantity) || 1;
-      return total + (itemPrice * itemQuantity);
+      
+      return total + (itemSubtotal * itemQuantity);
     }, 0);
   };
 
@@ -185,8 +194,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (isNaN(subtotal)) return 0;
     
     const tax = getTaxAmount(subtotal); // Use dynamic tax rate from settings
-    const deliveryFee = subtotal > 0 ? 3.99 : 0;
-    const total = subtotal + tax + deliveryFee;
+    // Delivery fee should only be calculated at checkout after user selects order type
+    const total = subtotal + tax;
     
     return isNaN(total) ? 0 : total;
   };

@@ -113,16 +113,44 @@ export async function calculateMenuItemPrice(item: any, customizations: any[] = 
 
     let totalPrice = menuItem.basePrice;
 
-    // Add customization prices
+    // Add customization prices - try multiple approaches to find options
     for (const customization of customizations) {
+      let optionPrice = 0;
+      
+      // Method 1: Try to find by optionId if it's a real database ID
       if (customization.optionId) {
         const option = await prisma.customizationOption.findUnique({
           where: { id: customization.optionId }
         });
         if (option) {
-          totalPrice += option.priceModifier || 0;
+          optionPrice = option.priceModifier || 0;
         }
       }
+      
+      // Method 2: If not found and we have priceModifier, use it directly (from frontend)
+      if (optionPrice === 0 && customization.priceModifier !== undefined) {
+        optionPrice = customization.priceModifier;
+        console.log(`Using stored priceModifier for ${customization.optionName}: $${optionPrice}`);
+      }
+      
+      // Method 3: Try to find by option name if we have groupName and optionName
+      if (optionPrice === 0 && customization.groupName && customization.optionName) {
+        const option = await prisma.customizationOption.findFirst({
+          where: {
+            name: customization.optionName,
+            group: {
+              name: customization.groupName
+            }
+          }
+        });
+        if (option) {
+          optionPrice = option.priceModifier || 0;
+          console.log(`Found option by name ${customization.optionName}: $${optionPrice}`);
+        }
+      }
+      
+      totalPrice += optionPrice;
+      console.log(`Added customization ${customization.optionName || customization.optionId}: +$${optionPrice} (total: $${totalPrice.toFixed(2)})`);
     }
 
     // Fix floating-point precision issues by rounding to 2 decimal places
