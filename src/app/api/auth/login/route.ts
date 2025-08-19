@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     // Verify password
     let isPasswordValid = false;
-    if (user && user.password && user.role === 'ADMIN') {
+    if (user && user.password && (user.role === 'ADMIN' || user.role === 'EMPLOYEE')) {
       isPasswordValid = await bcrypt.compare(password, user.password);
     }
 
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     //   userAgent,
     // });
 
-    if (!user || user.role !== 'ADMIN' || !isPasswordValid) {
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'EMPLOYEE') || !isPasswordValid) {
       // TEMPORARILY DISABLED: Log failed login attempt
       // await bruteForceProtection.logSecurityEvent({
       //   eventType: 'FAILED_LOGIN',

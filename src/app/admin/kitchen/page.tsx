@@ -16,11 +16,36 @@ interface OrderItem {
   quantity: number;
   totalPrice: number;
   notes?: string;
+  // Pizza toppings (existing)
   toppings: Array<{
     pizzaTopping: { name: string; };
     quantity: number;
     section?: string;
     intensity?: string;
+  }>;
+  // Menu item information (NEW)
+  menuItem?: {
+    id: string;
+    name: string;
+    category: {
+      id: string;
+      name: string;
+      slug: string;
+    };
+  } | null;
+  // Menu item customizations (NEW - fixed field name)
+  customizations: Array<{
+    id: string;
+    quantity: number;
+    price: number;
+    customizationOption: {
+      id: string;
+      name: string;
+      group: {
+        id: string;
+        name: string;
+      };
+    };
   }>;
 }
 
@@ -51,7 +76,40 @@ const KitchenDisplay = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { show: showToast } = useToast();
 
-  // Helper function to parse menu item information from notes
+  // Helper function to get menu item customizations from database relationships
+  const getMenuItemCustomizations = (item: OrderItem) => {
+    if (!item.customizations || item.customizations.length === 0) {
+      return [];
+    }
+
+    // Group customizations by their group name
+    const groupedCustomizations: { [groupName: string]: Array<{ name: string; quantity: number; price: number }> } = {};
+    
+    item.customizations.forEach(customization => {
+      const groupName = customization.customizationOption.group.name;
+      const optionName = customization.customizationOption.name;
+      const quantity = customization.quantity || 1;
+      const price = customization.price || 0;
+      
+      if (!groupedCustomizations[groupName]) {
+        groupedCustomizations[groupName] = [];
+      }
+      
+      groupedCustomizations[groupName].push({
+        name: optionName,
+        quantity,
+        price
+      });
+    });
+
+    // Convert to array format for display
+    return Object.entries(groupedCustomizations).map(([groupName, options]) => ({
+      groupName,
+      options
+    }));
+  };
+
+  // Helper function to parse menu item information from notes (FALLBACK ONLY)
   const parseMenuItemInfo = (notes: string) => {
     if (!notes) return null;
     
@@ -300,11 +358,32 @@ ${(order.items || []).map(item => {
     return `${item.quantity}x ${item.pizzaSize?.name || 'Unknown'}" ${item.pizzaCrust?.name || 'Unknown'}\n   Sauce: ${item.pizzaSauce?.name || 'Unknown'}${(item.toppings || []).length > 0 ? `\n   Toppings: ${(item.toppings || []).map(t => `${t.quantity}x ${t.pizzaTopping?.name || 'Unknown'} (${t.section || 'WHOLE'}, ${(t.intensity || 'REGULAR').toLowerCase()})`).join(', ')}` : ''}${item.notes ? `\n   *${item.notes}` : ''}\n   Price: $${item.totalPrice?.toFixed(2) || '0.00'}`;
   } else {
     // Menu item formatting
-    const menuInfo = parseMenuItemInfo(item.notes || '');
-    if (menuInfo) {
-      return `${item.quantity}x ${menuInfo.name} (${menuInfo.category})${menuInfo.customizations.length > 0 ? `\n   Customizations: ${menuInfo.customizations.join(', ')}` : ''}\n   Price: $${item.totalPrice?.toFixed(2) || '0.00'}`;
+    if (item.menuItem) {
+      // Use database data (preferred)
+      const customizations = getMenuItemCustomizations(item);
+      let customizationText = '';
+      
+      if (customizations.length > 0) {
+        customizationText = customizations.map(group => {
+          const options = group.options.map(option => {
+            let optionText = option.name;
+            if (option.quantity > 1) optionText = `${option.quantity}x ${optionText}`;
+            if (option.price !== 0) optionText += ` (+$${option.price.toFixed(2)})`;
+            return optionText;
+          }).join(', ');
+          return `${group.groupName}: ${options}`;
+        }).join('\n   ');
+      }
+      
+      return `${item.quantity}x ${item.menuItem.name} (${item.menuItem.category.name})${customizationText ? `\n   Customizations: ${customizationText}` : ''}\n   Price: $${item.totalPrice?.toFixed(2) || '0.00'}`;
     } else {
-      return `${item.quantity}x Menu Item\n   Details: ${item.notes || 'No details'}\n   Price: $${item.totalPrice?.toFixed(2) || '0.00'}`;
+      // Fallback to notes parsing (legacy)
+      const menuInfo = parseMenuItemInfo(item.notes || '');
+      if (menuInfo) {
+        return `${item.quantity}x ${menuInfo.name} (${menuInfo.category})${menuInfo.customizations.length > 0 ? `\n   Customizations: ${menuInfo.customizations.join(', ')}` : ''}\n   Price: $${item.totalPrice?.toFixed(2) || '0.00'}`;
+      } else {
+        return `${item.quantity}x Menu Item\n   Details: ${item.notes || 'No details'}\n   Price: $${item.totalPrice?.toFixed(2) || '0.00'}`;
+      }
     }
   }
 }).join('\n\n')}
@@ -586,44 +665,87 @@ Status: ${order.status.toUpperCase()}
                                   <span className="bg-purple-600 text-white px-2 py-1 rounded text-xs mr-2">
                                     {item?.quantity || 0}x
                                   </span>
-                                  {menuInfo ? menuInfo.name : 'Menu Item'}
+                                  {item?.menuItem ? item.menuItem.name : 'Menu Item'}
                                 </div>
                                 <div className="text-green-400 font-semibold">${(item?.totalPrice || 0).toFixed(2)}</div>
                               </div>
                               
                               {/* Category */}
-                              {menuInfo && (
+                              {item?.menuItem && (
                                 <div className="text-sm mb-2">
                                   <span className="text-purple-400 font-medium">Category:</span> 
                                   <span className="bg-purple-600 text-white px-2 py-1 rounded text-xs ml-2">
-                                    {menuInfo.category}
+                                    {item.menuItem.category.name}
                                   </span>
                                 </div>
                               )}
                               
-                              {/* Customizations */}
-                              {menuInfo && menuInfo.customizations.length > 0 && (
-                                <div className="text-sm mb-2">
-                                  <div className="text-yellow-400 font-medium mb-1">Customizations:</div>
-                                  <div className="space-y-1 ml-2">
-                                    {menuInfo.customizations.map((customization, cIdx) => (
-                                      <div key={cIdx} className="text-gray-300 text-sm">
-                                        • {customization}
-                                      </div>
-                                    ))}
+                              {/* Customizations from Database */}
+                              {(() => {
+                                const customizations = getMenuItemCustomizations(item);
+                                return customizations.length > 0 && (
+                                  <div className="text-sm mb-2">
+                                    <div className="text-yellow-400 font-medium mb-1">Customizations:</div>
+                                    <div className="space-y-2 ml-2">
+                                      {customizations.map((group, gIdx) => (
+                                        <div key={gIdx} className="bg-purple-800/50 rounded p-2">
+                                          <div className="text-purple-300 font-medium text-xs mb-1">{group.groupName}:</div>
+                                          <div className="space-y-1">
+                                            {group.options.map((option, oIdx) => (
+                                              <div key={oIdx} className="flex justify-between items-center">
+                                                <span className="text-gray-300 text-sm">
+                                                  {option.quantity > 1 && <span className="text-blue-400">({option.quantity}x) </span>}
+                                                  {option.name}
+                                                </span>
+                                                {option.price !== 0 && (
+                                                  <span className="text-green-400 text-xs">
+                                                    {option.price > 0 ? '+' : ''}${option.price.toFixed(2)}
+                                                  </span>
+                                                )}
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                );
+                              })()}
                               
-                              {/* Show default message if no meaningful customizations */}
-                              {menuInfo && menuInfo.customizations.length === 0 && (
-                                <div className="text-sm mb-2">
-                                  <div className="text-gray-400 font-medium">Standard preparation</div>
-                                </div>
-                              )}
+                              {/* Fallback to parsing notes if no database customizations */}
+                              {(() => {
+                                const customizations = getMenuItemCustomizations(item);
+                                const menuInfo = parseMenuItemInfo(item.notes || '');
+                                
+                                // Only show parsed customizations if no database customizations exist
+                                return customizations.length === 0 && menuInfo && menuInfo.customizations.length > 0 && (
+                                  <div className="text-sm mb-2">
+                                    <div className="text-yellow-400 font-medium mb-1">Customizations (from notes):</div>
+                                    <div className="space-y-1 ml-2">
+                                      {menuInfo.customizations.map((customization, cIdx) => (
+                                        <div key={cIdx} className="text-gray-300 text-sm">
+                                          • {customization}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                );
+                              })()}
                               
-                              {/* Menu Item Notes */}
-                              {!menuInfo && item?.notes && (
+                              {/* Show default message if no customizations */}
+                              {(() => {
+                                const customizations = getMenuItemCustomizations(item);
+                                const menuInfo = parseMenuItemInfo(item.notes || '');
+                                
+                                return customizations.length === 0 && (!menuInfo || menuInfo.customizations.length === 0) && (
+                                  <div className="text-sm mb-2">
+                                    <div className="text-gray-400 font-medium">Standard preparation</div>
+                                  </div>
+                                );
+                              })()}
+                              
+                              {/* Menu Item Notes (if any additional info) */}
+                              {item?.notes && !parseMenuItemInfo(item.notes) && (
                                 <div className="bg-purple-900/40 border border-purple-600 p-2 rounded mt-2">
                                   <span className="text-purple-400 font-medium text-xs">Item Details:</span>
                                   <div className="text-purple-300 text-sm mt-1 whitespace-pre-line">{item.notes}</div>

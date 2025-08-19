@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { verifyAdminToken } from '@/lib/auth';
+import { verifyKitchenStaffToken } from '@/lib/auth';
 import { configurableAdminLimiter } from '@/lib/configurable-rate-limit';
 
 export async function GET(request: NextRequest) {
@@ -9,11 +9,11 @@ export async function GET(request: NextRequest) {
     const limit = await configurableAdminLimiter.check('admin-kitchen-orders-get', ip);
     if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     
-    // Check admin authentication
-    const user = verifyAdminToken(request);
+    // Check kitchen staff authentication (ADMIN or EMPLOYEE)
+    const user = verifyKitchenStaffToken(request);
     if (!user) {
       return NextResponse.json(
-        { error: 'Unauthorized: Admin access required' },
+        { error: 'Unauthorized: Kitchen staff access required' },
         { status: 401 }
       );
     }
@@ -27,12 +27,29 @@ export async function GET(request: NextRequest) {
       include: {
         orderItems: {
           include: {
+            // Pizza-related includes (existing)
             pizzaSize: true,
             pizzaCrust: true,
             pizzaSauce: true,
             toppings: {
               include: {
                 pizzaTopping: true
+              }
+            },
+            // Menu item includes (NEW - this was missing!)
+            menuItem: {
+              include: {
+                category: true
+              }
+            },
+            // Menu item customizations includes (NEW - fixed field name!)
+            customizations: {
+              include: {
+                customizationOption: {
+                  include: {
+                    group: true
+                  }
+                }
               }
             }
           }

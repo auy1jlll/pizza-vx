@@ -51,8 +51,16 @@ export default function AdminLogin() {
           </p>
           <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
             <p className="text-sm text-blue-800 font-medium">Demo Credentials:</p>
-            <p className="text-sm text-blue-700">Email: admin@pizzabuilder.com</p>
-            <p className="text-sm text-blue-700">Password: admin123</p>
+            <div className="mt-2">
+              <p className="text-sm text-blue-700 font-medium">Admin Access:</p>
+              <p className="text-sm text-blue-600">Email: admin@pizzabuilder.com</p>
+              <p className="text-sm text-blue-600">Password: admin123</p>
+            </div>
+            <div className="mt-2">
+              <p className="text-sm text-blue-700 font-medium">Kitchen Staff Access:</p>
+              <p className="text-sm text-blue-600">Email: kitchen@pizzabuilder.com</p>
+              <p className="text-sm text-blue-600">Password: kitchen123</p>
+            </div>
           </div>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
