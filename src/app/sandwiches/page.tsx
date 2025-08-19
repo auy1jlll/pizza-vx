@@ -142,7 +142,7 @@ function SandwichCard({ sandwich }: { sandwich: MenuItem }) {
 
   const handleCustomize = () => {
     // Navigate to sandwich customizer
-    window.location.href = `/sandwich-customizer?id=${sandwich.id}`;
+    window.location.href = `/build-sandwich?id=${sandwich.id}`;
   };
 
   const handleQuickAdd = async () => {

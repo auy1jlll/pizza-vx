@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://yourrestoapp.com/sitemap.xml
+
+# Disallow old URLs to prevent indexing of redirect pages
+Disallow: /pizza-builder
+Disallow: /sandwich-customizer  
+Disallow: /specialty-pizzas
+
+# Allow new SEO-friendly URLs
+Allow: /build-pizza
+Allow: /build-sandwich
+Allow: /gourmet-pizzas

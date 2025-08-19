@@ -41,13 +41,13 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Link 
-                href="/pizza-builder"
+                href="/build-pizza"
                 className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-bold px-8 py-4 rounded-lg text-lg transition-all duration-300 shadow-2xl hover:scale-105 hover:shadow-orange-500/25"
               >
                 🍕 Build Your Pizza
               </Link>
               <Link 
-                href="/specialty-pizzas"
+                href="/gourmet-pizzas"
                 className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold px-8 py-4 rounded-lg text-lg transition-all duration-300 shadow-2xl hover:scale-105 hover:shadow-green-500/25"
               >
                 🍀 Specialty Pizzas

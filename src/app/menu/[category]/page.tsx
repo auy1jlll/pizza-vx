@@ -425,7 +425,7 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
                   <button
                     onClick={() => {
                       if (category === 'sandwiches') {
-                        router.push(`/sandwich-customizer?id=${item.id}`);
+                        router.push(`/build-sandwich?id=${item.id}`);
                       } else {
                         selectItem(item);
                       }

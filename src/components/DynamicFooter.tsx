@@ -89,7 +89,7 @@ export default function DynamicFooter() {
                   </Link>
                 )}
                 {settings.enable_pizza_builder && (
-                  <Link href="/pizza-builder" className="text-gray-300 hover:text-orange-300 transition-colors">
+                  <Link href="/build-pizza" className="text-gray-300 hover:text-orange-300 transition-colors">
                     Pizza Builder
                   </Link>
                 )}

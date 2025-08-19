@@ -178,7 +178,7 @@ export default function MenuPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <Link 
-              href="/pizza-builder"
+              href="/build-pizza"
               className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-red-600 to-orange-600 p-6 hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-orange-500/25"
             >
               <div className="flex items-center justify-between">
@@ -198,7 +198,7 @@ export default function MenuPage() {
             </Link>
 
             <Link 
-              href="/specialty-pizzas"
+              href="/gourmet-pizzas"
               className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 p-6 hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-green-500/25"
             >
               <div className="flex items-center justify-between">

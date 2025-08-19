@@ -262,7 +262,7 @@ export default function CartPage() {
             <p className="text-gray-600 mb-8">Add some delicious items to get started!</p>
             <div className="flex gap-4 justify-center">
               <button 
-                onClick={() => router.push('/pizza-builder')}
+                onClick={() => router.push('/build-pizza')}
                 className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-8 py-3 rounded-full font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-300 shadow-lg"
               >
                 Build Pizza

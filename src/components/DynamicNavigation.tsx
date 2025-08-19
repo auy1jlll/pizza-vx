@@ -53,7 +53,7 @@ export default function DynamicNavigation() {
 
             {(isHydrated ? settings.enable_pizza_builder : true) && (
               <Link 
-                href="/pizza-builder" 
+                href="/build-pizza" 
                 className="text-white hover:text-orange-300 transition-colors font-medium"
               >
                 Pizza Builder

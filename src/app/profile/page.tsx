@@ -326,7 +326,7 @@ export default function ProfilePage() {
                 </p>
                 <div className="mt-6">
                   <a
-                    href="/pizza-builder"
+                    href="/build-pizza"
                     className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
                   >
                     Build Your First Pizza
@@ -378,7 +378,7 @@ export default function ProfilePage() {
               </a>
 
               <a
-                href="/pizza-builder"
+                href="/build-pizza"
                 className="flex items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors"
               >
                 <svg className="w-6 h-6 text-orange-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -391,7 +391,7 @@ export default function ProfilePage() {
               </a>
 
               <a
-                href="/specialty-pizzas"
+                href="/gourmet-pizzas"
                 className="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
               >
                 <svg className="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
