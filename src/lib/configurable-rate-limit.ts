@@ -28,7 +28,8 @@ class ConfigurableRateLimiter {
       }
 
       // Fetch settings from API
-      const response = await fetch('/api/admin/settings');
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3005';
+      const response = await fetch(`${baseUrl}/api/admin/settings`);
       if (!response.ok) {
         console.warn(`Failed to load rate limit config for ${this.configKey}, using defaults`);
         return this.defaultConfig;
