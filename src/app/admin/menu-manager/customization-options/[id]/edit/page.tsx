@@ -18,7 +18,7 @@ interface CustomizationOption {
   priceModifier: number;
   sortOrder: number;
   isActive: boolean;
-  customizationGroupId: string;
+  groupId: string; // Changed from customizationGroupId
 }
 
 export default function EditCustomizationOptionPage() {
@@ -34,7 +34,7 @@ export default function EditCustomizationOptionPage() {
     priceModifier: '',
     sortOrder: 0,
     isActive: true,
-    customizationGroupId: ''
+    groupId: '' // Changed from customizationGroupId
   });
 
   useEffect(() => {
@@ -48,14 +48,15 @@ export default function EditCustomizationOptionPage() {
     try {
       const response = await fetch(`/api/admin/menu/customization-options/${id}`);
       if (response.ok) {
-        const option: CustomizationOption = await response.json();
+        const result = await response.json();
+        const option: CustomizationOption = result.data || result; // Handle wrapped response
         setFormData({
           name: option.name,
           description: option.description || '',
           priceModifier: option.priceModifier.toString(),
           sortOrder: option.sortOrder,
           isActive: option.isActive,
-          customizationGroupId: option.customizationGroupId
+          groupId: option.groupId // Changed from customizationGroupId
         });
       } else {
         alert('Customization option not found');
@@ -100,7 +101,7 @@ export default function EditCustomizationOptionPage() {
       });
 
       if (response.ok) {
-        const groupId = formData.customizationGroupId;
+        const groupId = formData.groupId; // Changed from customizationGroupId
         if (groupId) {
           router.push(`/admin/menu-manager/customization-groups/${groupId}`);
         } else {
@@ -151,8 +152,8 @@ export default function EditCustomizationOptionPage() {
             </label>
             <select
               required
-              value={formData.customizationGroupId}
-              onChange={(e) => setFormData(prev => ({ ...prev, customizationGroupId: e.target.value }))}
+              value={formData.groupId} // Changed from customizationGroupId
+              onChange={(e) => setFormData(prev => ({ ...prev, groupId: e.target.value }))} // Changed from customizationGroupId
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Select Group</option>

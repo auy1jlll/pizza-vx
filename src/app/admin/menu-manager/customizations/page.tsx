@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/AdminLayout';
 import Link from 'next/link';
 import { 
@@ -65,6 +66,7 @@ interface CustomizationOption {
 }
 
 export default function CustomizationsPage() {
+  const router = useRouter();
   const [groups, setGroups] = useState<CustomizationGroup[]>([]);
   const [options, setOptions] = useState<CustomizationOption[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -89,17 +91,33 @@ export default function CustomizationsPage() {
         fetch('/api/admin/menu/categories')
       ]);
 
+      // Check for authentication errors
+      if (groupsResponse.status === 401) {
+        setError('Please log in as administrator');
+        return;
+      }
+      if (optionsResponse.status === 401) {
+        setError('Please log in as administrator');
+        return;
+      }
+
       const [groupsResult, optionsResult, categoriesResult] = await Promise.all([
         groupsResponse.json(),
         optionsResponse.json(),
         categoriesResponse.json()
       ]);
 
-      if (groupsResult.success) {
+      // Handle customization groups - API returns array directly
+      if (Array.isArray(groupsResult)) {
+        setGroups(groupsResult);
+      } else if (groupsResult.success) {
         setGroups(groupsResult.data);
       }
       
-      if (optionsResult.success) {
+      // Handle customization options - API returns array directly
+      if (Array.isArray(optionsResult)) {
+        setOptions(optionsResult);
+      } else if (optionsResult.success) {
         setOptions(optionsResult.data);
       }
 
@@ -117,6 +135,50 @@ export default function CustomizationsPage() {
       console.error('Error fetching customizations:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteGroup = async (groupId: string, groupName: string) => {
+    if (!confirm(`Are you sure you want to delete the group "${groupName}"? This will also delete all its options.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/menu/customization-groups/${groupId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setGroups(groups.filter(group => group.id !== groupId));
+        alert('Group deleted successfully');
+      } else {
+        alert('Failed to delete group');
+      }
+    } catch (error) {
+      console.error('Error deleting group:', error);
+      alert('Error deleting group');
+    }
+  };
+
+  const deleteOption = async (optionId: string, optionName: string) => {
+    if (!confirm(`Are you sure you want to delete the option "${optionName}"?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/menu/customization-options/${optionId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setOptions(options.filter(option => option.id !== optionId));
+        alert('Option deleted successfully');
+      } else {
+        alert('Failed to delete option');
+      }
+    } catch (error) {
+      console.error('Error deleting option:', error);
+      alert('Error deleting option');
     }
   };
 
@@ -461,15 +523,21 @@ export default function CustomizationsPage() {
                     </div>
 
                     <div className="flex gap-2">
-                      <button className="flex-1 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-center transition-all duration-300 text-sm font-medium">
+                      <button 
+                        onClick={() => router.push(`/admin/menu-manager/customization-groups/${group.id}`)}
+                        className="flex-1 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-center transition-all duration-300 text-sm font-medium">
                         <Eye className="h-4 w-4 inline mr-1" />
                         View
                       </button>
-                      <button className="flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium">
+                      <button 
+                        onClick={() => router.push(`/admin/menu-manager/customization-groups/${group.id}/edit`)}
+                        className="flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium">
                         <Edit className="h-4 w-4 inline mr-1" />
                         Edit
                       </button>
-                      <button className="bg-red-500/20 hover:bg-red-500/30 text-red-300 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium">
+                      <button 
+                        onClick={() => deleteGroup(group.id, group.name)}
+                        className="bg-red-500/20 hover:bg-red-500/30 text-red-300 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -516,11 +584,15 @@ export default function CustomizationsPage() {
                   </div>
 
                   <div className="flex justify-end gap-2 mt-4">
-                    <button className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium">
+                    <button 
+                      onClick={() => router.push(`/admin/menu-manager/customization-options/${option.id}/edit`)}
+                      className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium">
                       <Edit className="h-4 w-4 inline mr-1" />
                       Edit
                     </button>
-                    <button className="bg-red-500/20 hover:bg-red-500/30 text-red-300 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium">
+                    <button 
+                      onClick={() => deleteOption(option.id, option.name)}
+                      className="bg-red-500/20 hover:bg-red-500/30 text-red-300 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>

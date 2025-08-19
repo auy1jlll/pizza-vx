@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiSettings } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiSettings, FiRefreshCw } from 'react-icons/fi';
 import AdminLayout from '@/components/AdminLayout';
 import { useSexyToast } from '@/components/SexyToastProvider';
 
@@ -40,10 +40,22 @@ export default function CustomizationGroupsPage() {
 
   useEffect(() => {
     fetchGroups();
-  }, []);
+  }, [showInactive]);
+
+  // Debounced search effect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchTerm !== '') {
+        fetchGroups();
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
 
   const fetchGroups = async () => {
     try {
+      setLoading(true);
       const params = new URLSearchParams({
         limit: '50',
         includeInactive: showInactive.toString()
@@ -54,12 +66,25 @@ export default function CustomizationGroupsPage() {
       }
 
       const response = await fetch(`/api/admin/menu/customization-groups?${params}`);
+      
       if (response.ok) {
         const data = await response.json();
-        setGroups(data.groups || data);
+        // API returns array directly
+        const groupsData = Array.isArray(data) ? data : [];
+        setGroups(groupsData);
+      } else {
+        console.error('Failed to fetch customization groups:', response.status);
+        if (response.status === 401) {
+          toast.showError('Please log in as an administrator');
+        } else {
+          toast.showError('Failed to fetch customization groups');
+        }
+        setGroups([]);
       }
     } catch (error) {
       console.error('Error fetching customization groups:', error);
+      toast.showError('Failed to fetch customization groups');
+      setGroups([]);
     } finally {
       setLoading(false);
     }
@@ -111,13 +136,23 @@ export default function CustomizationGroupsPage() {
             <h1 className="text-2xl font-bold text-gray-900">Customization Groups</h1>
             <p className="text-gray-600">Manage customization options for menu items</p>
           </div>
-          <button
-            onClick={() => router.push('/admin/menu-manager/customization-groups/new')}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <FiPlus className="w-4 h-4" />
-            Add New Group
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => fetchGroups()}
+              disabled={loading}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+            >
+              <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+            <button
+              onClick={() => router.push('/admin/menu-manager/customization-groups/new')}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <FiPlus className="w-4 h-4" />
+              Add New Group
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}

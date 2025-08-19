@@ -1,11 +1,16 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyAdminToken } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
     const { id } = params;
 
     const customizationOption = await prisma.customizationOption.findUnique({
@@ -47,6 +52,10 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
     const { id } = params;
     const body = await request.json();
     
@@ -134,6 +143,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
     const { id } = params;
 
     // Check if option exists and if it's being used

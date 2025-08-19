@@ -23,7 +23,7 @@ export default function NewCustomizationOptionPage() {
     priceModifier: '',
     sortOrder: 0,
     isActive: true,
-    customizationGroupId: searchParams.get('groupId') || ''
+    groupId: searchParams.get('groupId') || '' // Changed from customizationGroupId
   });
 
   useEffect(() => {
@@ -33,9 +33,18 @@ export default function NewCustomizationOptionPage() {
   const fetchGroups = async () => {
     try {
       const response = await fetch('/api/admin/menu/customization-groups');
+      
+      if (response.status === 401) {
+        console.error('Authentication error - please log in as admin');
+        return;
+      }
+      
       if (response.ok) {
         const data = await response.json();
-        setGroups(Array.isArray(data) ? data : data.groups || []);
+        const groupsData = Array.isArray(data) ? data : data.groups || [];
+        setGroups(groupsData);
+      } else {
+        console.error('Failed to fetch groups:', response.status);
       }
     } catch (error) {
       console.error('Error fetching customization groups:', error);
@@ -59,7 +68,7 @@ export default function NewCustomizationOptionPage() {
       });
 
       if (response.ok) {
-        const groupId = formData.customizationGroupId;
+        const groupId = formData.groupId; // Changed from customizationGroupId
         if (groupId) {
           router.push(`/admin/menu-manager/customization-groups/${groupId}`);
         } else {
@@ -100,8 +109,8 @@ export default function NewCustomizationOptionPage() {
             </label>
             <select
               required
-              value={formData.customizationGroupId}
-              onChange={(e) => setFormData(prev => ({ ...prev, customizationGroupId: e.target.value }))}
+              value={formData.groupId} // Changed from customizationGroupId
+              onChange={(e) => setFormData(prev => ({ ...prev, groupId: e.target.value }))} // Changed from customizationGroupId
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Select Group</option>

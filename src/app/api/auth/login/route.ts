@@ -148,6 +148,14 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 // 1 hour
     });
 
+    // Also set user-token for UserContext compatibility
+    response.cookies.set('user-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 // 1 hour
+    });
+
     return response;
   } catch (error) {
     console.error('Login error:', error);

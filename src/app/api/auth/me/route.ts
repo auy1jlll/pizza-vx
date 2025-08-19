@@ -4,8 +4,18 @@ import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get token from cookies
-    const token = request.cookies.get('user-token')?.value;
+    // Check for tokens in the same order as verifyAdminToken
+    let token = request.cookies.get('access-token')?.value;
+    
+    // Fallback to admin-token for backward compatibility
+    if (!token) {
+      token = request.cookies.get('admin-token')?.value;
+    }
+    
+    // Fallback to user-token for user context compatibility
+    if (!token) {
+      token = request.cookies.get('user-token')?.value;
+    }
 
     if (!token) {
       return NextResponse.json(
@@ -24,7 +34,7 @@ export async function GET(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { 
         id: decoded.userId,
-        role: 'CUSTOMER' // Ensure only customers can use this endpoint
+        role: 'ADMIN' // Ensure only admins can use this endpoint
       },
       select: {
         id: true,

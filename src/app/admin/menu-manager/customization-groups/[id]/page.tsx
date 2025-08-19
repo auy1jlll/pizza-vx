@@ -53,6 +53,13 @@ export default function ViewCustomizationGroupPage() {
   const fetchGroup = async (id: string) => {
     try {
       const response = await fetch(`/api/admin/menu/customization-groups/${id}`);
+      
+      if (response.status === 401) {
+        alert('Please log in as administrator');
+        router.push('/admin/login');
+        return;
+      }
+      
       if (response.ok) {
         const data = await response.json();
         setGroup(data);
@@ -77,6 +84,12 @@ export default function ViewCustomizationGroupPage() {
         method: 'DELETE'
       });
 
+      if (response.status === 401) {
+        alert('Please log in as administrator');
+        router.push('/admin/login');
+        return;
+      }
+
       if (response.ok) {
         router.push('/admin/menu-manager/customization-groups');
       } else {
@@ -96,6 +109,12 @@ export default function ViewCustomizationGroupPage() {
       const response = await fetch(`/api/admin/menu/customization-options/${optionId}`, {
         method: 'DELETE'
       });
+
+      if (response.status === 401) {
+        alert('Please log in as administrator');
+        router.push('/admin/login');
+        return;
+      }
 
       if (response.ok) {
         setGroup(prev => prev ? {

@@ -53,6 +53,13 @@ export default function EditCustomizationGroupPage() {
   const fetchGroup = async (id: string) => {
     try {
       const response = await fetch(`/api/admin/menu/customization-groups/${id}`);
+      
+      if (response.status === 401) {
+        alert('Please log in as administrator');
+        router.push('/admin/login');
+        return;
+      }
+      
       if (response.ok) {
         const group: CustomizationGroup = await response.json();
         setFormData({

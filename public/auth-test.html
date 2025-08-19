@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Status Check</title>
+</head>
+<body>
+    <h1>Authentication Status Test</h1>
+    <div id="status">Testing...</div>
+    <button onclick="testAuth()">Test Auth Now</button>
+    <button onclick="login()">Login as Admin</button>
+    
+    <script>
+        async function testAuth() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = 'Testing authentication...';
+            
+            try {
+                // Test /api/auth/me
+                const response = await fetch('/api/auth/me', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    statusDiv.innerHTML = `
+                        <div style="color: green;">
+                            <h3>✅ Authentication Successful!</h3>
+                            <p><strong>User:</strong> ${userData.user.name}</p>
+                            <p><strong>Email:</strong> ${userData.user.email}</p>
+                            <p><strong>Role:</strong> ${userData.user.role}</p>
+                            <p><strong>Status:</strong> All edit/view/delete functions should work now!</p>
+                        </div>
+                    `;
+                } else {
+                    const errorText = await response.text();
+                    statusDiv.innerHTML = `
+                        <div style="color: red;">
+                            <h3>❌ Authentication Failed</h3>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Error:</strong> ${errorText}</p>
+                            <p>You need to log in as admin first.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div style="color: red;">
+                        <h3>❌ Network Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function login() {
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'admin@pizzabuilder.com',
+                        password: 'admin123'
+                    }),
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    alert('Login successful! Now test auth again.');
+                    testAuth();
+                } else {
+                    alert('Login failed: ' + response.status);
+                }
+            } catch (error) {
+                alert('Login error: ' + error.message);
+            }
+        }
+        
+        // Test on page load
+        testAuth();
+    </script>
+</body>
+</html>

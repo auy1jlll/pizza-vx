@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Testing Customization Groups API</h1>
+    <div id="output"></div>
+    
+    <script>
+        // Test if the frontend can actually call the API
+        console.log('🧪 Testing frontend API call...');
+
+        async function testFrontendAPI() {
+          try {
+            const params = new URLSearchParams({
+              limit: '50',
+              includeInactive: 'false'
+            });
+
+            const url = `/api/admin/menu/customization-groups?${params}`;
+            console.log('🔗 URL:', url);
+            
+            const response = await fetch(url);
+            console.log('📊 Status:', response.status);
+            console.log('📊 Content-Type:', response.headers.get('content-type'));
+            
+            const output = document.getElementById('output');
+            
+            if (response.ok) {
+              const data = await response.json();
+              console.log('📊 Data type:', typeof data);
+              console.log('📊 Is array:', Array.isArray(data));
+              console.log('📊 Length:', Array.isArray(data) ? data.length : 'N/A');
+              
+              // Test the same logic as component
+              const groups = data.groups || data;
+              console.log('📊 Final groups:', Array.isArray(groups) ? groups.length : 'Not array');
+              
+              output.innerHTML = `
+                <p><strong>✅ API Success!</strong></p>
+                <p>Status: ${response.status}</p>
+                <p>Data type: ${typeof data}</p>
+                <p>Is array: ${Array.isArray(data)}</p>
+                <p>Length: ${Array.isArray(data) ? data.length : 'N/A'}</p>
+                <p>Final groups: ${Array.isArray(groups) ? groups.length : 'Not array'}</p>
+              `;
+              
+              if (Array.isArray(groups) && groups.length > 0) {
+                console.log('✅ First group:', groups[0]);
+                output.innerHTML += `<pre>${JSON.stringify(groups[0], null, 2)}</pre>`;
+              }
+            } else {
+              console.error('❌ Response not ok:', response.status);
+              output.innerHTML = `<p><strong>❌ API Error!</strong></p><p>Status: ${response.status}</p>`;
+            }
+          } catch (error) {
+            console.error('❌ Error:', error);
+            document.getElementById('output').innerHTML = `<p><strong>❌ Error:</strong> ${error.message}</p>`;
+          }
+        }
+
+        testFrontendAPI();
+    </script>
+</body>
+</html>

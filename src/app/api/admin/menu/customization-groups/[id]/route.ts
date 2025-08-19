@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { verifyAdminToken } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
@@ -9,6 +10,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
     const group = await prisma.customizationGroup.findUnique({
       where: { id: params.id },
       include: {
@@ -58,6 +63,10 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
     const body = await request.json();
     const {
       name,
@@ -191,6 +200,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
     // Check if group exists
     const existingGroup = await prisma.customizationGroup.findUnique({
       where: { id: params.id },

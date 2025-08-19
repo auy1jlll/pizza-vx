@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { MenuValidator } from '@/lib/validation/menu-validation';
+import { verifyAdminToken } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
 // GET /api/admin/menu/customization-groups - Get all customization groups
 export async function GET(request: NextRequest) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
     const { searchParams } = new URL(request.url);
     const categoryId = searchParams.get('categoryId');
     const includeOptions = searchParams.get('includeOptions') === 'true';
@@ -58,6 +63,10 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/menu/customization-groups - Create new customization group
 export async function POST(request: NextRequest) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+
     const body = await request.json();
     console.log('Received body:', body);
     
