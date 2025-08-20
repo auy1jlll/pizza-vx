@@ -154,8 +154,8 @@ export default function CustomizationGroupsPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Customization Groups</h1>
-            <p className="text-gray-600">Manage customization options for menu items</p>
+            <h1 className="text-2xl font-bold text-white">Customization Groups</h1>
+            <p className="text-gray-300">Manage customization options for menu items</p>
           </div>
           <div className="flex items-center gap-3">
             <button

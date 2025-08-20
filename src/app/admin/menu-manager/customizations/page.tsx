@@ -365,6 +365,51 @@ export default function CustomizationsPage() {
             </div>
           </div>
 
+          {/* Quick Navigation Card */}
+          <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 mb-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="bg-blue-500/20 p-3 rounded-xl mr-4">
+                  <span className="text-2xl">📋</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Manage Customization Groups</h3>
+                  <p className="text-white/70">View, edit, and clone individual customization groups like Size, Toppings, etc.</p>
+                </div>
+              </div>
+              <Link 
+                href="/admin/menu-manager/customization-groups"
+                className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold shadow-xl flex items-center gap-2"
+              >
+                <Settings className="h-5 w-5" />
+                Manage Groups
+              </Link>
+            </div>
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white/10 rounded-lg p-3">
+                <div className="flex items-center mb-2">
+                  <Eye className="h-4 w-4 text-blue-300 mr-2" />
+                  <span className="font-medium text-white">View Groups</span>
+                </div>
+                <p className="text-white/70 text-sm">See all your customization groups in one place</p>
+              </div>
+              <div className="bg-white/10 rounded-lg p-3">
+                <div className="flex items-center mb-2">
+                  <Edit className="h-4 w-4 text-green-300 mr-2" />
+                  <span className="font-medium text-white">Edit & Clone</span>
+                </div>
+                <p className="text-white/70 text-sm">Modify existing groups or clone them with all options</p>
+              </div>
+              <div className="bg-white/10 rounded-lg p-3">
+                <div className="flex items-center mb-2">
+                  <Plus className="h-4 w-4 text-purple-300 mr-2" />
+                  <span className="font-medium text-white">Add New</span>
+                </div>
+                <p className="text-white/70 text-sm">Create new customization groups from scratch</p>
+              </div>
+            </div>
+          </div>
+
           {/* Tabs */}
           <div className="flex space-x-1 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-1 mb-6">
             <button
