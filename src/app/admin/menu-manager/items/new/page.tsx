@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/AdminLayout';
+import { useSexyToast } from '@/components/SexyToastProvider';
 
 interface Category {
   id: string;
@@ -18,6 +19,7 @@ interface CustomizationGroup {
 
 export default function NewItemPage() {
   const router = useRouter();
+  const toast = useSexyToast();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [customizationGroups, setCustomizationGroups] = useState<CustomizationGroup[]>([]);
@@ -82,14 +84,15 @@ export default function NewItemPage() {
       });
 
       if (response.ok) {
+        toast.showSuccess('Menu item created successfully!');
         router.push('/admin/menu-manager/items');
       } else {
         const error = await response.json();
-        alert('Error creating item: ' + (error.error || 'Unknown error'));
+        toast.showError('Error creating item: ' + (error.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error creating item:', error);
-      alert('Error creating item');
+      toast.showError('Error creating item');
     } finally {
       setLoading(false);
     }

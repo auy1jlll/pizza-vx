@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { FiPlus, FiEdit, FiTrash2, FiTag, FiDollarSign } from 'react-icons/fi';
 import AdminLayout from '@/components/AdminLayout';
+import { useSexyToast } from '@/components/SexyToastProvider';
 
 interface Modifier {
   id: string;
@@ -26,6 +27,7 @@ const MODIFIER_TYPES = [
 ];
 
 export default function ModifiersPage() {
+  const toast = useSexyToast();
   const [modifiers, setModifiers] = useState<Modifier[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -91,14 +93,15 @@ export default function ModifiersPage() {
       const data = await response.json();
       
       if (data.success) {
+        toast.showSuccess(editingModifier ? 'Modifier updated successfully!' : 'Modifier created successfully!');
         fetchModifiers(); // Refresh the list
         resetForm();
       } else {
-        alert(data.error || 'Failed to save modifier');
+        toast.showError(data.error || 'Failed to save modifier');
       }
     } catch (error) {
       console.error('Error saving modifier:', error);
-      alert('Failed to save modifier');
+      toast.showError('Failed to save modifier');
     }
   };
 
@@ -114,24 +117,32 @@ export default function ModifiersPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this modifier?')) return;
+    toast.showConfirm({
+      title: 'Delete Modifier',
+      message: 'Are you sure you want to delete this modifier? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/admin/menu/modifiers/${id}`, {
+            method: 'DELETE'
+          });
 
-    try {
-      const response = await fetch(`/api/admin/menu/modifiers/${id}`, {
-        method: 'DELETE'
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        setModifiers(modifiers.filter(m => m.id !== id));
-      } else {
-        alert(data.error || 'Failed to delete modifier');
+          const data = await response.json();
+          
+          if (data.success) {
+            toast.showSuccess('Modifier deleted successfully!');
+            setModifiers(modifiers.filter(m => m.id !== id));
+          } else {
+            toast.showError(data.error || 'Failed to delete modifier');
+          }
+        } catch (error) {
+          console.error('Error deleting modifier:', error);
+          toast.showError('Failed to delete modifier');
+        }
       }
-    } catch (error) {
-      console.error('Error deleting modifier:', error);
-      alert('Failed to delete modifier');
-    }
+    });
   };
 
   const resetForm = () => {

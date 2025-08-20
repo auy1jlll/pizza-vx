@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { FiArrowLeft } from 'react-icons/fi';
 import AdminLayout from '@/components/AdminLayout';
+import { useSexyToast } from '@/components/SexyToastProvider';
 
 interface Category {
   id: string;
@@ -35,6 +36,7 @@ interface MenuItem {
 export default function EditItemPage() {
   const router = useRouter();
   const params = useParams();
+  const toast = useSexyToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -77,12 +79,12 @@ export default function EditItemPage() {
           customizationGroups: item.customizationGroups.map(cg => cg.customizationGroupId)
         });
       } else {
-        alert('Item not found');
+        toast.showError('Item not found');
         router.push('/admin/menu-manager/items');
       }
     } catch (error) {
       console.error('Error fetching item:', error);
-      alert('Error loading item');
+      toast.showError('Error loading item');
       router.push('/admin/menu-manager/items');
     } finally {
       setLoading(false);
@@ -139,14 +141,15 @@ export default function EditItemPage() {
       });
 
       if (response.ok) {
+        toast.showSuccess('Menu item updated successfully!');
         router.push(`/admin/menu-manager/items/${params.id}`);
       } else {
         const error = await response.json();
-        alert('Error updating item: ' + (error.error || 'Unknown error'));
+        toast.showError('Error updating item: ' + (error.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error updating item:', error);
-      alert('Error updating item');
+      toast.showError('Error updating item');
     } finally {
       setSaving(false);
     }

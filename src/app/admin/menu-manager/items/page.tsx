@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { FiPlus, FiEdit, FiTrash2, FiEye, FiSearch, FiFilter } from 'react-icons/fi';
 import AdminLayout from '@/components/AdminLayout';
+import { useSexyToast } from '@/components/SexyToastProvider';
 
 interface MenuItem {
   id: string;
@@ -33,6 +34,7 @@ interface Category {
 }
 
 export default function ItemsPage() {
+  const toast = useSexyToast();
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,23 +79,31 @@ export default function ItemsPage() {
   };
 
   const handleDeleteItem = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this item?')) return;
+    toast.showConfirm({
+      title: 'Delete Menu Item',
+      message: 'Are you sure you want to delete this menu item? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/admin/menu/items/${id}`, {
+            method: 'DELETE'
+          });
 
-    try {
-      const response = await fetch(`/api/admin/menu/items/${id}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        setItems(items.filter(item => item.id !== id));
-      } else {
-        const error = await response.json();
-        alert(error.error || 'Failed to delete item');
+          if (response.ok) {
+            toast.showSuccess('Menu item deleted successfully!');
+            setItems(items.filter(item => item.id !== id));
+          } else {
+            const error = await response.json();
+            toast.showError(error.error || 'Failed to delete item');
+          }
+        } catch (error) {
+          console.error('Error deleting item:', error);
+          toast.showError('Failed to delete item');
+        }
       }
-    } catch (error) {
-      console.error('Error deleting item:', error);
-      alert('Failed to delete item');
-    }
+    });
   };
 
   const toggleItemStatus = async (id: string, currentStatus: boolean) => {

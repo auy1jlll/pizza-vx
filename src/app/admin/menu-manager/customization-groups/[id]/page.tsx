@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { FiArrowLeft, FiEdit, FiTrash2, FiPlus, FiSettings } from 'react-icons/fi';
 import AdminLayout from '@/components/AdminLayout';
+import { useSexyToast } from '@/components/SexyToastProvider';
 
 interface CustomizationOption {
   id: string;
@@ -41,6 +42,7 @@ interface CustomizationGroup {
 export default function ViewCustomizationGroupPage() {
   const router = useRouter();
   const params = useParams();
+  const toast = useSexyToast();
   const [loading, setLoading] = useState(true);
   const [group, setGroup] = useState<CustomizationGroup | null>(null);
 
@@ -55,7 +57,7 @@ export default function ViewCustomizationGroupPage() {
       const response = await fetch(`/api/admin/menu/customization-groups/${id}`);
       
       if (response.status === 401) {
-        alert('Please log in as administrator');
+        toast.showError('Please log in as administrator');
         router.push('/admin/login');
         return;
       }
@@ -64,12 +66,12 @@ export default function ViewCustomizationGroupPage() {
         const data = await response.json();
         setGroup(data);
       } else {
-        alert('Customization group not found');
+        toast.showError('Customization group not found');
         router.push('/admin/menu-manager/customization-groups');
       }
     } catch (error) {
       console.error('Error fetching customization group:', error);
-      alert('Error loading customization group');
+      toast.showError('Error loading customization group');
       router.push('/admin/menu-manager/customization-groups');
     } finally {
       setLoading(false);
@@ -77,58 +79,76 @@ export default function ViewCustomizationGroupPage() {
   };
 
   const handleDeleteGroup = async () => {
-    if (!group || !confirm('Are you sure you want to delete this customization group?')) return;
+    if (!group) return;
 
-    try {
-      const response = await fetch(`/api/admin/menu/customization-groups/${group.id}`, {
-        method: 'DELETE'
-      });
+    toast.showConfirm({
+      title: 'Delete Customization Group',
+      message: 'Are you sure you want to delete this customization group? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/admin/menu/customization-groups/${group.id}`, {
+            method: 'DELETE'
+          });
 
-      if (response.status === 401) {
-        alert('Please log in as administrator');
-        router.push('/admin/login');
-        return;
+          if (response.status === 401) {
+            toast.showError('Please log in as administrator');
+            router.push('/admin/login');
+            return;
+          }
+
+          if (response.ok) {
+            toast.showSuccess('Customization group deleted successfully!');
+            router.push('/admin/menu-manager/customization-groups');
+          } else {
+            const error = await response.json();
+            toast.showError(error.error || 'Failed to delete customization group');
+          }
+        } catch (error) {
+          console.error('Error deleting customization group:', error);
+          toast.showError('Failed to delete customization group');
+        }
       }
-
-      if (response.ok) {
-        router.push('/admin/menu-manager/customization-groups');
-      } else {
-        const error = await response.json();
-        alert(error.error || 'Failed to delete customization group');
-      }
-    } catch (error) {
-      console.error('Error deleting customization group:', error);
-      alert('Failed to delete customization group');
-    }
+    });
   };
 
   const handleDeleteOption = async (optionId: string) => {
-    if (!confirm('Are you sure you want to delete this option?')) return;
+    toast.showConfirm({
+      title: 'Delete Option',
+      message: 'Are you sure you want to delete this option? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/admin/menu/customization-options/${optionId}`, {
+            method: 'DELETE'
+          });
 
-    try {
-      const response = await fetch(`/api/admin/menu/customization-options/${optionId}`, {
-        method: 'DELETE'
-      });
+          if (response.status === 401) {
+            toast.showError('Please log in as administrator');
+            router.push('/admin/login');
+            return;
+          }
 
-      if (response.status === 401) {
-        alert('Please log in as administrator');
-        router.push('/admin/login');
-        return;
+          if (response.ok) {
+            toast.showSuccess('Option deleted successfully!');
+            setGroup(prev => prev ? {
+              ...prev,
+              options: prev.options.filter(opt => opt.id !== optionId)
+            } : null);
+          } else {
+            const error = await response.json();
+            toast.showError(error.error || 'Failed to delete option');
+          }
+        } catch (error) {
+          console.error('Error deleting option:', error);
+          toast.showError('Failed to delete option');
+        }
       }
-
-      if (response.ok) {
-        setGroup(prev => prev ? {
-          ...prev,
-          options: prev.options.filter(opt => opt.id !== optionId)
-        } : null);
-      } else {
-        const error = await response.json();
-        alert(error.error || 'Failed to delete option');
-      }
-    } catch (error) {
-      console.error('Error deleting option:', error);
-      alert('Failed to delete option');
-    }
+    });
   };
 
   if (loading) {

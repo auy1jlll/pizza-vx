@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FiArrowLeft } from 'react-icons/fi';
 import AdminLayout from '@/components/AdminLayout';
+import { useSexyToast } from '@/components/SexyToastProvider';
 
 interface Category {
   id: string;
@@ -13,6 +14,7 @@ interface Category {
 
 export default function NewCustomizationGroupPage() {
   const router = useRouter();
+  const toast = useSexyToast();
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   
@@ -62,14 +64,15 @@ export default function NewCustomizationGroupPage() {
       });
 
       if (response.ok) {
+        toast.showSuccess('Customization group created successfully!');
         router.push('/admin/menu-manager/customization-groups');
       } else {
         const error = await response.json();
-        alert('Error creating customization group: ' + (error.error || 'Unknown error'));
+        toast.showError('Error creating customization group: ' + (error.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error creating customization group:', error);
-      alert('Error creating customization group');
+      toast.showError('Error creating customization group');
     } finally {
       setSaving(false);
     }
