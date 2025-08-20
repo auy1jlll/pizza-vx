@@ -145,7 +145,7 @@ export default function ViewCustomizationGroupPage() {
     return (
       <AdminLayout>
         <div className="text-center py-12">
-          <p className="text-gray-500">Customization group not found</p>
+          <p className="text-gray-300">Customization group not found</p>
         </div>
       </AdminLayout>
     );
@@ -158,13 +158,13 @@ export default function ViewCustomizationGroupPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.back()}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
             >
               <FiArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{group.name}</h1>
-              <p className="text-gray-600">Customization Group Details</p>
+              <h1 className="text-2xl font-bold text-white">{group.name}</h1>
+              <p className="text-gray-300">Customization Group Details</p>
             </div>
           </div>
           <div className="flex gap-2">

@@ -92,13 +92,13 @@ export default function NewCustomizationOptionPage() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.back()}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
           >
             <FiArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Add New Customization Option</h1>
-            <p className="text-gray-600">Create a new option for a customization group</p>
+            <h1 className="text-2xl font-bold text-white">Add New Customization Option</h1>
+            <p className="text-gray-300">Create a new option for a customization group</p>
           </div>
         </div>
 
