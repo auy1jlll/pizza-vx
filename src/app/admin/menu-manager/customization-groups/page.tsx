@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiSettings, FiRefreshCw } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiEye, FiEdit, FiTrash2, FiSettings, FiRefreshCw, FiCopy } from 'react-icons/fi';
 import AdminLayout from '@/components/AdminLayout';
 import { useSexyToast } from '@/components/SexyToastProvider';
 
@@ -116,6 +116,27 @@ export default function CustomizationGroupsPage() {
         }
       }
     });
+  };
+
+  const handleCloneGroup = async (id: string, name: string) => {
+    try {
+      const response = await fetch(`/api/admin/menu/customization-groups/${id}/clone`, {
+        method: 'POST'
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // Refresh the groups list to show the new cloned group
+        await fetchGroups();
+        toast.showSuccess(result.message || `Successfully cloned "${name}"`);
+      } else {
+        toast.showError(result.error || 'Failed to clone customization group');
+      }
+    } catch (error) {
+      console.error('Error cloning customization group:', error);
+      toast.showError('Failed to clone customization group');
+    }
   };
 
   const filteredGroups = groups.filter(group => {
@@ -292,25 +313,37 @@ export default function CustomizationGroupsPage() {
                   )}
                 </div>
 
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => router.push(`/admin/menu-manager/customization-groups/${group.id}`)}
-                    className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <FiEye className="w-4 h-4" />
-                    View
-                  </button>
-                  <button 
-                    onClick={() => router.push(`/admin/menu-manager/customization-groups/${group.id}/edit`)}
-                    className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <FiEdit className="w-4 h-4" />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteGroup(group.id)}
-                    className="px-3 py-2 text-sm text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
-                  >
-                    <FiTrash2 className="w-4 h-4" />
-                  </button>
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => router.push(`/admin/menu-manager/customization-groups/${group.id}`)}
+                      className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                      <FiEye className="w-4 h-4" />
+                      View
+                    </button>
+                    <button 
+                      onClick={() => router.push(`/admin/menu-manager/customization-groups/${group.id}/edit`)}
+                      className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                      <FiEdit className="w-4 h-4" />
+                      Edit
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleCloneGroup(group.id, group.name)}
+                      className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                    >
+                      <FiCopy className="w-4 h-4" />
+                      Clone
+                    </button>
+                    <button
+                      onClick={() => handleDeleteGroup(group.id)}
+                      className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                    >
+                      <FiTrash2 className="w-4 h-4" />
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
