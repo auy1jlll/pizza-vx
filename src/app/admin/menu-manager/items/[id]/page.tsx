@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { FiEdit, FiTrash2, FiArrowLeft } from 'react-icons/fi';
 import AdminLayout from '@/components/AdminLayout';
+import { useSexyToast } from '@/components/SexyToastProvider';
 
 interface MenuItem {
   id: string;
@@ -26,6 +27,7 @@ interface MenuItem {
 export default function ViewItemPage() {
   const router = useRouter();
   const params = useParams();
+  const toast = useSexyToast();
   const [item, setItem] = useState<MenuItem | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -42,12 +44,12 @@ export default function ViewItemPage() {
         const data = await response.json();
         setItem(data);
       } else {
-        alert('Item not found');
+        toast.showError('Item not found');
         router.push('/admin/menu-manager/items');
       }
     } catch (error) {
       console.error('Error fetching item:', error);
-      alert('Error loading item');
+      toast.showError('Error loading item');
       router.push('/admin/menu-manager/items');
     } finally {
       setLoading(false);
@@ -55,22 +57,32 @@ export default function ViewItemPage() {
   };
 
   const handleDelete = async () => {
-    if (!item || !confirm('Are you sure you want to delete this item?')) return;
+    if (!item) return;
 
-    try {
-      const response = await fetch(`/api/admin/menu/items/${item.id}`, {
-        method: 'DELETE'
-      });
+    toast.showConfirm({
+      title: 'Delete Menu Item',
+      message: 'Are you sure you want to delete this menu item? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/admin/menu/items/${item.id}`, {
+            method: 'DELETE'
+          });
 
-      if (response.ok) {
-        router.push('/admin/menu-manager/items');
-      } else {
-        alert('Error deleting item');
+          if (response.ok) {
+            toast.showSuccess('Menu item deleted successfully!');
+            router.push('/admin/menu-manager/items');
+          } else {
+            toast.showError('Error deleting item');
+          }
+        } catch (error) {
+          console.error('Error deleting item:', error);
+          toast.showError('Error deleting item');
+        }
       }
-    } catch (error) {
-      console.error('Error deleting item:', error);
-      alert('Error deleting item');
-    }
+    });
   };
 
   if (loading) {

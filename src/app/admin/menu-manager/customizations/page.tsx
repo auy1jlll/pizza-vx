@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/AdminLayout';
 import Link from 'next/link';
+import { useSexyToast } from '@/components/SexyToastProvider';
 import { 
   Plus, 
   Edit, 
@@ -67,6 +68,7 @@ interface CustomizationOption {
 
 export default function CustomizationsPage() {
   const router = useRouter();
+  const toast = useSexyToast();
   const [groups, setGroups] = useState<CustomizationGroup[]>([]);
   const [options, setOptions] = useState<CustomizationOption[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -139,47 +141,57 @@ export default function CustomizationsPage() {
   };
 
   const deleteGroup = async (groupId: string, groupName: string) => {
-    if (!confirm(`Are you sure you want to delete the group "${groupName}"? This will also delete all its options.`)) {
-      return;
-    }
+    toast.showConfirm({
+      title: 'Delete Customization Group',
+      message: `Are you sure you want to delete the group "${groupName}"? This will also delete all its options and cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/admin/menu/customization-groups/${groupId}`, {
+            method: 'DELETE',
+          });
 
-    try {
-      const response = await fetch(`/api/admin/menu/customization-groups/${groupId}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setGroups(groups.filter(group => group.id !== groupId));
-        alert('Group deleted successfully');
-      } else {
-        alert('Failed to delete group');
+          if (response.ok) {
+            setGroups(groups.filter(group => group.id !== groupId));
+            toast.showSuccess('Group deleted successfully');
+          } else {
+            toast.showError('Failed to delete group');
+          }
+        } catch (error) {
+          console.error('Error deleting group:', error);
+          toast.showError('Error deleting group');
+        }
       }
-    } catch (error) {
-      console.error('Error deleting group:', error);
-      alert('Error deleting group');
-    }
+    });
   };
 
   const deleteOption = async (optionId: string, optionName: string) => {
-    if (!confirm(`Are you sure you want to delete the option "${optionName}"?`)) {
-      return;
-    }
+    toast.showConfirm({
+      title: 'Delete Option',
+      message: `Are you sure you want to delete the option "${optionName}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/admin/menu/customization-options/${optionId}`, {
+            method: 'DELETE',
+          });
 
-    try {
-      const response = await fetch(`/api/admin/menu/customization-options/${optionId}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setOptions(options.filter(option => option.id !== optionId));
-        alert('Option deleted successfully');
-      } else {
-        alert('Failed to delete option');
+          if (response.ok) {
+            setOptions(options.filter(option => option.id !== optionId));
+            toast.showSuccess('Option deleted successfully');
+          } else {
+            toast.showError('Failed to delete option');
+          }
+        } catch (error) {
+          console.error('Error deleting option:', error);
+          toast.showError('Error deleting option');
+        }
       }
-    } catch (error) {
-      console.error('Error deleting option:', error);
-      alert('Error deleting option');
-    }
+    });
   };
 
   const getTypeIcon = (type: string) => {
