@@ -116,11 +116,11 @@ export default function NewCustomizationGroupPage() {
               <ArrowLeft className="h-6 w-6" />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 flex items-center">
+              <h1 className="text-3xl font-bold text-white flex items-center">
                 <span className="text-4xl mr-3">➕</span>
                 New Customization Group
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-white/70 mt-2">
                 Create a new customization group for menu items
               </p>
             </div>

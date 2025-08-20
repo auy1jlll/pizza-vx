@@ -87,7 +87,7 @@ export default function ViewItemPage() {
     return (
       <AdminLayout>
         <div className="text-center py-12">
-          <p className="text-gray-500">Item not found</p>
+          <p className="text-gray-300">Item not found</p>
         </div>
       </AdminLayout>
     );
@@ -101,13 +101,13 @@ export default function ViewItemPage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.back()}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
             >
               <FiArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{item.name}</h1>
-              <p className="text-gray-600">{item.category.name}</p>
+              <h1 className="text-2xl font-bold text-white">{item.name}</h1>
+              <p className="text-gray-300">{item.category.name}</p>
             </div>
           </div>
           

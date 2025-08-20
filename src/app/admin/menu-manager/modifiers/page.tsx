@@ -159,8 +159,8 @@ export default function ModifiersPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Modifiers</h1>
-            <p className="text-gray-600">Manage toppings, sides, dressings, and other modifiers</p>
+            <h1 className="text-2xl font-bold text-white">Modifiers</h1>
+            <p className="text-gray-300">Manage toppings, sides, dressings, and other modifiers</p>
           </div>
           <button
             onClick={() => setShowCreateForm(true)}

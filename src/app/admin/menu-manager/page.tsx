@@ -95,8 +95,8 @@ export default function MenuManagerPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Menu Management</h1>
-          <p className="text-gray-600 mt-1">Manage your restaurant's menu categories, items, and customizations</p>
+          <h1 className="text-3xl font-bold text-white">Menu Management</h1>
+          <p className="text-gray-300 mt-1">Manage your restaurant's menu categories, items, and customizations</p>
         </div>
         <Link
           href="/admin"

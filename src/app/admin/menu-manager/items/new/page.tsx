@@ -108,8 +108,8 @@ export default function NewItemPage() {
     <AdminLayout>
       <div className="max-w-2xl mx-auto space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Add New Menu Item</h1>
-          <p className="text-gray-600">Create a new item for your menu</p>
+          <h1 className="text-2xl font-bold text-white">Add New Menu Item</h1>
+          <p className="text-gray-300">Create a new item for your menu</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg border border-gray-200">
