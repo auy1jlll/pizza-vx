@@ -18,6 +18,7 @@ interface CustomizationOption {
   priceModifier: number;
   sortOrder: number;
   isActive: boolean;
+  isDefault: boolean;
   groupId: string; // Changed from customizationGroupId
 }
 
@@ -34,6 +35,7 @@ export default function EditCustomizationOptionPage() {
     priceModifier: '',
     sortOrder: 0,
     isActive: true,
+    isDefault: false,
     groupId: '' // Changed from customizationGroupId
   });
 
@@ -56,6 +58,7 @@ export default function EditCustomizationOptionPage() {
           priceModifier: option.priceModifier.toString(),
           sortOrder: option.sortOrder,
           isActive: option.isActive,
+          isDefault: option.isDefault || false,
           groupId: option.groupId // Changed from customizationGroupId
         });
       } else {
@@ -223,16 +226,31 @@ export default function EditCustomizationOptionPage() {
             <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
           </div>
 
-          <div>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={formData.isActive}
-                onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-                className="rounded"
-              />
-              <span className="text-sm">Active</span>
-            </label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                  className="rounded"
+                />
+                <span className="text-sm">Active</span>
+              </label>
+            </div>
+            
+            <div>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={formData.isDefault}
+                  onChange={(e) => setFormData(prev => ({ ...prev, isDefault: e.target.checked }))}
+                  className="rounded"
+                />
+                <span className="text-sm">Set as Default</span>
+              </label>
+              <p className="text-xs text-gray-500 mt-1">This option will be pre-selected for customers</p>
+            </div>
           </div>
 
           <div className="flex gap-4 pt-4">

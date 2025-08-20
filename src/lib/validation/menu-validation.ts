@@ -202,7 +202,7 @@ export class MenuItemValidator {
       errors.push('Item image URL must be a valid URL');
     }
 
-    if (data.preparationTime !== undefined && !ValidationUtils.isValidNumber(data.preparationTime, 1, 180)) {
+    if (data.preparationTime !== undefined && data.preparationTime !== null && !ValidationUtils.isValidNumber(data.preparationTime, 1, 180)) {
       errors.push('Preparation time must be between 1 and 180 minutes');
     }
 

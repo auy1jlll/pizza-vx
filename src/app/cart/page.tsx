@@ -85,14 +85,49 @@ export default function CartPage() {
         setPricesLoading(true);
         setError(null);
         console.log('Starting price refresh...');
+        
+        // Validate data before sending
+        const validatedPizzaItems = pizzaItems.filter(item => 
+          item && item.id && typeof item.id === 'string'
+        );
+        const validatedMenuItems = menuItems.filter(item => 
+          item && item.id && typeof item.id === 'string'
+        );
+        
+        console.log('Validated items:', {
+          pizza: validatedPizzaItems.length,
+          menu: validatedMenuItems.length
+        });
 
         const response = await fetch('/api/cart/refresh-prices', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pizzaItems, menuItems })
+          body: JSON.stringify({ 
+            pizzaItems: validatedPizzaItems, 
+            menuItems: validatedMenuItems 
+          })
         });
 
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        console.log('API Response status:', response.status);
+        console.log('API Response headers:', Object.fromEntries(response.headers.entries()));
+
+        if (!response.ok) {
+          // Try to get more details about the error
+          let errorDetails;
+          try {
+            const errorText = await response.text();
+            console.error('Response error text:', errorText);
+            try {
+              errorDetails = JSON.parse(errorText);
+            } catch {
+              errorDetails = { error: errorText };
+            }
+          } catch {
+            errorDetails = { error: 'Failed to read error response' };
+          }
+          
+          throw new Error(`HTTP ${response.status}: ${errorDetails.error || errorDetails.details || 'Unknown error'}`);
+        }
 
         const result = await response.json();
         if (!result.success) throw new Error(result.error || 'Unknown error');
@@ -101,7 +136,18 @@ export default function CartPage() {
         setCurrentPrices(result.data);
       } catch (err) {
         console.error('Price refresh error:', err);
-        setError('Could not refresh prices. Using stored prices instead.');
+        
+        // Enhanced error logging
+        if (err instanceof Error) {
+          console.error('Error message:', err.message);
+          console.error('Error stack:', err.stack);
+        }
+        
+        // Log the data that caused the error
+        console.error('Pizza items that caused error:', pizzaItems.length, pizzaItems);
+        console.error('Menu items that caused error:', menuItems.length, menuItems);
+        
+        setError(`Could not refresh prices: ${err instanceof Error ? err.message : 'Unknown error'}. Using stored prices instead.`);
       } finally {
         setPricesLoading(false);
       }
@@ -347,7 +393,11 @@ export default function CartPage() {
                               <div className="flex items-start justify-between mb-2">
                                 <div>
                                   <h3 className="text-lg font-bold text-gray-800">
-                                    {item.size?.name || 'Custom'} Pizza
+                                    {item.specialtyPizzaName ? (
+                                      <span>{item.specialtyPizzaName} <span className="text-gray-500 text-sm">({item.size?.name || 'Custom'})</span></span>
+                                    ) : (
+                                      <span>{item.size?.name || 'Custom'} Pizza</span>
+                                    )}
                                   </h3>
                                   <p className="text-gray-600 text-sm">
                                     {item.crust?.name || 'Classic'} Crust • {item.sauce?.name || 'Tomato'} Sauce
@@ -369,9 +419,19 @@ export default function CartPage() {
                                 <div className="mb-3">
                                   <p className="text-sm text-gray-500 mb-1">Toppings:</p>
                                   <div className="flex flex-wrap gap-1">
-                                    {item.toppings.map((topping, idx) => (
+                                    {item.toppings.map((topping: any, idx) => (
                                       <span key={idx} className="bg-blue-100 text-blue-700 px-2 py-1 rounded-lg text-xs">
                                         {topping.name}
+                                        {topping.section && topping.section !== 'WHOLE' && (
+                                          <span className="ml-1 text-blue-600 font-semibold">
+                                            ({topping.section === 'LEFT' ? 'L' : 'R'})
+                                          </span>
+                                        )}
+                                        {topping.intensity && topping.intensity !== 'REGULAR' && (
+                                          <span className="ml-1 text-blue-800 font-semibold">
+                                            {topping.intensity === 'LIGHT' ? 'Light' : 'Extra'}
+                                          </span>
+                                        )}
                                       </span>
                                     ))}
                                   </div>

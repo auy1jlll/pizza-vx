@@ -4,14 +4,14 @@ import { verifyAdminToken } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
     const user = verifyAdminToken(request);
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
 
     const customizationOption = await prisma.customizationOption.findUnique({
       where: { id },
@@ -49,14 +49,28 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return handleUpdate(request, params);
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return handleUpdate(request, params);
+}
+
+async function handleUpdate(
+  request: NextRequest,
+  params: Promise<{ id: string }>
 ) {
   try {
     // Verify admin authentication
     const user = verifyAdminToken(request);
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     
     const {
@@ -140,14 +154,14 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
     const user = verifyAdminToken(request);
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
 
     // Check if option exists and if it's being used
     const existingOption = await prisma.customizationOption.findUnique({

@@ -79,8 +79,8 @@ async function getOrder(id: string): Promise<FullOrder | null> {
 }
 
 export default async function OrderConfirmationPage({ params }: OrderConfirmationPageProps) {
-  // Destructuring orderId from params immediately.
-  const { orderId } = params;
+  // Await the params object in Next.js 15
+  const { orderId } = await params;
   const order = await getOrder(orderId);
 
   if (!order) {

@@ -62,8 +62,15 @@ export function OrderDetails({ order }: OrderDetailsProps) {
                       // Menu item (sandwich, salad, etc.)
                       item.menuItem.name
                     ) : (
-                      // Pizza item
-                      `${item.pizzaSize?.name || 'Custom'} Pizza`
+                      // Pizza item - check if it's a specialty pizza from notes
+                      (() => {
+                        // Try to extract specialty pizza name from notes (format: **PizzaName**)
+                        const specialtyMatch = item.notes?.match(/\*\*(.+?)\*\*/);
+                        if (specialtyMatch) {
+                          return `${specialtyMatch[1]} (${item.pizzaSize?.name || 'Custom'})`;
+                        }
+                        return `${item.pizzaSize?.name || 'Custom'} Pizza`;
+                      })()
                     )
                   }
                 </p>
@@ -72,7 +79,16 @@ export function OrderDetails({ order }: OrderDetailsProps) {
                   {item.pizzaCrust && <p>Crust: {item.pizzaCrust.name}</p>}
                   {item.pizzaSauce && <p>Sauce: {item.pizzaSauce.name}</p>}
                   {item.toppings.length > 0 && (
-                    <p>Toppings: {item.toppings.map(t => t.pizzaTopping.name).join(', ')}</p>
+                    <p>Toppings: {item.toppings.map(t => {
+                      let toppingText = t.pizzaTopping.name;
+                      if (t.section && t.section !== 'WHOLE') {
+                        toppingText += ` (${t.section === 'LEFT' ? 'Left' : 'Right'})`;
+                      }
+                      if (t.intensity && t.intensity !== 'REGULAR') {
+                        toppingText += ` ${t.intensity === 'LIGHT' ? 'Light' : 'Extra'}`;
+                      }
+                      return toppingText;
+                    }).join(', ')}</p>
                   )}
                   
                   {/* Show menu item customizations with detailed display like cart page */}

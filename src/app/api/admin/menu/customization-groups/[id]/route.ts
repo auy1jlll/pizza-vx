@@ -7,15 +7,17 @@ const prisma = new PrismaClient();
 // GET /api/admin/menu/customization-groups/[id] - Get single customization group
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
     const user = verifyAdminToken(request);
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
+    const { id } = await params;
+
     const group = await prisma.customizationGroup.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         category: {
           select: { id: true, name: true, slug: true }
@@ -60,13 +62,14 @@ export async function GET(
 // PATCH /api/admin/menu/customization-groups/[id] - Update customization group
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
     const user = verifyAdminToken(request);
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
+    const { id } = await params;
     const body = await request.json();
     const {
       name,
@@ -83,7 +86,7 @@ export async function PATCH(
 
     // Check if group exists
     const existingGroup = await prisma.customizationGroup.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!existingGroup) {
@@ -124,7 +127,7 @@ export async function PATCH(
     const updatedGroup = await prisma.$transaction(async (tx) => {
       // Update the group
       const group = await tx.customizationGroup.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           ...(name && { name }),
           ...(description !== undefined && { description }),
@@ -142,14 +145,14 @@ export async function PATCH(
       if (options && Array.isArray(options)) {
         // Remove existing options
         await tx.customizationOption.deleteMany({
-          where: { groupId: params.id }
+          where: { groupId: id }
         });
 
         // Add new options
         if (options.length > 0) {
           await tx.customizationOption.createMany({
             data: options.map((option: any, index: number) => ({
-              groupId: params.id,
+              groupId: id,
               name: option.name,
               description: option.description,
               priceModifier: parseFloat(option.priceModifier || 0),
@@ -165,7 +168,7 @@ export async function PATCH(
 
       // Return updated group with relations
       return await tx.customizationGroup.findUnique({
-        where: { id: params.id },
+        where: { id },
         include: {
           category: {
             select: { id: true, name: true, slug: true }
@@ -197,16 +200,18 @@ export async function PATCH(
 // DELETE /api/admin/menu/customization-groups/[id] - Delete customization group
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify admin authentication
     const user = verifyAdminToken(request);
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
+    const { id } = await params;
+
     // Check if group exists
     const existingGroup = await prisma.customizationGroup.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         menuItemCustomizations: true
       }
@@ -231,7 +236,7 @@ export async function DELETE(
 
     // Delete the group (will cascade delete options)
     await prisma.customizationGroup.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json(

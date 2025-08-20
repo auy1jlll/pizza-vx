@@ -219,11 +219,24 @@ export default function MenuItemCustomizer({
     const quantity = getSelectionQuantity(option.id);
     const price = calculateOptionPrice(option, quantity);
 
+    const handleOptionClick = () => {
+      if (disabled) return;
+      
+      if (group.type === 'SINGLE_SELECT') {
+        handleSingleSelect(group, option.id);
+      } else if (group.type === 'MULTI_SELECT') {
+        handleMultiSelect(group, option.id);
+      } else if (group.type === 'SPECIAL_LOGIC') {
+        handleSpecialLogic(group, option.id);
+      }
+    };
+
     return (
       <div
         key={option.id}
+        onClick={handleOptionClick}
         className={`
-          relative p-4 rounded-lg border transition-all duration-200
+          relative p-3 rounded-lg border transition-all duration-200
           ${isSelected 
             ? 'border-green-500 bg-green-50/10 shadow-lg' 
             : 'border-gray-600 bg-black/20 hover:border-gray-500'
@@ -231,57 +244,61 @@ export default function MenuItemCustomizer({
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         `}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <div className="flex items-center space-x-3">
-              {/* Selection Indicator */}
-              {group.type === 'SINGLE_SELECT' && (
-                <div 
-                  className={`
-                    w-5 h-5 rounded-full border-2 flex items-center justify-center
-                    ${isSelected ? 'border-green-500 bg-green-500' : 'border-gray-400'}
-                  `}
-                  onClick={() => handleSingleSelect(group, option.id)}
-                >
-                  {isSelected && <Check className="w-3 h-3 text-white" />}
-                </div>
-              )}
+        <div className="flex items-center space-x-3">
+          {/* Selection Indicator */}
+          {group.type === 'SINGLE_SELECT' && (
+            <div 
+              className={`
+                w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0
+                ${isSelected ? 'border-green-500 bg-green-500' : 'border-gray-400'}
+              `}
+            >
+              {isSelected && <Check className="w-3 h-3 text-white" />}
+            </div>
+          )}
 
-              {(group.type === 'MULTI_SELECT' || group.type === 'SPECIAL_LOGIC') && (
-                <div 
-                  className={`
-                    w-5 h-5 rounded border-2 flex items-center justify-center
-                    ${isSelected ? 'border-green-500 bg-green-500' : 'border-gray-400'}
-                  `}
-                  onClick={() => group.type === 'MULTI_SELECT' 
-                    ? handleMultiSelect(group, option.id)
-                    : handleSpecialLogic(group, option.id)
-                  }
-                >
-                  {isSelected && <Check className="w-3 h-3 text-white" />}
-                </div>
-              )}
+          {(group.type === 'MULTI_SELECT' || group.type === 'SPECIAL_LOGIC') && (
+            <div 
+              className={`
+                w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0
+                ${isSelected ? 'border-green-500 bg-green-500' : 'border-gray-400'}
+              `}
+            >
+              {isSelected && <Check className="w-3 h-3 text-white" />}
+            </div>
+          )}
 
-              {/* Option Details */}
-              <div className="flex-1">
-                <div className="flex items-center space-x-2">
-                  <h4 className="font-medium text-white">{option.name}</h4>
-                  {option.isDefault && (
-                    <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded">
-                      Default
-                    </span>
-                  )}
-                </div>
+          {/* Option Details */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between">
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-white text-sm truncate">{option.name}</h4>
                 {option.description && (
-                  <p className="text-sm text-gray-400 mt-1">{option.description}</p>
+                  <p className="text-xs text-gray-400 mt-1">{option.description}</p>
                 )}
               </div>
+              
+              {/* Price Display */}
+              {price !== 0 && (
+                <div className={`font-semibold text-sm ml-2 ${price > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {formatPrice(price)}
+                </div>
+              )}
+              
+              {option.isDefault && (
+                <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded ml-2 flex-shrink-0">
+                  Default
+                </span>
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Price and Quantity */}
-          <div className="flex items-center space-x-3">
-            {group.type === 'QUANTITY_SELECT' && isSelected && (
+        {/* Quantity Controls for QUANTITY_SELECT */}
+        {group.type === 'QUANTITY_SELECT' && isSelected && (
+          <div className="mt-3 pt-3 border-t border-gray-600">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-300">Quantity:</span>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={(e) => {
@@ -305,15 +322,9 @@ export default function MenuItemCustomizer({
                   <Plus className="w-4 h-4 text-white" />
                 </button>
               </div>
-            )}
-
-            {price !== 0 && (
-              <div className={`font-semibold ${price > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {formatPrice(price)}
-              </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Quantity Select for non-quantity groups */}
         {group.type !== 'QUANTITY_SELECT' && isSelected && option.maxQuantity && option.maxQuantity > 1 && (
@@ -352,56 +363,198 @@ export default function MenuItemCustomizer({
 
   return (
     <div className="space-y-6">
-      {groups.map((group) => (
-        <div key={group.id} className="space-y-4">
-          {/* Group Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
-                <span>{group.name}</span>
-                {group.isRequired && (
-                  <span className="text-red-400 text-sm">*</span>
-                )}
-              </h3>
-              {group.description && (
-                <p className="text-sm text-gray-400 mt-1">{group.description}</p>
-              )}
-            </div>
-            
-            {/* Selection Info */}
-            <div className="text-sm text-gray-400">
-              {group.type === 'SPECIAL_LOGIC' && group.name.includes('2 of 3') && (
-                <span>Select 2 of 3</span>
-              )}
-              {group.maxSelections && group.type !== 'SPECIAL_LOGIC' && (
-                <span>Max {group.maxSelections}</span>
-              )}
-            </div>
-          </div>
+      {/* Check if we have both Sandwich Toppings and Sandwich Condiments groups */}
+      {(() => {
+        const toppingsGroup = groups.find(g => g.name === 'Sandwich Toppings');
+        const condimentsGroup = groups.find(g => g.name === 'Sandwich Condiments');
+        
+        if (toppingsGroup && condimentsGroup) {
+          // Render 2-column layout for sandwich customization
+          return (
+            <div className="space-y-6">
+              {/* Combined Header */}
+              <div className="text-center">
+                <h2 className="text-xl font-bold text-white mb-2">Customize Your Sandwich</h2>
+                <p className="text-gray-400 text-sm">Choose up to 5 toppings and up to 5 condiments</p>
+              </div>
+              
+              {/* 2-Column Layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Column - Toppings */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
+                        <span>🥬 {toppingsGroup.name}</span>
+                        {toppingsGroup.isRequired && (
+                          <span className="text-red-400 text-sm">*</span>
+                        )}
+                      </h3>
+                      {toppingsGroup.description && (
+                        <p className="text-sm text-gray-400 mt-1">{toppingsGroup.description}</p>
+                      )}
+                    </div>
+                    
+                    <div className="text-sm text-gray-400">
+                      {toppingsGroup.maxSelections && (
+                        <span>Max {toppingsGroup.maxSelections}</span>
+                      )}
+                    </div>
+                  </div>
 
-          {/* Options */}
-          <div className="grid grid-cols-1 gap-3">
-            {group.options
-              .filter(option => option.isActive)
-              .sort((a, b) => a.sortOrder - b.sortOrder)
-              .map((option) => renderOption(group, option))
-            }
-          </div>
+                  {/* Toppings Options */}
+                  <div className="grid grid-cols-1 gap-3">
+                    {toppingsGroup.options
+                      .filter(option => option.isActive)
+                      .sort((a, b) => a.sortOrder - b.sortOrder)
+                      .map((option) => renderOption(toppingsGroup, option))
+                    }
+                  </div>
+                </div>
 
-          {/* Group-specific messaging */}
-          {group.type === 'SPECIAL_LOGIC' && group.name.includes('2 of 3') && (
-            <div className="bg-blue-900/30 border border-blue-600/50 rounded-lg p-3">
-              <div className="flex items-start space-x-2">
-                <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-blue-200">
-                  <strong>Dinner Plate Sides:</strong> Choose exactly 2 sides from the 3 options above. 
-                  This is part of your complete dinner plate experience.
+                {/* Right Column - Condiments */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
+                        <span>🍯 {condimentsGroup.name}</span>
+                        {condimentsGroup.isRequired && (
+                          <span className="text-red-400 text-sm">*</span>
+                        )}
+                      </h3>
+                      {condimentsGroup.description && (
+                        <p className="text-sm text-gray-400 mt-1">{condimentsGroup.description}</p>
+                      )}
+                    </div>
+                    
+                    <div className="text-sm text-gray-400">
+                      {condimentsGroup.maxSelections && (
+                        <span>Max {condimentsGroup.maxSelections}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Condiments Options */}
+                  <div className="grid grid-cols-1 gap-3">
+                    {condimentsGroup.options
+                      .filter(option => option.isActive)
+                      .sort((a, b) => a.sortOrder - b.sortOrder)
+                      .map((option) => renderOption(condimentsGroup, option))
+                    }
+                  </div>
                 </div>
               </div>
+              
+              {/* Render any other groups below the 2-column layout */}
+              {groups
+                .filter(group => group.name !== 'Sandwich Toppings' && group.name !== 'Sandwich Condiments')
+                .map((group) => (
+                  <div key={group.id} className="space-y-4">
+                    {/* Group Header */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
+                          <span>{group.name}</span>
+                          {group.isRequired && (
+                            <span className="text-red-400 text-sm">*</span>
+                          )}
+                        </h3>
+                        {group.description && (
+                          <p className="text-sm text-gray-400 mt-1">{group.description}</p>
+                        )}
+                      </div>
+                      
+                      {/* Selection Info */}
+                      <div className="text-sm text-gray-400">
+                        {group.type === 'SPECIAL_LOGIC' && group.name.includes('2 of 3') && (
+                          <span>Select 2 of 3</span>
+                        )}
+                        {group.maxSelections && group.type !== 'SPECIAL_LOGIC' && (
+                          <span>Max {group.maxSelections}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Options */}
+                    <div className="grid grid-cols-1 gap-3">
+                      {group.options
+                        .filter(option => option.isActive)
+                        .sort((a, b) => a.sortOrder - b.sortOrder)
+                        .map((option) => renderOption(group, option))
+                      }
+                    </div>
+
+                    {/* Group-specific messaging */}
+                    {group.type === 'SPECIAL_LOGIC' && group.name.includes('2 of 3') && (
+                      <div className="bg-blue-900/30 border border-blue-600/50 rounded-lg p-3">
+                        <div className="flex items-start space-x-2">
+                          <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                          <div className="text-sm text-blue-200">
+                            <strong>Dinner Plate Sides:</strong> Choose exactly 2 sides from the 3 options above. 
+                            This is part of your complete dinner plate experience.
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))
+              }
             </div>
-          )}
-        </div>
-      ))}
+          );
+        } else {
+          // Fallback to original single-column layout for other items
+          return groups.map((group) => (
+            <div key={group.id} className="space-y-4">
+              {/* Group Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
+                    <span>{group.name}</span>
+                    {group.isRequired && (
+                      <span className="text-red-400 text-sm">*</span>
+                    )}
+                  </h3>
+                  {group.description && (
+                    <p className="text-sm text-gray-400 mt-1">{group.description}</p>
+                  )}
+                </div>
+                
+                {/* Selection Info */}
+                <div className="text-sm text-gray-400">
+                  {group.type === 'SPECIAL_LOGIC' && group.name.includes('2 of 3') && (
+                    <span>Select 2 of 3</span>
+                  )}
+                  {group.maxSelections && group.type !== 'SPECIAL_LOGIC' && (
+                    <span>Max {group.maxSelections}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Options */}
+              <div className="grid grid-cols-1 gap-3">
+                {group.options
+                  .filter(option => option.isActive)
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map((option) => renderOption(group, option))
+                }
+              </div>
+
+              {/* Group-specific messaging */}
+              {group.type === 'SPECIAL_LOGIC' && group.name.includes('2 of 3') && (
+                <div className="bg-blue-900/30 border border-blue-600/50 rounded-lg p-3">
+                  <div className="flex items-start space-x-2">
+                    <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-blue-200">
+                      <strong>Dinner Plate Sides:</strong> Choose exactly 2 sides from the 3 options above. 
+                      This is part of your complete dinner plate experience.
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ));
+        }
+      })()}
 
       {/* Validation Errors */}
       {errors.length > 0 && (

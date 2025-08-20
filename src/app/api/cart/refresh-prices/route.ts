@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { refreshCartPrices } from '@/lib/cart-pricing';
 
 export async function POST(request: NextRequest) {
+  console.log('📥 Cart refresh-prices endpoint called');
+  
   try {
-    console.log('📥 Cart refresh-prices endpoint called');
-    
     // Parse request body with validation
     let cartData;
     try {
@@ -13,13 +13,16 @@ export async function POST(request: NextRequest) {
         hasPizzaItems: !!cartData.pizzaItems,
         pizzaItemsCount: cartData.pizzaItems?.length || 0,
         hasMenuItems: !!cartData.menuItems,
-        menuItemsCount: cartData.menuItems?.length || 0
+        menuItemsCount: cartData.menuItems?.length || 0,
+        rawPizzaItems: cartData.pizzaItems?.slice(0, 1), // Log first item for debugging
+        rawMenuItems: cartData.menuItems?.slice(0, 1)    // Log first item for debugging
       });
     } catch (parseError) {
       console.error('❌ Failed to parse request JSON:', parseError);
       return NextResponse.json({
         success: false,
-        error: 'Invalid JSON in request body'
+        error: 'Invalid JSON in request body',
+        details: parseError instanceof Error ? parseError.message : 'Unknown parse error'
       }, { status: 400 });
     }
     
@@ -28,7 +31,8 @@ export async function POST(request: NextRequest) {
       console.error('❌ Invalid cart data structure:', cartData);
       return NextResponse.json({
         success: false,
-        error: 'Invalid cart data structure'
+        error: 'Invalid cart data structure',
+        details: `Received: ${typeof cartData}, ${JSON.stringify(cartData)?.slice(0, 100)}...`
       }, { status: 400 });
     }
     

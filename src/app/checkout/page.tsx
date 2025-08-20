@@ -147,7 +147,12 @@ export default function CheckoutPage() {
       return item.name || item.menuItemName;
     }
     
-    // For pizza items, construct name from size
+    // For pizza items, check if it's a specialty pizza first
+    if (item.specialtyPizzaName) {
+      return `${item.specialtyPizzaName} (${item.size?.name || 'Custom'})`;
+    }
+    
+    // For regular pizza items, construct name from size
     if (item.size) {
       return `${item.size.name || 'Custom'} Pizza`;
     }
@@ -643,7 +648,16 @@ export default function CheckoutPage() {
                       )}
                       {item.toppings && item.toppings.length > 0 && (
                         <div className="text-sm text-gray-500">
-                          <p>Toppings: {item.toppings.map((t: any) => t.name).join(', ')}</p>
+                          <p>Toppings: {item.toppings.map((t: any) => {
+                            let toppingText = t.name;
+                            if (t.section && t.section !== 'WHOLE') {
+                              toppingText += ` (${t.section === 'LEFT' ? 'Left' : 'Right'})`;
+                            }
+                            if (t.intensity && t.intensity !== 'REGULAR') {
+                              toppingText += ` ${t.intensity === 'LIGHT' ? 'Light' : 'Extra'}`;
+                            }
+                            return toppingText;
+                          }).join(', ')}</p>
                         </div>
                       )}
                       

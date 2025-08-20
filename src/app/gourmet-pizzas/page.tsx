@@ -243,7 +243,7 @@ export default function SpecialtyPizzasPage() {
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
             Our <span className="text-orange-400">Signature</span> Pizzas
           </h1>
-          <p className="text-xl text-gray-200 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-200 mb-2 max-w-3xl mx-auto">
             Handcrafted specialty pizzas with authentic Boston flavor. Each recipe perfected with 
             locally-sourced ingredients and traditional techniques from the North End.
           </p>
@@ -267,18 +267,18 @@ export default function SpecialtyPizzasPage() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-12">
+          <div className="space-y-4">
             {Object.entries(groupedPizzas).map(([category, categoryPizzas]) => (
               <div key={category}>
                 {/* Category Header */}
-                <div className="text-center mb-8">
-                  <h2 className={`inline-block text-2xl md:text-3xl font-bold text-white bg-gradient-to-r ${getCategoryColor(category)} px-6 py-3 rounded-lg shadow-lg`}>
+                <div className="text-left mb-4">
+                  <h2 className={`inline-block text-xs md:text-sm font-medium text-white bg-gradient-to-r ${getCategoryColor(category)} px-1 py-1 rounded-sm shadow-sm`}>
                     {category.replace('_', ' ')} ({categoryPizzas.length})
                   </h2>
                 </div>
 
                 {/* Pizza Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                   {categoryPizzas.map((pizza) => (
                     <div 
                       key={pizza.id} 
