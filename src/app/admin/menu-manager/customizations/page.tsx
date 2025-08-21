@@ -267,7 +267,7 @@ export default function CustomizationsPage() {
                 <Plus className="h-5 w-5 inline mr-2" />
                 Add Group
               </Link>
-              <Link href="/admin/menu-manager/customizations/options/new" className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold shadow-xl">
+              <Link href="/admin/menu-manager/customization-options/new" className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold shadow-xl">
                 <Tag className="h-5 w-5 inline mr-2" />
                 Add Option
               </Link>
@@ -625,7 +625,7 @@ export default function CustomizationsPage() {
                     <div className="text-right">
                       <div className="text-xl font-bold text-white">
                         {option.priceModifier >= 0 ? '+' : ''}
-                        {option.priceType === 'PERCENTAGE' ? `${option.priceModifier}%` : `$${option.priceModifier}`}
+                        {option.priceType === 'PERCENTAGE' ? `${option.priceModifier}%` : `$${option.priceModifier.toFixed(2)}`}
                       </div>
                       <div className="flex items-center gap-2 text-sm text-white/70">
                         {option.isDefault && (

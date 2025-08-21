@@ -217,7 +217,7 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
   const selectItem = (item: MenuItem) => {
     setSelectedItem(item);
     setCustomizations([]);
-    setCurrentPrice(item.basePrice);
+    setCurrentPrice(item.basePrice); // Use dollar value directly
     
     // Set default selections
     const defaultSelections: CustomizationSelection[] = [];
@@ -240,8 +240,35 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
       case 'salads': return '🥗';
       case 'seafood': return '🦞';
       case 'dinner-plates': return '🍽️';
+      case 'calzones': return '🥟';
       default: return '🍴';
     }
+  };
+
+  const getItemIcon = (itemName: string, categorySlug: string) => {
+    const name = itemName.toLowerCase();
+    
+    // Item-specific icons based on name
+    if (name.includes('pizza') || name.includes('calzone')) return '🍕';
+    if (name.includes('chicken') || name.includes('buffalo')) return '🍗';
+    if (name.includes('turkey')) return '🦃';
+    if (name.includes('ham')) return '🥓';
+    if (name.includes('roast beef') || name.includes('beef')) return '🥩';
+    if (name.includes('tuna')) return '🐟';
+    if (name.includes('veggie') || name.includes('vegetable')) return '🥬';
+    if (name.includes('cheese')) return '🧀';
+    if (name.includes('caesar') || name.includes('greek')) return '🥗';
+    if (name.includes('shrimp') || name.includes('scallop')) return '🦐';
+    if (name.includes('salmon') || name.includes('fish')) return '🐠';
+    if (name.includes('lobster') || name.includes('crab')) return '🦞';
+    if (name.includes('pasta') || name.includes('spaghetti')) return '🍝';
+    if (name.includes('steak')) return '🥩';
+    if (name.includes('soup')) return '🍲';
+    if (name.includes('wrap')) return '🌯';
+    if (name.includes('club')) return '🥪';
+    
+    // Fall back to category icon
+    return getCategoryIcon(categorySlug);
   };
 
   const getCategoryColor = (slug: string) => {
@@ -362,28 +389,16 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
                 key={item.id}
                 className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden hover:border-white/40 transition-all duration-300 hover:scale-105 shadow-xl"
               >
-                {/* Item Image */}
-                <div className="h-48 bg-gradient-to-br from-gray-700 to-gray-800 overflow-hidden">
-                  {item.imageUrl ? (
-                    <img 
-                      src={item.imageUrl} 
-                      alt={item.name}
-                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className="text-6xl opacity-50">
-                        {getCategoryIcon(category)}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
                 {/* Item Details */}
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-xl font-bold text-white">{item.name}</h3>
-                    <div className="text-right">
+                <div className="p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-2xl">
+                        {getItemIcon(item.name, category)}
+                      </span>
+                      <h3 className="text-lg font-bold text-white leading-tight">{item.name}</h3>
+                    </div>
+                    <div className="text-right ml-2">
                       <div className="text-lg font-bold text-green-400">
                         ${item.basePrice.toFixed(2)}
                       </div>
@@ -395,17 +410,17 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
                     </div>
                   </div>
 
-                  <p className="text-gray-300 text-sm mb-4 line-clamp-2">
+                  <p className="text-gray-300 text-sm mb-3 line-clamp-2">
                     {item.description}
                   </p>
 
                   {/* Customization Info */}
-                  <div className="mb-4">
-                    <div className="text-xs text-gray-400 mb-2">
+                  <div className="mb-3">
+                    <div className="text-xs text-gray-400 mb-1">
                       {item.customizationGroups.length} customization options available
                     </div>
                     <div className="flex flex-wrap gap-1">
-                      {item.customizationGroups.slice(0, 3).map((itemGroup) => (
+                      {item.customizationGroups.slice(0, 2).map((itemGroup) => (
                         <span
                           key={itemGroup.customizationGroup.id}
                           className="text-xs bg-blue-600/20 text-blue-300 px-2 py-1 rounded border border-blue-600/30"
@@ -413,9 +428,9 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
                           {itemGroup.customizationGroup.name}
                         </span>
                       ))}
-                      {item.customizationGroups.length > 3 && (
+                      {item.customizationGroups.length > 2 && (
                         <span className="text-xs text-gray-400">
-                          +{item.customizationGroups.length - 3} more
+                          +{item.customizationGroups.length - 2} more
                         </span>
                       )}
                     </div>
@@ -430,9 +445,9 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
                         selectItem(item);
                       }
                     }}
-                    className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
+                    className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
                   >
-                    <Plus className="w-5 h-5" />
+                    <Plus className="w-4 h-4" />
                     <span>Customize & Add</span>
                   </button>
                 </div>
@@ -442,7 +457,7 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
 
         {menuData.items.length === 0 && (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4 opacity-50">
+            <div className="text-5xl mb-4 opacity-50">
               {getCategoryIcon(category)}
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">No items available</h3>

@@ -70,7 +70,7 @@ export default function EditItemPage() {
         setFormData({
           name: item.name,
           description: item.description || '',
-          basePrice: item.basePrice.toString(),
+          basePrice: item.basePrice.toFixed(2), // Display current dollar value
           categoryId: item.categoryId,
           isActive: item.isActive,
           isAvailable: item.isAvailable,

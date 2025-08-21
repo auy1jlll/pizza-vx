@@ -51,7 +51,7 @@ export default function ItemsPage() {
     try {
       const response = await fetch('/api/admin/menu/categories');
       const data = await response.json();
-      setCategories(data.data || []);
+      setCategories(data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }

@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
         data: {
           name,
           description,
-          basePrice: parseFloat(basePrice.toString()),
+          basePrice: Math.round(parseFloat(basePrice.toString()) * 100), // Convert dollars to cents
           categoryId,
           isActive,
           isAvailable,

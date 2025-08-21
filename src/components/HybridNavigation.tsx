@@ -219,7 +219,7 @@ export default function HybridNavigation() {
               
               {menuDropdownOpen && (
                 <div 
-                  className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-2xl border border-gray-100 min-w-[500px] z-50"
+                  className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-white rounded-xl shadow-2xl border border-gray-100 min-w-[500px] z-50"
                   onMouseLeave={() => setMenuDropdownOpen(false)}
                 >
                   {/* Elegant header */}

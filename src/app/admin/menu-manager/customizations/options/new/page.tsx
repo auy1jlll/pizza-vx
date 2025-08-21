@@ -63,6 +63,8 @@ export default function NewCustomizationOptionPage() {
         maxQuantity: formData.maxQuantity
       };
 
+      console.log('📤 Submitting data:', submitData);
+
       const response = await fetch('/api/admin/menu/customization-options', {
         method: 'POST',
         headers: {
@@ -71,12 +73,21 @@ export default function NewCustomizationOptionPage() {
         body: JSON.stringify(submitData),
       });
 
+      console.log('📥 Response status:', response.status);
       const result = await response.json();
+      console.log('📥 Response data:', result);
 
       if (response.ok && result.success) {
         router.push('/admin/menu-manager/customizations');
       } else {
-        alert('Error creating customization option: ' + (result.error || 'Unknown error'));
+        let errorMessage = 'Error creating customization option: ' + (result.error || 'Unknown error');
+        
+        if (result.details && Array.isArray(result.details)) {
+          errorMessage += '\nDetails: ' + result.details.join(', ');
+        }
+        
+        console.error('❌ Full error details:', result);
+        alert(errorMessage);
       }
     } catch (error) {
       console.error('Error creating customization option:', error);
@@ -191,11 +202,10 @@ export default function NewCustomizationOptionPage() {
                       value={formData.priceModifier}
                       onChange={handleInputChange}
                       step="0.01"
-                      min="0"
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       placeholder="0.00"
                     />
-                    <p className="text-sm text-gray-500 mt-1">Additional cost for this option</p>
+                    <p className="text-sm text-gray-500 mt-1">Additional cost for this option (use negative values for discounts)</p>
                   </div>
 
                   <div>

@@ -103,7 +103,7 @@ export async function PATCH(
         data: {
           ...(name && { name }),
           ...(description !== undefined && { description }),
-          ...(basePrice !== undefined && { basePrice: parseFloat(basePrice) }),
+          ...(basePrice !== undefined && { basePrice: Math.round(parseFloat(basePrice) * 100) }), // Convert dollars to cents
           ...(categoryId && { categoryId }),
           ...(isActive !== undefined && { isActive }),
           ...(isAvailable !== undefined && { isAvailable }),

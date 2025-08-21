@@ -21,6 +21,7 @@ export default function NewCustomizationOptionPage() {
     name: '',
     description: '',
     priceModifier: '',
+    priceType: 'FLAT',
     sortOrder: 0,
     isActive: true,
     isDefault: false,
@@ -61,6 +62,11 @@ export default function NewCustomizationOptionPage() {
         ...formData,
         priceModifier: parseFloat(formData.priceModifier) || 0
       };
+      
+      // Debug logging
+      console.log('🐛 Starting request...');
+      console.log('🐛 Payload being sent:', payload);
+      console.log('🐛 Form data before transformation:', formData);
 
       const response = await fetch('/api/admin/menu/customization-options', {
         method: 'POST',
@@ -68,7 +74,11 @@ export default function NewCustomizationOptionPage() {
         body: JSON.stringify(payload)
       });
 
+      console.log('🐛 Response status:', response.status);
+      console.log('🐛 Response ok:', response.ok);
+
       if (response.ok) {
+        console.log('✅ Success!');
         const groupId = formData.groupId; // Changed from customizationGroupId
         if (groupId) {
           router.push(`/admin/menu-manager/customization-groups/${groupId}`);
@@ -77,7 +87,10 @@ export default function NewCustomizationOptionPage() {
         }
       } else {
         const error = await response.json();
-        alert('Error creating customization option: ' + (error.error || 'Unknown error'));
+        console.log('🚨 Error response:', error);
+        console.log('🚨 Error details:', JSON.stringify(error, null, 2));
+        alert('Error creating customization option: ' + (error.error || 'Unknown error') + 
+              (error.details ? '\\nDetails: ' + error.details.join(', ') : ''));
       }
     } catch (error) {
       console.error('Error creating customization option:', error);
@@ -152,6 +165,23 @@ export default function NewCustomizationOptionPage() {
               />
               <p className="text-xs text-gray-500 mt-1">Use negative values for discounts</p>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Price Type *
+            </label>
+            <select
+              required
+              value={formData.priceType || 'FLAT'}
+              onChange={(e) => setFormData(prev => ({ ...prev, priceType: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="FLAT">FLAT - Fixed amount ($3.00)</option>
+              <option value="PERCENTAGE">PERCENTAGE - Percentage of base price (10%)</option>
+              <option value="PER_UNIT">PER_UNIT - Price per quantity ($1.50 each)</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">How the price modifier should be applied</p>
           </div>
 
           <div>
