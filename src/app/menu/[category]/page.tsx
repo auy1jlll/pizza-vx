@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, ShoppingCart, Star, Clock, Info } from 'lucide-react';
 import Link from 'next/link';
+import { designSystem, components, animations, responsive } from '../../../lib/design-system';
 import MenuItemCustomizer, { 
   CustomizationGroup, 
   CustomizationSelection 
@@ -356,10 +357,10 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
               )}
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white">
+              <h1 className={`${designSystem.h1} text-white`}>
                 {menuData.category.name}
               </h1>
-              <p className="text-white/80 text-lg">
+              <p className={`${designSystem.bodyLarge} text-white/80`}>
                 {menuData.category.description}
               </p>
             </div>
@@ -378,65 +379,92 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
         </div>
       </div>
 
-      {/* Menu Items */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Menu Items - Enhanced Grid */}
+      <div className="container mx-auto px-4 py-12">
+        {/* Grid with Enhanced Spacing */}
+        <div className={`${responsive.grid.desktop}`}>
           {menuData.items
             .filter(item => item.isActive && item.isAvailable)
             .sort((a, b) => a.sortOrder - b.sortOrder)
-            .map((item) => (
+            .map((item, index) => (
               <div
                 key={item.id}
-                className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden hover:border-white/40 transition-all duration-300 hover:scale-105 shadow-xl"
+                className={`${components.card.interactive} ${animations.fadeIn}`}
+                style={animations.staggered(index)}
               >
-                {/* Item Details */}
-                <div className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl">
+                {/* Floating Background Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                {/* Floating Item Icon - Large */}
+                <div className={`${components.icon.floating} absolute top-4 right-4`}>
+                  {getItemIcon(item.name, category)}
+                </div>
+
+                {/* Content */}
+                <div className="relative z-10 p-6">
+                  {/* Header with Icon Badge */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start space-x-4 flex-1">
+                      {/* Icon Badge */}
+                      <div className={`${components.icon.badge}`}>
                         {getItemIcon(item.name, category)}
-                      </span>
-                      <h3 className="text-lg font-bold text-white leading-tight">{item.name}</h3>
+                      </div>
+                      
+                      {/* Title & Description */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className={`${designSystem.h3} text-white leading-tight mb-2 group-hover:text-orange-300 transition-colors duration-300`}>
+                          {item.name}
+                        </h3>
+                        <p className={`${designSystem.small} text-white/70 leading-relaxed line-clamp-2 group-hover:text-white/90 transition-colors duration-300`}>
+                          {item.description}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right ml-2">
-                      <div className="text-lg font-bold text-green-400">
-                        ${item.basePrice.toFixed(2)}
+                    
+                    {/* Price & Time Badge */}
+                    <div className="text-right ml-4">
+                      <div className="inline-flex items-center px-3 py-2 rounded-xl bg-green-500/20 backdrop-blur-sm border border-green-500/30 mb-2">
+                        <span className={`${designSystem.bodyLarge} font-bold text-green-300`}>
+                          ${item.basePrice.toFixed(2)}
+                        </span>
                       </div>
                       {item.preparationTime && (
-                        <div className="text-xs text-gray-400">
-                          ~{item.preparationTime}min
+                        <div className={`${designSystem.tiny} flex items-center text-white/60`}>
+                          <Clock className="w-3 h-3 mr-1" />
+                          {item.preparationTime}min
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <p className="text-gray-300 text-sm mb-3 line-clamp-2">
-                    {item.description}
-                  </p>
-
-                  {/* Customization Info */}
-                  <div className="mb-3">
-                    <div className="text-xs text-gray-400 mb-1">
-                      {item.customizationGroups.length} customization options available
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {item.customizationGroups.slice(0, 2).map((itemGroup) => (
-                        <span
-                          key={itemGroup.customizationGroup.id}
-                          className="text-xs bg-blue-600/20 text-blue-300 px-2 py-1 rounded border border-blue-600/30"
-                        >
-                          {itemGroup.customizationGroup.name}
-                        </span>
-                      ))}
-                      {item.customizationGroups.length > 2 && (
-                        <span className="text-xs text-gray-400">
-                          +{item.customizationGroups.length - 2} more
-                        </span>
-                      )}
-                    </div>
+                  {/* Customization Pills - Enhanced */}
+                  <div className="mb-6">
+                    {item.customizationGroups.length > 0 && (
+                      <>
+                        <div className={`${designSystem.tiny} flex items-center text-white/60 mb-3`}>
+                          <Info className="w-3 h-3 mr-1" />
+                          <span>{item.customizationGroups.length} customization option{item.customizationGroups.length !== 1 ? 's' : ''} available</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {item.customizationGroups.slice(0, 2).map((itemGroup) => (
+                            <span
+                              key={itemGroup.customizationGroup.id}
+                              className={`${designSystem.tiny} inline-flex items-center px-3 py-1.5 rounded-full bg-blue-500/15 backdrop-blur-sm border border-blue-500/25 text-blue-300 font-medium hover:scale-105 transition-transform duration-200 shadow-sm`}
+                            >
+                              {itemGroup.customizationGroup.name}
+                            </span>
+                          ))}
+                          {item.customizationGroups.length > 2 && (
+                            <span className={`${designSystem.tiny} inline-flex items-center px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/60 font-medium`}>
+                              +{item.customizationGroups.length - 2} more
+                            </span>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
 
-                  {/* Add Button */}
+                  {/* Enhanced CTA Button */}
                   <button
                     onClick={() => {
                       if (category === 'sandwiches') {
@@ -445,56 +473,85 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
                         selectItem(item);
                       }
                     }}
-                    className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
+                    className={`${components.button.shimmer} w-full py-4 px-6`}
                   >
-                    <Plus className="w-4 h-4" />
-                    <span>Customize & Add</span>
+                    {/* Button Background Animation */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700"></div>
+                    
+                    <div className="relative flex items-center justify-center space-x-3">
+                      <Plus className="w-5 h-5 group-hover/btn:rotate-90 transition-transform duration-300" />
+                      <span className={`${designSystem.bodyLarge} font-semibold`}>Customize & Add</span>
+                    </div>
                   </button>
                 </div>
+
+                {/* Floating Corner Accent */}
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-orange-500/10 to-transparent rounded-tr-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
             ))}
         </div>
 
         {menuData.items.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-5xl mb-4 opacity-50">
-              {getCategoryIcon(category)}
+          <div className="flex items-center justify-center py-20">
+            <div className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-12 max-w-md mx-auto text-center">
+              {/* Floating Background Elements */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-green-500/10 rounded-full blur-3xl"></div>
+              
+              <div className="relative z-10">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-sm border border-orange-500/30 flex items-center justify-center text-4xl mb-6 mx-auto">
+                  {getCategoryIcon(category)}
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4">Coming Soon!</h3>
+                <p className="text-white/70 leading-relaxed">
+                  We're working on adding delicious items to this category. Check back soon for new additions!
+                </p>
+              </div>
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">No items available</h3>
-            <p className="text-gray-400">Check back later for new additions to this category.</p>
           </div>
         )}
       </div>
 
       {/* Customization Modal */}
       {selectedItem && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-white/20 max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="relative overflow-hidden rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 max-w-2xl w-full max-h-[90vh] shadow-2xl">
+            {/* Floating Background Elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-green-500/10 rounded-full blur-3xl"></div>
+            
             {/* Modal Header */}
-            <div className="p-6 border-b border-white/20">
+            <div className="relative z-10 p-8 border-b border-white/20">
               <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-2">
-                    {selectedItem.name}
-                  </h2>
-                  <p className="text-gray-300 text-sm mb-3">
-                    {selectedItem.description}
-                  </p>
-                  <div className="flex items-center space-x-4">
-                    <div className="text-lg font-bold text-green-400">
-                      ${currentPrice.toFixed(2)}
-                    </div>
-                    {selectedItem.preparationTime && (
-                      <div className="text-sm text-gray-400 flex items-center">
-                        <Clock className="w-4 h-4 mr-1" />
-                        ~{selectedItem.preparationTime}min
+                <div className="flex items-start space-x-4 flex-1">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-sm border border-orange-500/30 flex items-center justify-center text-3xl">
+                    {getItemIcon(selectedItem.name, category)}
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-3xl font-bold text-white mb-3">
+                      {selectedItem.name}
+                    </h2>
+                    <p className="text-white/70 text-lg leading-relaxed mb-4">
+                      {selectedItem.description}
+                    </p>
+                    <div className="flex items-center space-x-4">
+                      <div className="inline-flex items-center px-4 py-2 rounded-xl bg-green-500/20 backdrop-blur-sm border border-green-500/30">
+                        <span className="text-2xl font-bold text-green-300">
+                          ${currentPrice.toFixed(2)}
+                        </span>
                       </div>
-                    )}
+                      {selectedItem.preparationTime && (
+                        <div className="flex items-center text-sm text-white/60">
+                          <Clock className="w-4 h-4 mr-2" />
+                          <span>~{selectedItem.preparationTime}min</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <button
                   onClick={() => setSelectedItem(null)}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white/70 hover:text-white hover:bg-white/20 transition-all duration-200 flex items-center justify-center ml-4"
                 >
                   ✕
                 </button>

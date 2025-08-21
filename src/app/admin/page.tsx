@@ -35,6 +35,7 @@ interface DashboardStats {
   weekRevenue: number;
   recentOrders: RecentOrder[];
   orderStatusCounts: Record<string, number>;
+  totalPages?: number;
   componentCounts: {
     sizes: number;
     crusts: number;
@@ -191,6 +192,15 @@ export default function AdminDashboard() {
   };
 
   const managementCards = [
+    {
+      title: 'CMS Pages',
+      description: 'Create and manage SEO pages, content, and site structure',
+      href: '/admin/pages',
+      icon: '📄',
+      gradient: 'from-blue-500 to-cyan-600',
+      count: stats?.totalPages || 0,
+      unit: 'pages'
+    },
     {
       title: 'Menu Categories',
       description: 'Manage menu categories, items, and customizations',

@@ -126,6 +126,9 @@ export async function GET(request: NextRequest) {
       prisma.customizationOption.count({ where: { isActive: true } })
     ]);
 
+    // Total pages count
+    const totalPages = await prisma.dynamicPage.count();
+
     const stats = {
       totalRevenue: totalRevenueResult._sum?.total || 0,
       todayOrders: todayOrders,
@@ -138,6 +141,7 @@ export async function GET(request: NextRequest) {
         acc[curr.status] = curr._count.status;
         return acc;
       }, {} as Record<string, number>),
+      totalPages: totalPages,
       componentCounts: {
         sizes: componentCounts[0],
         crusts: componentCounts[1],
