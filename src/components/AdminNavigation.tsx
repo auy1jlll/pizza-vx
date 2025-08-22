@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FileText, Settings, Users, BarChart, Home } from 'lucide-react';
+import { Settings, Users, BarChart, Home, Edit } from 'lucide-react';
 import { designSystem, components } from '../lib/design-system';
 
 const adminNavItems = [
   { href: '/admin', icon: Home, label: 'Dashboard' },
-  { href: '/admin/pages', icon: FileText, label: 'Pages' },
+  { href: '/admin/content', icon: Edit, label: 'Content CMS' },
   { href: '/admin/settings', icon: Settings, label: 'Settings' },
   { href: '/admin/users', icon: Users, label: 'Users' },
   { href: '/admin/analytics', icon: BarChart, label: 'Analytics' },

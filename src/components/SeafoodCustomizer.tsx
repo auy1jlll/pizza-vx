@@ -305,58 +305,6 @@ export default function SeafoodCustomizer({
           />
         </div>
       )}
-
-      {/* Seafood Summary */}
-      <div className="bg-black/30 rounded-lg p-4 border border-white/20">
-        <h4 className="font-medium text-white mb-3 flex items-center">
-          <Fish className="w-4 h-4 mr-2" />
-          Your Seafood Order
-        </h4>
-        <div className="space-y-2 text-sm">
-          {selectedPreparation && (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300">Preparation:</span>
-              <div className="flex items-center space-x-2">
-                <span className="text-white">{selectedPreparation.name}</span>
-                <span>{getPreparationIcon(selectedPreparation.name)}</span>
-              </div>
-            </div>
-          )}
-          {selectedSeasoning && (
-            <div className="flex justify-between">
-              <span className="text-gray-300">Seasoning:</span>
-              <span className="text-white">{selectedSeasoning.name}</span>
-            </div>
-          )}
-          
-          {/* Cooking Time Estimate */}
-          {selectedPreparation && (
-            <div className="mt-3 pt-3 border-t border-white/10">
-              <div className="flex justify-between">
-                <span className="text-gray-300">Est. Cooking Time:</span>
-                <span className="text-blue-400">
-                  {selectedPreparation.name.toLowerCase().includes('grilled') && '12-15 min'}
-                  {selectedPreparation.name.toLowerCase().includes('fried') && '8-10 min'}
-                  {selectedPreparation.name.toLowerCase().includes('baked') && '15-20 min'}
-                  {selectedPreparation.name.toLowerCase().includes('steamed') && '10-12 min'}
-                  {selectedPreparation.name.toLowerCase().includes('raw') && 'Ready now'}
-                  {!selectedPreparation.name.toLowerCase().includes('grilled') &&
-                   !selectedPreparation.name.toLowerCase().includes('fried') &&
-                   !selectedPreparation.name.toLowerCase().includes('baked') &&
-                   !selectedPreparation.name.toLowerCase().includes('steamed') &&
-                   !selectedPreparation.name.toLowerCase().includes('raw') && '10-15 min'}
-                </span>
-              </div>
-            </div>
-          )}
-          
-          {!selectedPreparation && !selectedSeasoning && (
-            <div className="text-gray-400 text-center py-2">
-              Make your selections above to see your order summary
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

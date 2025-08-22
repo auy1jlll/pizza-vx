@@ -70,25 +70,6 @@ export default function SaladCustomizer({
 
   return (
     <div className="space-y-6">
-      {/* Salad Visual Header */}
-      <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-lg p-6 border border-green-600/30">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="text-4xl">🥗</div>
-            <div>
-              <h3 className="text-xl font-bold text-white">Build Your Perfect Salad</h3>
-              <p className="text-green-200">Fresh ingredients, made to order</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-green-400">
-              ${basePrice.toFixed(2)}
-            </div>
-            <div className="text-sm text-green-300">Starting price</div>
-          </div>
-        </div>
-      </div>
-
       {/* Size Selection */}
       {sizeGroup && (
         <div className="space-y-4">
@@ -242,40 +223,76 @@ export default function SaladCustomizer({
             <span className="text-red-400 text-sm">*</span>
           </h3>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3" style={{ zIndex: 10, position: 'relative' }}>
             {dressingGroup.options
               .filter(option => option.isActive)
               .sort((a, b) => a.sortOrder - b.sortOrder)
               .map((dressing) => {
                 const isSelected = selections.some(s => s.customizationOptionId === dressing.id);
+                const quantity = selections.find(s => s.customizationOptionId === dressing.id)?.quantity || 0;
 
                 return (
                   <div
                     key={dressing.id}
                     className={`
-                      p-3 rounded-lg border transition-all duration-200 cursor-pointer text-center
+                      relative p-3 rounded-lg border transition-all duration-200 cursor-pointer text-center
                       ${isSelected 
                         ? 'border-green-500 bg-green-50/10 shadow-lg' 
                         : 'border-gray-600 bg-black/20 hover:border-gray-500'
                       }
                       ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
                     `}
+                    style={{ zIndex: 15, position: 'relative' }}
                     onClick={() => {
                       if (disabled) return;
-                      const newSelections = selections.filter(s => 
-                        !dressingGroup.options.some(opt => opt.id === s.customizationOptionId)
+                      
+                      const currentSelection = selections.find(s => s.customizationOptionId === dressing.id);
+                      const isSelected = !!currentSelection;
+                      const currentQuantity = currentSelection?.quantity || 0;
+                      
+                      // Count current group selections
+                      const currentGroupSelections = selections.filter(s => 
+                        dressingGroup.options.some(opt => opt.id === s.customizationOptionId)
                       );
-                      newSelections.push({
-                        customizationOptionId: dressing.id,
-                        quantity: 1
-                      });
+                      
+                      // Keep all other selections
+                      const newSelections = selections.filter(s => s.customizationOptionId !== dressing.id);
+                      
+                      if (isSelected) {
+                        // If already selected, try to increase quantity
+                        const maxAllowed = dressing.maxQuantity || 2;
+                        if (currentQuantity < maxAllowed) {
+                          newSelections.push({
+                            customizationOptionId: dressing.id,
+                            quantity: currentQuantity + 1
+                          });
+                        }
+                        // If max quantity reached, deselect (don't add back)
+                      } else {
+                        // Check if we can add a new selection (respect group max selections)
+                        if (!dressingGroup.maxSelections || currentGroupSelections.length < dressingGroup.maxSelections) {
+                          // First selection
+                          newSelections.push({
+                            customizationOptionId: dressing.id,
+                            quantity: 1
+                          });
+                        }
+                        // If max group selections reached, don't allow new selection
+                      }
+                      
                       onSelectionsChange(newSelections);
                     }}
                   >
-                    <div className="mb-2">
+                    <div className="mb-2 flex items-center justify-center space-x-2">
                       {isSelected && (
-                        <div className="w-5 h-5 mx-auto bg-green-500 rounded-full flex items-center justify-center">
+                        <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
                           <span className="text-white text-xs">✓</span>
+                        </div>
+                      )}
+                      {/* Quantity Badge */}
+                      {isSelected && quantity > 1 && (
+                        <div className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                          {quantity}x
                         </div>
                       )}
                     </div>
@@ -306,33 +323,6 @@ export default function SaladCustomizer({
           />
         </div>
       )}
-
-      {/* Salad Summary */}
-      <div className="bg-black/30 rounded-lg p-4 border border-white/20">
-        <h4 className="font-medium text-white mb-3 flex items-center">
-          <Salad className="w-4 h-4 mr-2" />
-          Your Salad Summary
-        </h4>
-        <div className="space-y-2 text-sm">
-          {selectedProtein && (
-            <div className="flex justify-between">
-              <span className="text-gray-300">Protein:</span>
-              <span className="text-white">{selectedProtein.name}</span>
-            </div>
-          )}
-          {selectedDressing && (
-            <div className="flex justify-between">
-              <span className="text-gray-300">Dressing:</span>
-              <span className="text-white">{selectedDressing.name}</span>
-            </div>
-          )}
-          {!selectedProtein && !selectedDressing && (
-            <div className="text-gray-400 text-center py-2">
-              Make your selections above to see your salad summary
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

@@ -218,7 +218,8 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
   const selectItem = (item: MenuItem) => {
     setSelectedItem(item);
     setCustomizations([]);
-    setCurrentPrice(item.basePrice); // Use dollar value directly
+    setCurrentPrice(item.basePrice);
+    setValidationErrors([]); // Clear validation errors immediately
     
     // Set default selections
     const defaultSelections: CustomizationSelection[] = [];
@@ -233,6 +234,25 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
       }
     });
     setCustomizations(defaultSelections);
+  };
+
+  // Helper function to determine if the button should be disabled
+  const isButtonDisabled = () => {
+    if (addingToCart) return true;
+    
+    // If there are validation errors, check if they're real errors or just initial state
+    if (validationErrors.length > 0) {
+      // For items with no required customizations (like salads), ignore validation errors
+      const hasRequiredCustomizations = selectedItem?.customizationGroups.some(
+        itemGroup => itemGroup.isRequired
+      );
+      if (!hasRequiredCustomizations) {
+        return false; // Don't disable for optional customizations
+      }
+      return true; // Disable if there are required customizations with errors
+    }
+    
+    return false; // Enable by default
   };
 
   const getCategoryIcon = (slug: string) => {
@@ -514,35 +534,39 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
 
       {/* Customization Modal */}
       {selectedItem && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="relative overflow-hidden rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 max-w-2xl w-full max-h-[90vh] shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop with no pointer events */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-none"></div>
+          
+          {/* Modal content with pointer events enabled */}
+          <div className="relative overflow-hidden rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 max-w-lg w-full max-h-[90vh] shadow-2xl pointer-events-auto">
             {/* Floating Background Elements */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-green-500/10 rounded-full blur-3xl"></div>
             
             {/* Modal Header */}
-            <div className="relative z-10 p-8 border-b border-white/20">
+            <div className="relative z-10 p-4 border-b border-white/20">
               <div className="flex justify-between items-start">
-                <div className="flex items-start space-x-4 flex-1">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-sm border border-orange-500/30 flex items-center justify-center text-3xl">
+                <div className="flex items-start space-x-3 flex-1">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-sm border border-orange-500/30 flex items-center justify-center text-2xl">
                     {getItemIcon(selectedItem.name, category)}
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-3xl font-bold text-white mb-3">
+                    <h2 className="text-xl font-bold text-white mb-1">
                       {selectedItem.name}
                     </h2>
-                    <p className="text-white/70 text-lg leading-relaxed mb-4">
+                    <p className="text-white/70 text-sm leading-relaxed mb-2">
                       {selectedItem.description}
                     </p>
-                    <div className="flex items-center space-x-4">
-                      <div className="inline-flex items-center px-4 py-2 rounded-xl bg-green-500/20 backdrop-blur-sm border border-green-500/30">
-                        <span className="text-2xl font-bold text-green-300">
+                    <div className="flex items-center space-x-3">
+                      <div className="inline-flex items-center px-3 py-1 rounded-lg bg-green-500/20 backdrop-blur-sm border border-green-500/30">
+                        <span className="text-lg font-bold text-green-300">
                           ${currentPrice.toFixed(2)}
                         </span>
                       </div>
                       {selectedItem.preparationTime && (
-                        <div className="flex items-center text-sm text-white/60">
-                          <Clock className="w-4 h-4 mr-2" />
+                        <div className="flex items-center text-xs text-white/60">
+                          <Clock className="w-3 h-3 mr-1" />
                           <span>~{selectedItem.preparationTime}min</span>
                         </div>
                       )}
@@ -551,7 +575,7 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
                 </div>
                 <button
                   onClick={() => setSelectedItem(null)}
-                  className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white/70 hover:text-white hover:bg-white/20 transition-all duration-200 flex items-center justify-center ml-4"
+                  className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white/70 hover:text-white hover:bg-white/20 transition-all duration-200 flex items-center justify-center ml-3"
                 >
                   ✕
                 </button>
@@ -559,7 +583,7 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
             </div>
 
             {/* Customization Options */}
-            <div className="p-6 overflow-y-auto max-h-[60vh]">
+            <div className="p-4 overflow-y-auto max-h-[40vh]">
               {/* Render appropriate customizer based on category */}
               {category === 'sandwiches' ? (
                 <SandwichCustomizer
@@ -606,18 +630,25 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-6 border-t border-white/20">
-              <div className="flex space-x-4">
+            <div className="p-4 border-t border-white/20">
+              <div className="flex space-x-3">
                 <button
                   onClick={() => setSelectedItem(null)}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={addToCart}
-                  disabled={validationErrors.length > 0 || addingToCart}
-                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
+                  disabled={addingToCart}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
+                  style={{
+                    backgroundColor: '#16a34a !important',
+                    background: 'linear-gradient(to right, #16a34a, #15803d) !important',
+                    border: '2px solid #22c55e',
+                    minHeight: '48px',
+                    zIndex: 999
+                  }}
                 >
                   <ShoppingCart className="w-5 h-5" />
                   <span>

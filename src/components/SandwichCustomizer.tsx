@@ -179,38 +179,6 @@ export default function SandwichCustomizer({
           Next
         </button>
       </div>
-
-      {/* Sandwich Preview */}
-      <div className="bg-black/30 rounded-lg p-4 border border-white/20">
-        <h4 className="font-medium text-white mb-3 flex items-center">
-          <Sandwich className="w-4 h-4 mr-2" />
-          Your Sandwich
-        </h4>
-        <div className="space-y-2 text-sm">
-          {steps.map((step, stepIndex) => {
-            const stepSelections = step.groups.flatMap(group => {
-              const groupOptionIds = group.options.map(opt => opt.id);
-              return selections
-                .filter(s => groupOptionIds.includes(s.customizationOptionId))
-                .map(s => {
-                  const option = group.options.find(opt => opt.id === s.customizationOptionId);
-                  return option ? `${option.name}${s.quantity && s.quantity > 1 ? ` (x${s.quantity})` : ''}` : null;
-                })
-                .filter(Boolean);
-            });
-
-            if (stepSelections.length > 0) {
-              return (
-                <div key={step.id} className="flex justify-between">
-                  <span className="text-gray-300">{step.title}:</span>
-                  <span className="text-white">{stepSelections.join(', ')}</span>
-                </div>
-              );
-            }
-            return null;
-          })}
-        </div>
-      </div>
     </div>
   );
 }

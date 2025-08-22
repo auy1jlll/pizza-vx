@@ -22,7 +22,6 @@ model User {
   orders Order[]
   refreshTokens RefreshToken[]
   cartItems CartItem[]
-  dynamicPages DynamicPage[]
   
   @@map("users")
 }
@@ -618,34 +617,4 @@ model CartItemPizzaTopping {
   pizzaTopping    PizzaTopping @relation(fields: [pizzaToppingId], references: [id])
   
   @@map("cart_item_pizza_toppings")
-}
-
-// Dynamic Pages for SEO and Content Management
-model DynamicPage {
-  id              String    @id @default(cuid())
-  title           String
-  slug            String    @unique
-  content         String    @db.Text
-  excerpt         String?
-  metaTitle       String?
-  metaDescription String?
-  metaKeywords    String?
-  ogImage         String?
-  status          PageStatus @default(DRAFT)
-  template        String    @default("default")
-  publishedAt     DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  authorId        String?
-
-  // Relations
-  author          User?     @relation(fields: [authorId], references: [id])
-  
-  @@map("dynamic_pages")
-}
-
-enum PageStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
 }

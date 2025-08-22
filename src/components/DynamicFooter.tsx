@@ -34,7 +34,7 @@ export default function DynamicFooter() {
   // Check if any section should be displayed
   const hasBusinessInfo = settings.business_name || settings.app_name || settings.business_slogan || settings.footer_description;
   const hasContactInfo = settings.business_phone || settings.business_email || settings.business_address || settings.business_website;
-  const hasQuickLinks = true; // Always show Quick Links as we have Contact, SEO pages, and other essential links
+  const hasQuickLinks = settings.enable_menu_ordering || settings.enable_pizza_builder || settings.terms_url || settings.privacy_url || settings.refund_policy_url;
   const hasSocialMedia = settings.facebook_url || settings.instagram_url || settings.twitter_url || settings.youtube_url;
   const hasWorkingHours = settings.operating_hours && Object.keys(settings.operating_hours).length > 0;
 
@@ -123,18 +123,8 @@ export default function DynamicFooter() {
                 <Link href="/contact" className="text-gray-300 hover:text-orange-300 transition-colors">
                   Contact
                 </Link>
-                {/* SEO Pages */}
-                <Link href="/home" className="text-gray-300 hover:text-orange-300 transition-colors">
-                  Our Story
-                </Link>
-                <Link href="/about-us" className="text-gray-300 hover:text-orange-300 transition-colors">
-                  About Us
-                </Link>
-                <Link href="/menu" className="text-gray-300 hover:text-orange-300 transition-colors">
-                  Menu & Prices
-                </Link>
-                <Link href="/delivery" className="text-gray-300 hover:text-orange-300 transition-colors">
-                  Delivery
+                <Link href="/settings-demo" className="text-gray-300 hover:text-orange-300 transition-colors">
+                  Settings
                 </Link>
                 {settings.terms_url && (
                   <a href={settings.terms_url} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-orange-300 transition-colors">

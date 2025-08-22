@@ -266,33 +266,6 @@ export default function DinnerPlateCustomizer({
               </>
             )}
           </div>
-
-          {/* Sides Summary */}
-          {status.count > 0 && (
-            <div className="bg-black/30 rounded-lg p-4 border border-white/20">
-              <h4 className="font-medium text-white mb-2 flex items-center">
-                <Utensils className="w-4 h-4 mr-2" />
-                Your Dinner Plate Sides
-              </h4>
-              <div className="space-y-1">
-                {selections
-                  .filter(s => sidesGroup.options.some(opt => opt.id === s.customizationOptionId))
-                  .map(selection => {
-                    const side = sidesGroup.options.find(opt => opt.id === selection.customizationOptionId);
-                    return side ? (
-                      <div key={side.id} className="flex justify-between text-sm">
-                        <span className="text-gray-300">{side.name}</span>
-                        {side.priceModifier !== 0 && (
-                          <span className={side.priceModifier > 0 ? 'text-green-400' : 'text-red-400'}>
-                            {side.priceModifier > 0 ? '+' : ''}${side.priceModifier.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    ) : null;
-                  })}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>

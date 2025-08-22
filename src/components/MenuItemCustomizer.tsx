@@ -96,9 +96,26 @@ export default function MenuItemCustomizer({
     if (disabled) return;
 
     const isSelected = selections.some(s => s.customizationOptionId === optionId);
+    const currentQuantity = getSelectionQuantity(optionId);
+    const option = group.options.find(opt => opt.id === optionId);
+    
+    console.log('Multi-select click:', {
+      optionName: option?.name,
+      isSelected,
+      currentQuantity,
+      maxQuantity: option?.maxQuantity
+    });
     
     if (isSelected) {
-      updateSelection(optionId, 0);
+      // If option supports multiple quantities (maxQuantity > 1), increase quantity instead of deselecting
+      if (option?.maxQuantity && option.maxQuantity > 1 && currentQuantity < option.maxQuantity) {
+        console.log('Increasing quantity to:', currentQuantity + 1);
+        updateSelection(optionId, currentQuantity + 1);
+      } else {
+        // Otherwise, deselect (set quantity to 0)
+        console.log('Deselecting option');
+        updateSelection(optionId, 0);
+      }
     } else {
       // Check max selections limit
       const groupOptionIds = group.options.map(opt => opt.id);
@@ -107,9 +124,11 @@ export default function MenuItemCustomizer({
       );
 
       if (group.maxSelections && currentGroupSelections.length >= group.maxSelections) {
+        console.log('Max selections reached');
         return; // Don't allow more selections
       }
 
+      console.log('Selecting option with quantity 1');
       updateSelection(optionId, 1);
     }
   };
@@ -222,6 +241,13 @@ export default function MenuItemCustomizer({
     const handleOptionClick = () => {
       if (disabled) return;
       
+      console.log('Option clicked:', {
+        optionName: option.name,
+        groupType: group.type,
+        groupName: group.name,
+        maxQuantity: option.maxQuantity
+      });
+      
       if (group.type === 'SINGLE_SELECT') {
         handleSingleSelect(group, option.id);
       } else if (group.type === 'MULTI_SELECT') {
@@ -258,13 +284,21 @@ export default function MenuItemCustomizer({
           )}
 
           {(group.type === 'MULTI_SELECT' || group.type === 'SPECIAL_LOGIC') && (
-            <div 
-              className={`
-                w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0
-                ${isSelected ? 'border-green-500 bg-green-500' : 'border-gray-400'}
-              `}
-            >
-              {isSelected && <Check className="w-3 h-3 text-white" />}
+            <div className="flex items-center space-x-2">
+              <div 
+                className={`
+                  w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0
+                  ${isSelected ? 'border-green-500 bg-green-500' : 'border-gray-400'}
+                `}
+              >
+                {isSelected && <Check className="w-3 h-3 text-white" />}
+              </div>
+              {/* Quantity Badge */}
+              {isSelected && quantity > 1 && (
+                <div className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                  {quantity}x
+                </div>
+              )}
             </div>
           )}
 

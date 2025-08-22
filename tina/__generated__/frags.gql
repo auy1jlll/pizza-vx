@@ -1,0 +1,58 @@
+fragment PageParts on Page {
+  __typename
+  title
+  description
+  slug
+  published
+  createdAt
+  body
+}
+
+fragment MenuItemParts on MenuItem {
+  __typename
+  name
+  description
+  price
+  category
+  image
+  featured
+  available
+  nutritionInfo {
+    __typename
+    calories
+    protein
+    carbs
+    fat
+  }
+  allergens
+}
+
+fragment SettingsParts on Settings {
+  __typename
+  siteName
+  tagline
+  logo
+  description
+  contact {
+    __typename
+    phone
+    email
+    address
+  }
+  hours {
+    __typename
+    monday
+    tuesday
+    wednesday
+    thursday
+    friday
+    saturday
+    sunday
+  }
+  social {
+    __typename
+    facebook
+    instagram
+    twitter
+  }
+}
