@@ -236,6 +236,8 @@ export default function PizzaBuilder() {
   const searchParams = useSearchParams();
   const specialtyId = searchParams.get('specialty');
   const selectedSizeId = searchParams.get('size'); // Get the selected size from URL
+  const productType = searchParams.get('productType') || 'pizza'; // 'pizza' or 'calzone'
+  const isCalzoneMode = productType === 'calzone';
   const { cartItems, addPizza, addDetailedPizza, calculateSubtotal } = useCart();
   const { show: showToast } = useToast();
   
@@ -289,10 +291,11 @@ export default function PizzaBuilder() {
   }, [specialtyId]);
 
   const fetchPizzaData = async () => {
-    console.log('[PizzaBuilder] fetchPizzaData started');
+    console.log('[PizzaBuilder] fetchPizzaData started for:', isCalzoneMode ? 'CALZONE' : 'PIZZA');
     try {
       // Force fresh data - no caching during debugging
-      const response = await fetch(`/api/pizza-data?t=${Date.now()}`, {
+      const productParam = isCalzoneMode ? '&productType=calzone' : '';
+      const response = await fetch(`/api/pizza-data?t=${Date.now()}${productParam}`, {
         // Force no cache
         cache: 'no-store',
         headers: {
@@ -791,7 +794,9 @@ export default function PizzaBuilder() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="loading-spinner mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Loading Pizza Builder...</p>
+          <p className="text-lg text-gray-600">
+            Loading {isCalzoneMode ? 'Calzone' : 'Pizza'} Builder...
+          </p>
         </div>
       </div>
     );
@@ -836,12 +841,20 @@ export default function PizzaBuilder() {
               ← Back to Menu
             </button>
             <h1 className="text-xl font-semibold">
-              {specialtyPizza ? `🍕 Customize ${specialtyPizza.name}` : '🍕 Build Your Perfect Pizza'}
+              {specialtyPizza ? 
+                `🥟 Customize ${specialtyPizza.name}${isCalzoneMode ? ' Calzone' : ''}` : 
+                isCalzoneMode ? '🥟 Build Your Perfect Calzone' : '🍕 Build Your Perfect Pizza'
+              }
             </h1>
             {specialtyPizza ? (
               <p className="ml-2 text-red-200 text-sm">{specialtyPizza.description}</p>
             ) : (
-              <p className="ml-2 text-red-200">Customize every detail exactly how you like it</p>
+              <p className="ml-2 text-red-200">
+                {isCalzoneMode ? 
+                  'Folded pizza goodness - customize every detail exactly how you like it' : 
+                  'Customize every detail exactly how you like it'
+                }
+              </p>
             )}
           </div>
           <div className="flex items-center gap-4">
@@ -905,7 +918,10 @@ export default function PizzaBuilder() {
           {/* Left Side - Pizza Visualization */}
           <div className="bg-white rounded-lg shadow-lg p-8">
             <h2 className="text-xl font-semibold text-center mb-6">
-              {specialtyPizza ? `Customizing: ${specialtyPizza.name}` : 'Your Pizza Preview'}
+              {specialtyPizza ? 
+                `Customizing: ${specialtyPizza.name}${isCalzoneMode ? ' Calzone' : ''}` : 
+                isCalzoneMode ? 'Your Calzone Preview' : 'Your Pizza Preview'
+              }
             </h2>
             
             {/* Pizza Circle */}
@@ -924,39 +940,69 @@ export default function PizzaBuilder() {
                         target.nextElementSibling!.classList.remove('hidden');
                       }}
                     />
-                    {/* Fallback pizza visualization */}
+                    {/* Fallback pizza/calzone visualization */}
                     <div className="hidden absolute inset-0">
                       {/* Outer glow */}
-                      <div className="absolute inset-0 bg-yellow-200 rounded-full blur-lg opacity-50 scale-110"></div>
-                      {/* Pizza base */}
-                      <div className="relative w-full h-full bg-gradient-to-br from-yellow-300 via-orange-300 to-orange-400 rounded-full">
-                        {/* Pizza slice icon in center */}
+                      <div className={`absolute inset-0 rounded-full blur-lg opacity-50 scale-110 ${
+                        isCalzoneMode ? 'bg-amber-200' : 'bg-yellow-200'
+                      }`}></div>
+                      {/* Pizza/Calzone base */}
+                      <div className={`relative w-full h-full rounded-full ${
+                        isCalzoneMode 
+                          ? 'bg-gradient-to-br from-amber-300 via-yellow-300 to-orange-300' 
+                          : 'bg-gradient-to-br from-yellow-300 via-orange-300 to-orange-400'
+                      }`}>
+                        {/* Product icon in center */}
                         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                          <div className="text-6xl text-orange-600 opacity-60">🍕</div>
+                          <div className={`text-6xl opacity-60 ${
+                            isCalzoneMode ? 'text-amber-700' : 'text-orange-600'
+                          }`}>
+                            {isCalzoneMode ? '🥟' : '🍕'}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  /* Default Pizza Visualization */
+                  /* Default Pizza/Calzone Visualization */
                   <div className="relative">
                     {/* Outer glow */}
-                    <div className="absolute inset-0 bg-yellow-200 rounded-full blur-lg opacity-50 scale-110"></div>
-                    {/* Pizza base */}
-                    <div className="relative w-64 h-64 bg-gradient-to-br from-yellow-300 via-orange-300 to-orange-400 rounded-full border-4 border-yellow-400 shadow-xl">
-                      {/* Pizza slice lines */}
-                      <div className="absolute inset-4 border border-orange-400 rounded-full opacity-30"></div>
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-0"></div>
-                        <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-45 absolute top-0"></div>
-                        <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-90 absolute top-0"></div>
-                        <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-135 absolute top-0"></div>
-                      </div>
-                      
-                      {/* Pizza slice icon in center */}
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <div className="text-6xl text-orange-600 opacity-60">🍕</div>
-                      </div>
+                    <div className={`absolute inset-0 rounded-full blur-lg opacity-50 scale-110 ${
+                      isCalzoneMode ? 'bg-amber-200' : 'bg-yellow-200'
+                    }`}></div>
+                    {/* Pizza/Calzone base */}
+                    <div className={`relative w-64 h-64 rounded-full border-4 shadow-xl ${
+                      isCalzoneMode 
+                        ? 'bg-gradient-to-br from-amber-300 via-yellow-300 to-orange-300 border-amber-400' 
+                        : 'bg-gradient-to-br from-yellow-300 via-orange-300 to-orange-400 border-yellow-400'
+                    }`}>
+                      {isCalzoneMode ? (
+                        /* Calzone styling - half-moon shape effect */
+                        <>
+                          <div className="absolute inset-4 border border-amber-400 rounded-full opacity-30"></div>
+                          {/* Crimped edge effect */}
+                          <div className="absolute top-8 left-8 right-8 bottom-8 border-2 border-dashed border-amber-500 rounded-full opacity-40"></div>
+                          {/* Calzone emoji in center */}
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            <div className="text-6xl text-amber-700 opacity-70">🥟</div>
+                          </div>
+                        </>
+                      ) : (
+                        /* Pizza styling - slice lines */
+                        <>
+                          <div className="absolute inset-4 border border-orange-400 rounded-full opacity-30"></div>
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-0"></div>
+                            <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-45 absolute top-0"></div>
+                            <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-90 absolute top-0"></div>
+                            <div className="w-0.5 h-24 bg-orange-400 opacity-40 rotate-135 absolute top-0"></div>
+                          </div>
+                          {/* Pizza emoji in center */}
+                          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            <div className="text-6xl text-orange-600 opacity-60">🍕</div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}

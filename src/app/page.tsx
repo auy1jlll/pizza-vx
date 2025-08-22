@@ -53,8 +53,20 @@ export default function Home() {
                 🍀 Specialty Pizzas
               </Link>
               <Link 
-                href="/menu"
+                href="/build-calzone"
                 className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold px-8 py-4 rounded-lg text-lg transition-all duration-300 shadow-2xl hover:scale-105 hover:shadow-amber-500/25"
+              >
+                🥟 Build Your Calzone
+              </Link>
+              <Link 
+                href="/specialty-calzones"
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold px-8 py-4 rounded-lg text-lg transition-all duration-300 shadow-2xl hover:scale-105 hover:shadow-purple-500/25"
+              >
+                🥟 Specialty Calzones
+              </Link>
+              <Link 
+                href="/menu"
+                className="bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white font-bold px-8 py-4 rounded-lg text-lg transition-all duration-300 shadow-2xl hover:scale-105 hover:shadow-slate-500/25"
               >
                 📋 Full Menu
               </Link>

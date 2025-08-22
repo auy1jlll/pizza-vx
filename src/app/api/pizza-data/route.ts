@@ -50,6 +50,11 @@ const mockData = {
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
   
+  // Get product type from query params
+  const { searchParams } = new URL(request.url);
+  const productType = searchParams.get('productType') || 'pizza';
+  const isCalzoneMode = productType === 'calzone';
+  
   try {
     // Use HTTP conditional caching with memory cache fallback
     return await HTTPCacheService.withConditionalCache(
@@ -67,7 +72,10 @@ export async function GET(request: NextRequest) {
           const [sizes, crusts, sauces, toppings] = await Promise.all([
             cacheService.getOrSet('sizes', CACHE_KEYS.SIZES.ALL_AVAILABLE, async () => {
               return prisma.pizzaSize.findMany({
-                where: { isActive: true },
+                where: { 
+                  isActive: true,
+                  productType: isCalzoneMode ? 'CALZONE' : 'PIZZA'
+                },
                 orderBy: { sortOrder: 'asc' }
               });
             }),

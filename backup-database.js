@@ -2,22 +2,23 @@ const { PrismaClient } = require('@prisma/client');
 const fs = require('fs');
 const path = require('path');
 
-async function createBackup() {
-  const prisma = new PrismaClient();
-  
+const prisma = new PrismaClient();
+
+async function backupDatabase() {
   try {
-    console.log('🔄 Creating database backup...');
+    console.log('� Creating database backup...');
     
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-    const backupFile = `database_backup_${timestamp}.json`;
-    
-    // Export all data
     const backup = {
       timestamp: new Date().toISOString(),
-      categories: await prisma.category.findMany({
-        include: {
-          items: {
-            include: {
+      version: "1.0.0",
+      data: {}
+    };
+
+    // Backup all main tables
+    console.log('📋 Backing up PizzaSizes...');
+    backup.data.pizzaSizes = await prisma.pizzaSize.findMany({
+      orderBy: { name: 'asc' }
+    });
               customizationGroups: {
                 include: {
                   customizationGroup: {

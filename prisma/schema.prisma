@@ -1,4 +1,3 @@
-// Pizza Builder Database Schema
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,22 +7,470 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User Management
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String?
-  role      UserRole @default(CUSTOMER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  orders Order[]
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  password      String?
+  role          UserRole       @default(CUSTOMER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  cartItems     CartItem[]
+  orders        Order[]
   refreshTokens RefreshToken[]
-  cartItems CartItem[]
-  
+
   @@map("users")
+}
+
+model PizzaSize {
+  id                  String               @id @default(cuid())
+  name                String               @unique
+  diameter            String
+  basePrice           Float
+  isActive            Boolean              @default(true)
+  sortOrder           Int                  @default(0)
+  description         String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  productType         ProductType          @default(PIZZA)
+  cartItems           CartItem[]
+  orderItems          OrderItem[]
+  specialtyPizzaSizes SpecialtyPizzaSize[]
+
+  @@map("pizza_sizes")
+}
+
+model PizzaCrust {
+  id            String      @id @default(cuid())
+  name          String      @unique
+  description   String?
+  priceModifier Float       @default(0)
+  isActive      Boolean     @default(true)
+  sortOrder     Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+
+  @@map("pizza_crusts")
+}
+
+model PizzaSauce {
+  id            String      @id @default(cuid())
+  name          String      @unique
+  description   String?
+  color         String?
+  spiceLevel    Int         @default(0)
+  priceModifier Float       @default(0)
+  isActive      Boolean     @default(true)
+  sortOrder     Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+
+  @@map("pizza_sauces")
+}
+
+model PizzaTopping {
+  id                String                 @id @default(cuid())
+  name              String                 @unique
+  description       String?
+  category          ToppingCategory
+  price             Float
+  isActive          Boolean                @default(true)
+  sortOrder         Int                    @default(0)
+  isVegetarian      Boolean                @default(false)
+  isVegan           Boolean                @default(false)
+  isGlutenFree      Boolean                @default(false)
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  cartItemToppings  CartItemPizzaTopping[]
+  orderItemToppings OrderItemTopping[]
+
+  @@map("pizza_toppings")
+}
+
+model SpecialtyPizza {
+  id          String               @id @default(cuid())
+  name        String               @unique
+  description String
+  basePrice   Float
+  category    String
+  imageUrl    String?
+  ingredients String
+  isActive    Boolean              @default(true)
+  sortOrder   Int                  @default(0)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  sizes       SpecialtyPizzaSize[]
+
+  @@map("specialty_pizzas")
+}
+
+model SpecialtyPizzaSize {
+  id               String         @id @default(cuid())
+  specialtyPizzaId String
+  pizzaSizeId      String
+  price            Float
+  isAvailable      Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  pizzaSize        PizzaSize      @relation(fields: [pizzaSizeId], references: [id])
+  specialtyPizza   SpecialtyPizza @relation(fields: [specialtyPizzaId], references: [id], onDelete: Cascade)
+
+  @@unique([specialtyPizzaId, pizzaSizeId])
+  @@map("specialty_pizza_sizes")
+}
+
+model Order {
+  id                   String          @id @default(cuid())
+  orderNumber          String          @unique
+  userId               String?
+  customerName         String?
+  customerEmail        String?
+  customerPhone        String?
+  status               OrderStatus     @default(PENDING)
+  orderType            OrderType       @default(PICKUP)
+  paymentMethod        String?
+  deliveryAddress      String?
+  deliveryCity         String?
+  deliveryZip          String?
+  deliveryInstructions String?
+  scheduledTime        DateTime?
+  subtotal             Float
+  deliveryFee          Float           @default(0)
+  tipAmount            Float?
+  tipPercentage        Float?
+  customTipAmount      Float?
+  tax                  Float
+  total                Float
+  notes                String?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  orderItems           OrderItem[]
+  user                 User?           @relation(fields: [userId], references: [id])
+  priceSnapshots       PriceSnapshot[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id             String                   @id @default(cuid())
+  orderId        String
+  pizzaSizeId    String?
+  pizzaCrustId   String?
+  pizzaSauceId   String?
+  menuItemId     String?
+  quantity       Int                      @default(1)
+  basePrice      Float
+  totalPrice     Float
+  notes          String?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  customizations OrderItemCustomization[]
+  toppings       OrderItemTopping[]
+  menuItem       MenuItem?                @relation(fields: [menuItemId], references: [id])
+  order          Order                    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  pizzaCrust     PizzaCrust?              @relation(fields: [pizzaCrustId], references: [id])
+  pizzaSauce     PizzaSauce?              @relation(fields: [pizzaSauceId], references: [id])
+  pizzaSize      PizzaSize?               @relation(fields: [pizzaSizeId], references: [id])
+
+  @@map("order_items")
+}
+
+model OrderItemTopping {
+  id             String       @id @default(cuid())
+  orderItemId    String
+  pizzaToppingId String
+  quantity       Int          @default(1)
+  section        String       @default("WHOLE")
+  intensity      String       @default("REGULAR")
+  price          Float
+  createdAt      DateTime     @default(now())
+  orderItem      OrderItem    @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  pizzaTopping   PizzaTopping @relation(fields: [pizzaToppingId], references: [id])
+
+  @@unique([orderItemId, pizzaToppingId, section])
+  @@map("order_item_toppings")
+}
+
+model OrderItemCustomization {
+  id                    String              @id @default(cuid())
+  orderItemId           String
+  customizationOptionId String
+  quantity              Int                 @default(1)
+  price                 Float
+  pizzaHalf             String?
+  createdAt             DateTime            @default(now())
+  customizationOption   CustomizationOption @relation(fields: [customizationOptionId], references: [id])
+  orderItem             OrderItem           @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@map("order_item_customizations")
+}
+
+model AppSetting {
+  id        String      @id @default(cuid())
+  key       String      @unique
+  value     String
+  type      SettingType @default(STRING)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("app_settings")
+}
+
+model PriceSnapshot {
+  id            String   @id @default(cuid())
+  orderId       String
+  componentType String
+  componentId   String
+  componentName String
+  snapshotPrice Float
+  createdAt     DateTime @default(now())
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("price_snapshots")
+}
+
+model PricingHistory {
+  id            String   @id @default(cuid())
+  componentType String
+  componentId   String
+  componentName String
+  oldPrice      Float?
+  newPrice      Float
+  changeReason  String?
+  changedBy     String?
+  changedAt     DateTime @default(now())
+
+  @@map("pricing_history")
+}
+
+model RefreshToken {
+  id                String    @id @default(cuid())
+  userId            String
+  tokenHash         String    @unique
+  deviceFingerprint String?
+  ipAddress         String?
+  userAgent         String?
+  revoked           Boolean   @default(false)
+  revokedAt         DateTime?
+  expiresAt         DateTime
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model JwtBlacklist {
+  id        String   @id @default(cuid())
+  jti       String   @unique
+  expiresAt DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+  @@map("jwt_blacklist")
+}
+
+model JwtSecret {
+  id        String    @id @default(cuid())
+  kid       String    @unique
+  secret    String
+  algorithm String    @default("HS256")
+  isActive  Boolean   @default(true)
+  rotatedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@map("jwt_secrets")
+}
+
+model MenuCategory {
+  id                  String               @id @default(cuid())
+  name                String               @unique
+  slug                String               @unique
+  description         String?
+  parentCategoryId    String?
+  imageUrl            String?
+  isActive            Boolean              @default(true)
+  sortOrder           Int                  @default(0)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  customizationGroups CustomizationGroup[]
+  parentCategory      MenuCategory?        @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id])
+  subcategories       MenuCategory[]       @relation("CategoryHierarchy")
+  menuItems           MenuItem[]
+
+  @@map("menu_categories")
+}
+
+model MenuItem {
+  id                  String                  @id @default(cuid())
+  categoryId          String
+  name                String
+  description         String?
+  basePrice           Float
+  imageUrl            String?
+  isActive            Boolean                 @default(true)
+  isAvailable         Boolean                 @default(true)
+  sortOrder           Int                     @default(0)
+  preparationTime     Int?
+  allergens           String?
+  nutritionInfo       String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  cartItems           CartItem[]
+  modifiers           ItemModifier[]
+  customizationGroups MenuItemCustomization[]
+  category            MenuCategory            @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems          OrderItem[]
+
+  @@index([categoryId])
+  @@map("menu_items")
+}
+
+model Modifier {
+  id        String         @id @default(cuid())
+  name      String
+  type      ModifierType
+  price     Float          @default(0)
+  isActive  Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  items     ItemModifier[]
+
+  @@map("modifiers")
+}
+
+model ItemModifier {
+  id            String   @id @default(cuid())
+  itemId        String
+  modifierId    String
+  isDefault     Boolean  @default(false)
+  maxSelectable Int?
+  createdAt     DateTime @default(now())
+  item          MenuItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  modifier      Modifier @relation(fields: [modifierId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, modifierId])
+  @@map("item_modifiers")
+}
+
+model CustomizationGroup {
+  id                     String                  @id @default(cuid())
+  categoryId             String?
+  name                   String
+  description            String?
+  type                   CustomizationType
+  isRequired             Boolean                 @default(false)
+  minSelections          Int                     @default(0)
+  maxSelections          Int?
+  sortOrder              Int                     @default(0)
+  isActive               Boolean                 @default(true)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  category               MenuCategory?           @relation(fields: [categoryId], references: [id])
+  options                CustomizationOption[]
+  menuItemCustomizations MenuItemCustomization[]
+
+  @@index([categoryId])
+  @@map("customization_groups")
+}
+
+model CustomizationOption {
+  id                      String                   @id @default(cuid())
+  groupId                 String
+  name                    String
+  description             String?
+  priceModifier           Float                    @default(0)
+  priceType               PriceType                @default(FLAT)
+  isDefault               Boolean                  @default(false)
+  isActive                Boolean                  @default(true)
+  sortOrder               Int                      @default(0)
+  maxQuantity             Int?
+  nutritionInfo           String?
+  allergens               String?
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  cartItemCustomizations  CartItemCustomization[]
+  group                   CustomizationGroup       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  orderItemCustomizations OrderItemCustomization[]
+
+  @@index([groupId])
+  @@map("customization_options")
+}
+
+model MenuItemCustomization {
+  id                   String             @id @default(cuid())
+  menuItemId           String
+  customizationGroupId String
+  isRequired           Boolean            @default(false)
+  sortOrder            Int                @default(0)
+  createdAt            DateTime           @default(now())
+  customizationGroup   CustomizationGroup @relation(fields: [customizationGroupId], references: [id], onDelete: Cascade)
+  menuItem             MenuItem           @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@unique([menuItemId, customizationGroupId])
+  @@map("menu_item_customizations")
+}
+
+model CartItem {
+  id             String                  @id @default(cuid())
+  sessionId      String?
+  userId         String?
+  pizzaSizeId    String?
+  pizzaCrustId   String?
+  pizzaSauceId   String?
+  menuItemId     String?
+  quantity       Int                     @default(1)
+  basePrice      Float
+  totalPrice     Float
+  notes          String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  customizations CartItemCustomization[]
+  pizzaToppings  CartItemPizzaTopping[]
+  menuItem       MenuItem?               @relation(fields: [menuItemId], references: [id])
+  pizzaCrust     PizzaCrust?             @relation(fields: [pizzaCrustId], references: [id])
+  pizzaSauce     PizzaSauce?             @relation(fields: [pizzaSauceId], references: [id])
+  pizzaSize      PizzaSize?              @relation(fields: [pizzaSizeId], references: [id])
+  user           User?                   @relation(fields: [userId], references: [id])
+
+  @@index([sessionId])
+  @@index([userId])
+  @@map("cart_items")
+}
+
+model CartItemCustomization {
+  id                    String              @id @default(cuid())
+  cartItemId            String
+  customizationOptionId String
+  quantity              Int                 @default(1)
+  price                 Float
+  createdAt             DateTime            @default(now())
+  cartItem              CartItem            @relation(fields: [cartItemId], references: [id], onDelete: Cascade)
+  customizationOption   CustomizationOption @relation(fields: [customizationOptionId], references: [id])
+
+  @@map("cart_item_customizations")
+}
+
+model CartItemPizzaTopping {
+  id             String       @id @default(cuid())
+  cartItemId     String
+  pizzaToppingId String
+  quantity       Int          @default(1)
+  section        String       @default("WHOLE")
+  intensity      String       @default("REGULAR")
+  price          Float
+  createdAt      DateTime     @default(now())
+  cartItem       CartItem     @relation(fields: [cartItemId], references: [id], onDelete: Cascade)
+  pizzaTopping   PizzaTopping @relation(fields: [pizzaToppingId], references: [id])
+
+  @@map("cart_item_pizza_toppings")
 }
 
 enum UserRole {
@@ -33,81 +480,9 @@ enum UserRole {
   SUPER_ADMIN
 }
 
-// Pizza Components
-model PizzaSize {
-  id          String  @id @default(cuid())
-  name        String  @unique
-  diameter    String  // e.g., "10 inches", "12 inches", "16 inches"
-  basePrice   Float   // Base price for this size
-  isActive    Boolean @default(true)
-  sortOrder   Int     @default(0)
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  orderItems          OrderItem[]
-  specialtyPizzaSizes SpecialtyPizzaSize[]
-  cartItems           CartItem[]
-  
-  @@map("pizza_sizes")
-}
-
-model PizzaCrust {
-  id          String  @id @default(cuid())
-  name        String  @unique
-  description String?
-  priceModifier Float @default(0)
-  isActive    Boolean @default(true)
-  sortOrder   Int     @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  orderItems OrderItem[]
-  cartItems  CartItem[]
-  
-  @@map("pizza_crusts")
-}
-
-model PizzaSauce {
-  id          String  @id @default(cuid())
-  name        String  @unique
-  description String?
-  color       String? // Hex color for UI
-  spiceLevel  Int     @default(0) // 0-5 scale
-  priceModifier Float @default(0)
-  isActive    Boolean @default(true)
-  sortOrder   Int     @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  orderItems OrderItem[]
-  cartItems  CartItem[]
-  
-  @@map("pizza_sauces")
-}
-
-model PizzaTopping {
-  id          String        @id @default(cuid())
-  name        String        @unique
-  description String?
-  category    ToppingCategory
-  price       Float
-  isActive    Boolean       @default(true)
-  sortOrder   Int           @default(0)
-  isVegetarian Boolean      @default(false)
-  isVegan     Boolean       @default(false)
-  isGlutenFree Boolean     @default(false)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  // Relations
-  orderItemToppings OrderItemTopping[]
-  cartItemToppings  CartItemPizzaTopping[]
-  
-  @@map("pizza_toppings")
+enum ProductType {
+  PIZZA
+  CALZONE
 }
 
 enum ToppingCategory {
@@ -116,83 +491,6 @@ enum ToppingCategory {
   CHEESE
   SAUCE
   SPECIALTY
-}
-
-// Specialty Pizzas
-model SpecialtyPizza {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String
-  basePrice   Float    // Base price for the default/medium size
-  category    String   // e.g., "Classic", "Premium", "Vegetarian", "Meat Lovers"
-  imageUrl    String?
-  ingredients String   // JSON string of ingredient names
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  sizes       SpecialtyPizzaSize[]
-  
-  @@map("specialty_pizzas")
-}
-
-// Specialty Pizza Size Pricing
-model SpecialtyPizzaSize {
-  id              String        @id @default(cuid())
-  specialtyPizzaId String
-  pizzaSizeId     String
-  price           Float         // Price for this specialty pizza in this size
-  isAvailable     Boolean       @default(true)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  
-  // Relations
-  specialtyPizza  SpecialtyPizza @relation(fields: [specialtyPizzaId], references: [id], onDelete: Cascade)
-  pizzaSize       PizzaSize     @relation(fields: [pizzaSizeId], references: [id])
-  
-  @@unique([specialtyPizzaId, pizzaSizeId])
-  @@map("specialty_pizza_sizes")
-}
-
-// Order Management
-model Order {
-  id            String      @id @default(cuid())
-  orderNumber   String      @unique
-  userId        String?
-  customerName  String?
-  customerEmail String?
-  customerPhone String?
-  status        OrderStatus @default(PENDING)
-  
-  // Order Type and Delivery
-  orderType     OrderType   @default(PICKUP)
-  paymentMethod String?
-  deliveryAddress String?
-  deliveryCity    String?
-  deliveryZip     String?
-  deliveryInstructions String?
-  scheduledTime   DateTime?
-  
-  // Pricing
-  subtotal         Float
-  deliveryFee      Float       @default(0)
-  tipAmount        Float?
-  tipPercentage    Float?
-  customTipAmount  Float?
-  tax              Float
-  total            Float
-  notes         String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-
-  // Relations
-  user           User?           @relation(fields: [userId], references: [id])
-  orderItems     OrderItem[]
-  priceSnapshots PriceSnapshot[]
-  
-  @@map("orders")
 }
 
 enum OrderType {
@@ -209,85 +507,6 @@ enum OrderStatus {
   CANCELLED
 }
 
-model OrderItem {
-  id           String  @id @default(cuid())
-  orderId      String
-  
-  // Pizza fields (existing - keep for backward compatibility)
-  pizzaSizeId  String?  // Made optional for menu items
-  pizzaCrustId String?  // Made optional for menu items  
-  pizzaSauceId String?  // Made optional for menu items
-  
-  // Menu item field (new - for sandwiches, salads, etc.)
-  menuItemId   String?  // Optional for pizza items
-  
-  // Common fields
-  quantity     Int     @default(1)
-  basePrice    Float
-  totalPrice   Float
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  // Relations
-  order        Order                    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  pizzaSize    PizzaSize?              @relation(fields: [pizzaSizeId], references: [id])
-  pizzaCrust   PizzaCrust?             @relation(fields: [pizzaCrustId], references: [id])
-  pizzaSauce   PizzaSauce?             @relation(fields: [pizzaSauceId], references: [id])
-  menuItem     MenuItem?               @relation(fields: [menuItemId], references: [id])
-  toppings     OrderItemTopping[]      // Existing pizza toppings
-  customizations OrderItemCustomization[] // New unified customizations
-  
-  @@map("order_items")
-}
-
-model OrderItemTopping {
-  id            String @id @default(cuid())
-  orderItemId   String
-  pizzaToppingId String
-  quantity      Int    @default(1)
-  section       String @default("WHOLE") // WHOLE, LEFT, RIGHT
-  intensity     String @default("REGULAR") // LIGHT, REGULAR, EXTRA
-  price         Float
-  createdAt     DateTime @default(now())
-
-  // Relations
-  orderItem    OrderItem    @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-  pizzaTopping PizzaTopping @relation(fields: [pizzaToppingId], references: [id])
-  
-  @@unique([orderItemId, pizzaToppingId, section])
-  @@map("order_item_toppings")
-}
-
-// Unified Order Item Customizations (for menu items like sandwiches, salads)
-model OrderItemCustomization {
-  id                    String  @id @default(cuid())
-  orderItemId           String
-  customizationOptionId String
-  quantity              Int     @default(1)
-  price                 Float
-  pizzaHalf             String? // For pizza half-and-half support: 'left', 'right', null for whole
-  createdAt             DateTime @default(now())
-
-  // Relations
-  orderItem             OrderItem           @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-  customizationOption   CustomizationOption @relation(fields: [customizationOptionId], references: [id])
-  
-  @@map("order_item_customizations")
-}
-
-// Settings and Configuration
-model AppSetting {
-  id        String   @id @default(cuid())
-  key       String   @unique
-  value     String
-  type      SettingType @default(STRING)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@map("app_settings")
-}
-
 enum SettingType {
   STRING
   NUMBER
@@ -295,151 +514,6 @@ enum SettingType {
   JSON
 }
 
-// Pricing Snapshots for Historical Accuracy
-model PriceSnapshot {
-  id            String   @id @default(cuid())
-  orderId       String
-  componentType String   // 'SIZE', 'CRUST', 'SAUCE', 'TOPPING'
-  componentId   String
-  componentName String
-  snapshotPrice Float
-  createdAt     DateTime @default(now())
-
-  // Relations
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  
-  @@map("price_snapshots")
-}
-
-model PricingHistory {
-  id            String   @id @default(cuid())
-  componentType String   // 'SIZE', 'CRUST', 'SAUCE', 'TOPPING'
-  componentId   String
-  componentName String
-  oldPrice      Float?
-  newPrice      Float
-  changeReason  String?
-  changedBy     String?
-  changedAt     DateTime @default(now())
-  
-  @@map("pricing_history")
-}
-
-// JWT / Auth Enhancements
-model RefreshToken {
-  id               String   @id @default(cuid())
-  userId           String
-  tokenHash        String   @unique // store a hash of the refresh token (never raw)
-  deviceFingerprint String? // optional device fingerprint
-  ipAddress        String?
-  userAgent        String?
-  revoked          Boolean  @default(false)
-  revokedAt        DateTime?
-  expiresAt        DateTime
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@map("refresh_tokens")
-}
-
-model JwtBlacklist {
-  id        String   @id @default(cuid())
-  jti       String   @unique // JWT ID
-  expiresAt DateTime // when the original token would have expired
-  reason    String?
-  createdAt DateTime @default(now())
-
-  @@index([expiresAt])
-  @@map("jwt_blacklist")
-}
-
-model JwtSecret {
-  id        String   @id @default(cuid())
-  kid       String   @unique // key id used in tokens
-  secret    String   // actual secret material (consider encryption at rest if needed)
-  algorithm String   @default("HS256")
-  isActive  Boolean  @default(true)
-  rotatedAt DateTime?
-  createdAt DateTime @default(now())
-
-  @@map("jwt_secrets")
-}
-
-// ========================================
-// NEW MENU CATEGORY SYSTEM (Separate from Pizza)
-// ========================================
-
-// Menu Categories (Sandwiches, Salads, Seafood, Dinner Plates)
-model MenuCategory {
-  id                String   @id @default(cuid())
-  name              String   @unique // "Sandwiches", "Salads", "Seafood", "Dinner Plates"
-  slug              String   @unique // "sandwiches", "salads", "seafood", "dinner-plates"
-  description       String?
-  parentCategoryId  String?  // For subcategories (Pizza → Specialty Pizza, etc.)
-  imageUrl          String?
-  isActive          Boolean  @default(true)
-  sortOrder         Int      @default(0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  // Relations - self-relation for subcategories
-  parentCategory      MenuCategory?  @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id])
-  subcategories       MenuCategory[] @relation("CategoryHierarchy")
-  menuItems           MenuItem[]
-  customizationGroups CustomizationGroup[]
-  
-  @@map("menu_categories")
-}
-
-// Menu Items (Category-agnostic items) - Updated to match requested structure
-model MenuItem {
-  id            String      @id @default(cuid())
-  categoryId    String
-  name          String
-  description   String?
-  basePrice     Float
-  imageUrl      String?
-  isActive      Boolean     @default(true)
-  isAvailable   Boolean     @default(true)
-  sortOrder     Int         @default(0)
-  preparationTime Int?      // in minutes
-  allergens     String?     // JSON array of allergen info
-  nutritionInfo String?     // JSON object with nutrition facts
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-
-  // Relations
-  category            MenuCategory           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  modifiers           ItemModifier[]         // Junction to Modifiers
-  customizationGroups MenuItemCustomization[]
-  cartItems           CartItem[]
-  orderItems          OrderItem[]
-  
-  @@index([categoryId])
-  @@map("menu_items")
-}
-
-// Modifier Model - Supporting different modifier types
-model Modifier {
-  id        String       @id @default(cuid())
-  name      String
-  type      ModifierType
-  price     Float        @default(0)
-  isActive  Boolean      @default(true)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-
-  // Relations
-  items     ItemModifier[]
-  
-  @@map("modifiers")
-}
-
-// Modifier Types Enum
 enum ModifierType {
   TOPPING
   SIDE
@@ -448,173 +522,15 @@ enum ModifierType {
   SIZE
 }
 
-// Junction Model for Item-Modifier relationship
-model ItemModifier {
-  id            String   @id @default(cuid())
-  itemId        String
-  modifierId    String
-  isDefault     Boolean  @default(false)
-  maxSelectable Int?     // Maximum quantity selectable
-  createdAt     DateTime @default(now())
-
-  // Relations
-  item     MenuItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  modifier Modifier @relation(fields: [modifierId], references: [id], onDelete: Cascade)
-  
-  @@unique([itemId, modifierId])
-  @@map("item_modifiers")
-}
-
-// Customization Groups (Size, Condiments, Proteins, etc.)
-model CustomizationGroup {
-  id            String                @id @default(cuid())
-  categoryId    String?               // Can be category-specific or global
-  name          String                // "Size", "Condiments", "Proteins", "Sides"
-  description   String?
-  type          CustomizationType
-  isRequired    Boolean               @default(false)
-  minSelections Int                   @default(0)
-  maxSelections Int?                  // null = unlimited
-  sortOrder     Int                   @default(0)
-  isActive      Boolean               @default(true)
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
-
-  // Relations
-  category              MenuCategory?           @relation(fields: [categoryId], references: [id])
-  options               CustomizationOption[]
-  menuItemCustomizations MenuItemCustomization[]
-  
-  @@index([categoryId])
-  @@map("customization_groups")
-}
-
 enum CustomizationType {
-  SINGLE_SELECT     // Size, Dressing Type
-  MULTI_SELECT      // Toppings, Condiments
-  QUANTITY_SELECT   // Extra cheese (1x, 2x, 3x)
-  SPECIAL_LOGIC     // Dinner plate "2 of 3" sides
-}
-
-// Customization Options (Individual choices within a group)
-model CustomizationOption {
-  id                  String   @id @default(cuid())
-  groupId             String
-  name                String
-  description         String?
-  priceModifier       Float    @default(0) // Can be positive or negative
-  priceType           PriceType @default(FLAT)
-  isDefault           Boolean  @default(false)
-  isActive            Boolean  @default(true)
-  sortOrder           Int      @default(0)
-  maxQuantity         Int?     // For quantity-based options
-  nutritionInfo       String?  // JSON object
-  allergens           String?  // JSON array
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  // Relations
-  group                       CustomizationGroup        @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  cartItemCustomizations      CartItemCustomization[]
-  orderItemCustomizations     OrderItemCustomization[]
-  
-  @@index([groupId])
-  @@map("customization_options")
+  SINGLE_SELECT
+  MULTI_SELECT
+  QUANTITY_SELECT
+  SPECIAL_LOGIC
 }
 
 enum PriceType {
-  FLAT         // $2.00
-  PERCENTAGE   // 10%
-  PER_UNIT     // $0.50 per unit
-}
-
-// Link Menu Items to their Available Customization Groups
-model MenuItemCustomization {
-  id                    String             @id @default(cuid())
-  menuItemId            String
-  customizationGroupId  String
-  isRequired            Boolean            @default(false)
-  sortOrder             Int                @default(0)
-  createdAt             DateTime           @default(now())
-
-  // Relations
-  menuItem            MenuItem           @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
-  customizationGroup  CustomizationGroup @relation(fields: [customizationGroupId], references: [id], onDelete: Cascade)
-  
-  @@unique([menuItemId, customizationGroupId])
-  @@map("menu_item_customizations")
-}
-
-// ========================================
-// ENHANCED CART SYSTEM (Multi-Category Support)
-// ========================================
-
-// Cart Items (Can hold Pizza OR Menu Items)
-model CartItem {
-  id            String   @id @default(cuid())
-  sessionId     String?  // For guest users
-  userId        String?  // For logged-in users
-  
-  // Pizza Item (existing system)
-  pizzaSizeId   String?
-  pizzaCrustId  String?
-  pizzaSauceId  String?
-  
-  // New Menu Item
-  menuItemId    String?
-  
-  // Common fields
-  quantity      Int      @default(1)
-  basePrice     Float
-  totalPrice    Float
-  notes         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relations
-  user                   User?                   @relation(fields: [userId], references: [id])
-  pizzaSize              PizzaSize?              @relation(fields: [pizzaSizeId], references: [id])
-  pizzaCrust             PizzaCrust?             @relation(fields: [pizzaCrustId], references: [id])
-  pizzaSauce             PizzaSauce?             @relation(fields: [pizzaSauceId], references: [id])
-  menuItem               MenuItem?               @relation(fields: [menuItemId], references: [id])
-  customizations         CartItemCustomization[]
-  pizzaToppings          CartItemPizzaTopping[]
-  
-  @@index([sessionId])
-  @@index([userId])
-  @@map("cart_items")
-}
-
-// Cart Item Customizations (for new menu categories)
-model CartItemCustomization {
-  id                    String              @id @default(cuid())
-  cartItemId            String
-  customizationOptionId String
-  quantity              Int                 @default(1)
-  price                 Float
-  createdAt             DateTime            @default(now())
-
-  // Relations
-  cartItem              CartItem            @relation(fields: [cartItemId], references: [id], onDelete: Cascade)
-  customizationOption   CustomizationOption @relation(fields: [customizationOptionId], references: [id])
-  
-  @@map("cart_item_customizations")
-}
-
-// Pizza Toppings for Cart Items (maintaining existing pizza system)
-model CartItemPizzaTopping {
-  id              String       @id @default(cuid())
-  cartItemId      String
-  pizzaToppingId  String
-  quantity        Int          @default(1)
-  section         String       @default("WHOLE") // WHOLE, LEFT, RIGHT
-  intensity       String       @default("REGULAR") // LIGHT, REGULAR, EXTRA
-  price           Float
-  createdAt       DateTime     @default(now())
-
-  // Relations
-  cartItem        CartItem     @relation(fields: [cartItemId], references: [id], onDelete: Cascade)
-  pizzaTopping    PizzaTopping @relation(fields: [pizzaToppingId], references: [id])
-  
-  @@map("cart_item_pizza_toppings")
+  FLAT
+  PERCENTAGE
+  PER_UNIT
 }
