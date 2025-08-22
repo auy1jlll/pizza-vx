@@ -73,6 +73,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: '🎯' },
     { href: '/admin/orders', label: 'Orders', icon: '📋' },
+    { href: '/admin/users', label: 'User Management', icon: '👥' },
+    { href: '/admin/carts', label: 'Cart Management', icon: '🛒' },
+    { href: '/admin/content', label: 'Content Management', icon: '📝' },
     { href: '/admin/kitchen', label: 'Kitchen Display', icon: '🍳' },
     { href: '/admin/pizza-manager', label: 'Pizza Manager', icon: '🍕' },
     { href: '/admin/menu-manager', label: 'Menu Manager', icon: '🍽️' },

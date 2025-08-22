@@ -7,7 +7,8 @@ import { useCart } from '@/contexts/CartContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useAppSettingsContext } from '@/contexts/AppSettingsContext';
 import { useUser } from '@/contexts/UserContext';
-import { ArrowLeft, CreditCard, Truck, User, MapPin, Phone, Mail } from 'lucide-react';
+import PromotionService, { CartItem } from '@/lib/promotion-service';
+import { ArrowLeft, CreditCard, Truck, User, MapPin, Phone, Mail, Calendar, Clock } from 'lucide-react';
 
 export default function CheckoutPage() {
   const { cartItems: pizzaItems, calculateSubtotal: calculatePizzaSubtotal, clearCart } = useCart();
@@ -24,6 +25,7 @@ export default function CheckoutPage() {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [newOrderId, setNewOrderId] = useState<string | null>(null);
   const [checkoutAsGuest, setCheckoutAsGuest] = useState(false);
+  const [promotionResult, setPromotionResult] = useState<any>(null);
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     email: '',
@@ -33,6 +35,9 @@ export default function CheckoutPage() {
     zip: ''
   });
   const [orderType, setOrderType] = useState<'PICKUP' | 'DELIVERY'>('PICKUP');
+  const [scheduleType, setScheduleType] = useState<'NOW' | 'LATER'>('NOW');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
 
   // Check if guest checkout is allowed and user is not logged in
   const showGuestCheckout = appSettings.enable_guest_checkout && !user;
@@ -92,6 +97,19 @@ export default function CheckoutPage() {
     loadCartAndRefreshPrices();
   }, [pizzaItems]);
 
+  // Calculate promotions whenever cart items change
+  useEffect(() => {
+    console.log('🔄 Promotion useEffect triggered - allCartItems:', allCartItems.length, allCartItems);
+    if (allCartItems.length > 0) {
+      const result = calculatePromotions();
+      console.log('🎯 Promotion calculation result:', result);
+      setPromotionResult(result);
+    } else {
+      console.log('🚫 No cart items, clearing promotions');
+      setPromotionResult(null);
+    }
+  }, [allCartItems, menuItems, pizzaItems]);
+
   // Calculate menu subtotal with current prices AND customizations (FIXED)
   const calculateMenuSubtotal = () => {
     return menuItems.reduce((total, item) => {
@@ -133,11 +151,62 @@ export default function CheckoutPage() {
     return pizzaSubtotal + menuSubtotal;
   };
 
+  // Calculate promotions based on current cart
+  const calculatePromotions = () => {
+    const allItems: CartItem[] = [];
+    
+    console.log('🍕 Pizza items for promotion:', pizzaItems);
+    console.log('🍕 Menu items for promotion:', menuItems);
+    
+    // Add pizza items
+    pizzaItems.forEach(item => {
+      allItems.push({
+        id: item.id,
+        name: item.size?.name ? `${item.size.name} Pizza` : 'Pizza',
+        basePrice: item.basePrice || 0,
+        totalPrice: item.totalPrice || 0,
+        quantity: item.quantity || 1,
+        type: 'pizza',
+        size: item.size ? { name: item.size.name, basePrice: item.size.basePrice } : undefined
+      });
+    });
+    
+    // Add menu items
+    menuItems.forEach(item => {
+      allItems.push({
+        id: item.id,
+        name: item.name || item.menuItemName || 'Menu Item',
+        basePrice: item.basePrice || item.price || 0,
+        totalPrice: item.totalPrice || item.price || 0,
+        quantity: item.quantity || 1,
+        type: 'menu',
+        menuItemId: item.menuItemId
+      });
+    });
+
+    console.log('🎯 All items for promotion calculation:', allItems);
+
+    if (allItems.length === 0) {
+      return {
+        originalTotal: 0,
+        discountAmount: 0,
+        finalTotal: 0,
+        promotionApplied: 'No items',
+        discountDetails: []
+      };
+    }
+
+    const result = PromotionService.applyBestPromotion(allItems);
+    console.log('🎯 Promotion service result:', result);
+    return result;
+  };
+
   const calculateTotal = () => {
-    const subtotal = calculateSubtotal();
-    const tax = getTaxAmount(subtotal);
-    const deliveryFee = (subtotal > 0 && orderType === 'DELIVERY') ? 3.99 : 0;
-    return subtotal + tax + deliveryFee;
+    const result = calculatePromotions();
+    const subtotalAfterPromo = result.finalTotal;
+    const tax = getTaxAmount(subtotalAfterPromo);
+    const deliveryFee = (subtotalAfterPromo > 0 && orderType === 'DELIVERY') ? 3.99 : 0;
+    return subtotalAfterPromo + tax + deliveryFee;
   };
 
   // Helper function to get proper item name (especially for pizzas)
@@ -161,6 +230,63 @@ export default function CheckoutPage() {
     return 'Custom Item';
   };
 
+  // Helper functions for scheduling
+  const getAvailableDates = () => {
+    const dates = [];
+    const today = new Date();
+    
+    for (let i = 0; i <= 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      dates.push({
+        value: date.toISOString().split('T')[0],
+        label: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : date.toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          month: 'short', 
+          day: 'numeric' 
+        })
+      });
+    }
+    
+    return dates;
+  };
+
+  const getAvailableTimes = () => {
+    const times = [];
+    const openTime = 10.5; // 10:30 AM
+    const closeTime = 20; // 8:00 PM
+    
+    for (let hour = openTime; hour < closeTime; hour += 0.5) {
+      const wholeHour = Math.floor(hour);
+      const minutes = (hour % 1) * 60;
+      const time24 = `${wholeHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      
+      const hour12 = wholeHour > 12 ? wholeHour - 12 : wholeHour === 0 ? 12 : wholeHour;
+      const ampm = wholeHour >= 12 ? 'PM' : 'AM';
+      const time12 = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+      
+      times.push({
+        value: time24,
+        label: time12
+      });
+    }
+    
+    return times;
+  };
+
+  const isScheduledTimeValid = () => {
+    if (scheduleType === 'NOW') return true;
+    if (!scheduledDate || !scheduledTime) return false;
+    
+    const selectedDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
+    const now = new Date();
+    
+    // Must be at least 30 minutes in the future
+    const minimumTime = new Date(now.getTime() + 30 * 60 * 1000);
+    
+    return selectedDateTime > minimumTime;
+  };
+
   // Redirect if cart is empty (but only after initial loading is complete and not during order success)
   useEffect(() => {
     if (!initialLoading && !orderSuccess && allCartItems.length === 0) {
@@ -171,6 +297,14 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading || orderSuccess) return;
+    
+    // Validate scheduling
+    if (scheduleType === 'LATER' && !isScheduledTimeValid()) {
+      showToast('Please select a valid date and time for your order (at least 30 minutes from now)', { type: 'error' });
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -258,8 +392,9 @@ export default function CheckoutPage() {
       }));
 
       // Prepare order data in the format expected by the API
-      const orderData = {
+      const orderData: any = {
         orderType: orderType,
+        scheduleType: scheduleType,
         customer: {
           name: customerInfo.name,
           email: customerInfo.email,
@@ -275,11 +410,17 @@ export default function CheckoutPage() {
           instructions: ''
         } : null,
         items: formattedItems, // Use properly formatted items
-        subtotal: calculateSubtotal(),
+        subtotal: subtotal,
         deliveryFee: orderType === 'DELIVERY' ? 3.99 : 0,
-        tax: getTaxAmount(calculateSubtotal()),
-        total: calculateTotal()
+        tax: tax,
+        total: total
       };
+
+      // Only add scheduling fields if ordering for later
+      if (scheduleType === 'LATER' && scheduledDate && scheduledTime) {
+        orderData.scheduledDate = scheduledDate;
+        orderData.scheduledTime = scheduledTime;
+      }
 
       console.log('🛒 Submitting order data:', orderData);
       console.log('📦 Formatted items:', formattedItems);
@@ -335,10 +476,20 @@ export default function CheckoutPage() {
     }
   };
 
-  const subtotal = calculateSubtotal();
+  const originalSubtotal = calculateSubtotal();
+  const currentPromotions = promotionResult || calculatePromotions();
+  const subtotal = currentPromotions.finalTotal;
   const tax = getTaxAmount(subtotal);
   const deliveryFee = (orderType === 'DELIVERY') ? 3.99 : 0;
-  const total = calculateTotal();
+  const total = subtotal + tax + deliveryFee;
+
+  console.log('💰 Final calculations:', {
+    originalSubtotal,
+    currentPromotions,
+    subtotal,
+    tax,
+    total
+  });
 
   if (allCartItems.length === 0) {
     return null; // Will redirect
@@ -518,6 +669,114 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Order Scheduling */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Calendar className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-800">Order Scheduling</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  {/* Schedule Type Selection */}
+                  <label className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                    scheduleType === 'NOW' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-gray-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="scheduleType"
+                      value="NOW"
+                      checked={scheduleType === 'NOW'}
+                      onChange={(e) => setScheduleType(e.target.value as 'NOW')}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                    <div className="flex items-center space-x-2">
+                      <Clock className="w-5 h-5 text-gray-600" />
+                      <span className="font-medium">Order Now</span>
+                    </div>
+                  </label>
+
+                  <label className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                    scheduleType === 'LATER' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-gray-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="scheduleType"
+                      value="LATER"
+                      checked={scheduleType === 'LATER'}
+                      onChange={(e) => setScheduleType(e.target.value as 'LATER')}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-5 h-5 text-gray-600" />
+                      <span className="font-medium">Schedule for Later</span>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Date and Time Selection - Only show when scheduling for later */}
+                {scheduleType === 'LATER' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="scheduledDate" className="block text-sm font-medium text-gray-700 mb-2">
+                        Select Date *
+                      </label>
+                      <select
+                        id="scheduledDate"
+                        required
+                        value={scheduledDate}
+                        onChange={(e) => setScheduledDate(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      >
+                        <option value="">Choose a date</option>
+                        {getAvailableDates().map((date) => (
+                          <option key={date.value} value={date.value}>
+                            {date.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="scheduledTime" className="block text-sm font-medium text-gray-700 mb-2">
+                        Select Time *
+                      </label>
+                      <select
+                        id="scheduledTime"
+                        required
+                        value={scheduledTime}
+                        onChange={(e) => setScheduledTime(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      >
+                        <option value="">Choose a time</option>
+                        {getAvailableTimes().map((time) => (
+                          <option key={time.value} value={time.value}>
+                            {time.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {scheduledDate && scheduledTime && (
+                      <div className="md:col-span-2">
+                        <div className="p-4 bg-purple-50 border border-purple-200 rounded-xl">
+                          <div className="flex items-center space-x-2 text-purple-700">
+                            <Calendar className="w-5 h-5" />
+                            <span className="font-medium">
+                              Your order is scheduled for: {getAvailableDates().find(d => d.value === scheduledDate)?.label} at {getAvailableTimes().find(t => t.value === scheduledTime)?.label}
+                            </span>
+                          </div>
+                          <p className="text-sm text-purple-600 mt-2">
+                            We&apos;ll prepare your order to be ready at the scheduled time. Orders can be scheduled up to 7 days in advance.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Delivery Information - Only show for delivery orders */}
@@ -710,8 +969,16 @@ export default function CheckoutPage() {
               <div className="border-t border-gray-200 pt-6 space-y-3">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>${originalSubtotal.toFixed(2)}</span>
                 </div>
+                
+                {/* Show promotion discount if applicable */}
+                {currentPromotions && currentPromotions.discountAmount > 0 && (
+                  <div className="flex justify-between text-green-600 font-medium">
+                    <span>{currentPromotions.promotionApplied}</span>
+                    <span>-${currentPromotions.discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
                 
                 <div className="flex justify-between text-gray-600">
                   <span>{orderType === 'DELIVERY' ? 'Delivery Fee' : 'Pickup'}</span>

@@ -72,6 +72,45 @@ export function requireAdmin(request: NextRequest) {
   return user;
 }
 
+// General token verification - allows any authenticated user
+export function verifyToken(request: NextRequest): JWTPayload | null {
+  try {
+    // Check for access-token first (new JWT system)
+    let token = request.cookies.get('access-token')?.value;
+    
+    // Fallback to admin-token for backward compatibility
+    if (!token) {
+      token = request.cookies.get('admin-token')?.value;
+    }
+    
+    if (!token) {
+      return null;
+    }
+
+    // Check cache first for performance
+    const cached = tokenCache.get(token);
+    if (cached && cached.expiry > Date.now()) {
+      return cached.payload;
+    }
+
+    const decoded = jwt.verify(
+      token, 
+      process.env.JWT_SECRET || 'fallback-secret'
+    ) as JWTPayload;
+
+    // Cache the validated token for 5 minutes
+    tokenCache.set(token, {
+      payload: decoded,
+      expiry: Date.now() + (5 * 60 * 1000)
+    });
+
+    return decoded;
+  } catch (error) {
+    console.error('Token verification error:', error);
+    return null;
+  }
+}
+
 // Kitchen staff authentication - allows both ADMIN and EMPLOYEE roles
 export function verifyKitchenStaffToken(request: NextRequest): JWTPayload | null {
   try {

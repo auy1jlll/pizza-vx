@@ -1,0 +1,138 @@
+{
+  "page": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Got Questions? We've Got Answers!",
+    "lastUpdated": "2025-08-22"
+  },
+  "categories": [
+    {
+      "id": "ordering",
+      "title": "Ordering & Payment",
+      "questions": [
+        {
+          "question": "What are your delivery hours?",
+          "answer": "We deliver Monday-Sunday 10:30 AM - 8:00 PM."
+        },
+        {
+          "question": "What's the minimum order for delivery?",
+          "answer": "Our minimum delivery order is $15.00 (before tax and delivery fee)."
+        },
+        {
+          "question": "What payment methods do you accept?",
+          "answer": "We accept all major credit cards (Visa, MasterCard, American Express, Discover) and cash for pickup orders."
+        },
+        {
+          "question": "Can I modify or cancel my order?",
+          "answer": "Orders can be modified or cancelled within 5 minutes of placement by calling us directly at (617) 555-PIZZA."
+        },
+        {
+          "question": "Do you offer contactless delivery?",
+          "answer": "Yes! You can request contactless delivery in the special instructions when placing your order."
+        }
+      ]
+    },
+    {
+      "id": "menu",
+      "title": "Menu & Food",
+      "questions": [
+        {
+          "question": "Do you offer gluten-free options?",
+          "answer": "Yes! We offer gluten-free pizza crusts and several gluten-free menu items. Please inform us of any allergies when ordering."
+        },
+        {
+          "question": "Are your ingredients fresh?",
+          "answer": "Absolutely! We make our dough fresh daily, use San Marzano tomatoes, and source the highest quality ingredients."
+        },
+        {
+          "question": "Can I customize my pizza?",
+          "answer": "Of course! You can customize any pizza with your choice of toppings, sauces, and cheese options."
+        },
+        {
+          "question": "Do you have vegan options?",
+          "answer": "Yes, we offer vegan cheese and a variety of vegetable toppings. Many of our salads can also be made vegan."
+        },
+        {
+          "question": "What size pizzas do you offer?",
+          "answer": "We offer Personal (10\"), Medium (14\"), Large (16\"), and Extra Large (18\") pizzas."
+        }
+      ]
+    },
+    {
+      "id": "delivery",
+      "title": "Delivery & Pickup",
+      "questions": [
+        {
+          "question": "What areas do you deliver to?",
+          "answer": "We deliver within a 5-mile radius of our Boston location. Enter your address during checkout to confirm delivery availability."
+        },
+        {
+          "question": "How long does delivery take?",
+          "answer": "Typical delivery time is 25-35 minutes, but may vary during peak hours or bad weather."
+        },
+        {
+          "question": "What's the delivery fee?",
+          "answer": "Our delivery fee is $3.99. This fee covers our delivery service but is not a tip for the driver."
+        },
+        {
+          "question": "Can I track my order?",
+          "answer": "Yes! You'll receive order updates via SMS and email, and can track your order status online."
+        },
+        {
+          "question": "What if no one is home for delivery?",
+          "answer": "Our driver will attempt to contact you. If unreachable, the order will be returned to the store and you may need to arrange pickup."
+        }
+      ]
+    },
+    {
+      "id": "account",
+      "title": "Account & Rewards",
+      "questions": [
+        {
+          "question": "Do I need to create an account to order?",
+          "answer": "No, you can place orders as a guest. However, creating an account allows you to save addresses, track orders, and earn rewards."
+        },
+        {
+          "question": "Do you have a loyalty program?",
+          "answer": "Yes! Create an account to start earning points with every order. Points can be redeemed for free pizzas and discounts."
+        },
+        {
+          "question": "How do I reset my password?",
+          "answer": "Click 'Forgot Password' on the login page and follow the instructions sent to your email."
+        },
+        {
+          "question": "Can I save multiple addresses?",
+          "answer": "Yes, logged-in users can save multiple delivery addresses for quick ordering."
+        }
+      ]
+    },
+    {
+      "id": "general",
+      "title": "General Questions",
+      "questions": [
+        {
+          "question": "Are you hiring?",
+          "answer": "We're always looking for great team members! Check our careers page or stop by the restaurant to inquire about current openings."
+        },
+        {
+          "question": "Do you cater events?",
+          "answer": "Yes! We offer catering for parties, corporate events, and special occasions. Contact us at (617) 555-PIZZA for catering details."
+        },
+        {
+          "question": "Can I buy gift cards?",
+          "answer": "Gift cards are available for purchase at our restaurant location. Online gift cards are coming soon!"
+        },
+        {
+          "question": "Do you offer nutritional information?",
+          "answer": "Nutritional information is available upon request. Please contact us for specific dietary information."
+        }
+      ]
+    }
+  ],
+  "contactInfo": {
+    "stillHaveQuestions": "Still have questions?",
+    "contactText": "Don't see your question here? We're happy to help!",
+    "phone": "(617) 555-PIZZA",
+    "email": "info@bostonpizzahouse.com",
+    "hours": "Monday-Sunday: 10:30 AM - 8:00 PM"
+  }
+}

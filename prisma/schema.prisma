@@ -8,18 +8,118 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  email         String         @unique
-  name          String?
-  password      String?
-  role          UserRole       @default(CUSTOMER)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  cartItems     CartItem[]
-  orders        Order[]
-  refreshTokens RefreshToken[]
+  id               String            @id @default(cuid())
+  email            String            @unique
+  name             String?
+  password         String?
+  phone            String?
+  dateOfBirth      DateTime?
+  avatarUrl        String?
+  isActive         Boolean           @default(true)
+  lastLoginAt      DateTime?
+  emailVerified    Boolean           @default(false)
+  marketingOptIn   Boolean           @default(false)
+  role             UserRole          @default(CUSTOMER)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  cartItems        CartItem[]
+  orders           Order[]
+  refreshTokens    RefreshToken[]
+  customerProfile  CustomerProfile?
+  employeeProfile  EmployeeProfile?
+  customerAddresses CustomerAddress[]
+  customerFavorites CustomerFavorite[]
 
   @@map("users")
+}
+
+model CustomerProfile {
+  id                   String       @id @default(cuid())
+  userId               String       @unique
+  firstName            String?
+  lastName             String?
+  dateOfBirth          DateTime?
+  phone                String?
+  avatarUrl            String?
+  dietaryPreferences   String[]     // ['vegan', 'gluten-free', 'dairy-free', etc.]
+  favoritePizzaSizeId  String?
+  favoriteCrustId      String?
+  defaultOrderType     OrderType    @default(PICKUP)
+  marketingOptIn       Boolean      @default(false)
+  loyaltyPoints        Int          @default(0)
+  totalOrders          Int          @default(0)
+  totalSpent           Float        @default(0.00)
+  lastOrderDate        DateTime?
+  notes                String?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  
+  user                 User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  favoritePizzaSize    PizzaSize?   @relation("CustomerFavoritePizzaSize", fields: [favoritePizzaSizeId], references: [id])
+  favoriteCrust        PizzaCrust?  @relation("CustomerFavoriteCrust", fields: [favoriteCrustId], references: [id])
+
+  @@map("customer_profiles")
+}
+
+model CustomerAddress {
+  id                   String       @id @default(cuid())
+  userId               String
+  label                String       // 'Home', 'Work', 'Other'
+  addressLine1         String
+  addressLine2         String?
+  city                 String
+  state                String
+  zipCode              String
+  country              String       @default("US")
+  deliveryInstructions String?
+  isDefault            Boolean      @default(false)
+  isActive             Boolean      @default(true)
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  
+  user                 User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("customer_addresses")
+}
+
+model EmployeeProfile {
+  id                     String       @id @default(cuid())
+  userId                 String       @unique
+  employeeId             String       @unique
+  firstName              String
+  lastName               String
+  position               String?      // 'Manager', 'Chef', 'Delivery', 'Cashier'
+  department             String?      // 'Kitchen', 'Front', 'Delivery'
+  phone                  String?
+  emergencyContactName   String?
+  emergencyContactPhone  String?
+  hireDate               DateTime?
+  hourlyWage             Float?
+  isActive               Boolean      @default(true)
+  permissions            String[]     // ['order_management', 'menu_edit', 'user_management']
+  scheduleNotes          String?
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+  
+  user                   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("employee_profiles")
+}
+
+model CustomerFavorite {
+  id            String       @id @default(cuid())
+  userId        String
+  favoriteName  String
+  itemType      String       // 'PIZZA', 'CALZONE', 'SPECIALTY'
+  itemData      Json         // Complete item configuration
+  orderCount    Int          @default(0)
+  lastOrdered   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("customer_favorites")
 }
 
 model PizzaSize {
@@ -36,21 +136,23 @@ model PizzaSize {
   cartItems           CartItem[]
   orderItems          OrderItem[]
   specialtyPizzaSizes SpecialtyPizzaSize[]
+  customerProfiles    CustomerProfile[]   @relation("CustomerFavoritePizzaSize")
 
   @@map("pizza_sizes")
 }
 
 model PizzaCrust {
-  id            String      @id @default(cuid())
-  name          String      @unique
-  description   String?
-  priceModifier Float       @default(0)
-  isActive      Boolean     @default(true)
-  sortOrder     Int         @default(0)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  cartItems     CartItem[]
-  orderItems    OrderItem[]
+  id               String            @id @default(cuid())
+  name             String            @unique
+  description      String?
+  priceModifier    Float             @default(0)
+  isActive         Boolean           @default(true)
+  sortOrder        Int               @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  cartItems        CartItem[]
+  orderItems       OrderItem[]
+  customerProfiles CustomerProfile[] @relation("CustomerFavoriteCrust")
 
   @@map("pizza_crusts")
 }
@@ -132,6 +234,7 @@ model Order {
   customerPhone        String?
   status               OrderStatus     @default(PENDING)
   orderType            OrderType       @default(PICKUP)
+  scheduleType         String?         @default("NOW")
   paymentMethod        String?
   deliveryAddress      String?
   deliveryCity         String?

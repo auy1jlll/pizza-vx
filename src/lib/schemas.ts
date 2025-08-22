@@ -140,11 +140,13 @@ export const DeliveryInfoSchema = z.object({
 // Order Schema
 export const CreateOrderSchema = z.object({
   orderType: OrderType,
+  scheduleType: z.enum(['NOW', 'LATER']).optional().default('NOW'),
+  scheduledDate: z.string().optional(),
+  scheduledTime: z.string().optional(),
   paymentMethod: z.string().optional(),
   customer: CustomerInfoSchema,
   delivery: DeliveryInfoSchema.nullable().optional(),
   items: z.array(CartItemSchema).min(1, 'At least one item is required'),
-  scheduledTime: z.string().datetime().optional(),
   notes: z.string().optional(),
   subtotal: nonNegativeNumber,
   deliveryFee: nonNegativeNumber,
@@ -153,6 +155,15 @@ export const CreateOrderSchema = z.object({
   customTipAmount: z.number().nullable().optional(),
   tax: nonNegativeNumber,
   total: positiveNumber,
+}).refine((data) => {
+  // If scheduleType is LATER, then scheduledDate and scheduledTime are required
+  if (data.scheduleType === 'LATER') {
+    return data.scheduledDate && data.scheduledTime;
+  }
+  return true;
+}, {
+  message: "Scheduled date and time are required when ordering for later",
+  path: ["scheduledDate"]
 });
 
 // Settings Schema

@@ -1,0 +1,134 @@
+{
+  "page": {
+    "title": "Careers",
+    "subtitle": "Join Our Pizza Family!",
+    "heroImage": "/images/kitchen-team.jpg",
+    "lastUpdated": "2025-01-15"
+  },
+  "sections": [
+    {
+      "id": "why-work-here",
+      "title": "Why Work at Boston Pizza House?",
+      "content": [
+        "At Boston Pizza House, we're more than just a restaurant - we're a family. Our team members are the heart of our operation, and we believe in creating a positive, supportive work environment where everyone can thrive.",
+        "We offer competitive wages, flexible scheduling, and opportunities for growth and advancement. Many of our managers and shift leaders started as entry-level team members and worked their way up."
+      ]
+    },
+    {
+      "id": "benefits",
+      "title": "Employee Benefits",
+      "items": [
+        {
+          "title": "Competitive Pay",
+          "description": "Starting wages above minimum wage with regular performance reviews and raises"
+        },
+        {
+          "title": "Flexible Scheduling",
+          "description": "We work around your school and life schedule - perfect for students!"
+        },
+        {
+          "title": "Free Meals",
+          "description": "Enjoy a free meal during your shift and 50% off when you're not working"
+        },
+        {
+          "title": "Career Growth",
+          "description": "Clear advancement opportunities from crew to management positions"
+        },
+        {
+          "title": "Training Program",
+          "description": "Comprehensive paid training to ensure your success"
+        },
+        {
+          "title": "Team Environment",
+          "description": "Work with a fun, supportive team that feels like family"
+        }
+      ]
+    },
+    {
+      "id": "positions",
+      "title": "Available Positions",
+      "positions": [
+        {
+          "title": "Pizza Cook",
+          "type": "Full-time / Part-time",
+          "description": "Prepare delicious pizzas using our traditional recipes and wood-fired ovens. Training provided for all skill levels.",
+          "requirements": [
+            "Ability to work in a fast-paced environment",
+            "Strong attention to detail",
+            "Team player attitude",
+            "Food safety knowledge preferred but not required"
+          ],
+          "wage": "$16-20/hour based on experience"
+        },
+        {
+          "title": "Server / Cashier",
+          "type": "Part-time",
+          "description": "Provide excellent customer service by taking orders, serving food, and ensuring customer satisfaction.",
+          "requirements": [
+            "Excellent communication skills",
+            "Friendly, outgoing personality",
+            "Ability to multitask",
+            "Previous restaurant experience preferred"
+          ],
+          "wage": "$15/hour + tips"
+        },
+        {
+          "title": "Delivery Driver",
+          "type": "Part-time / Flexible",
+          "description": "Deliver hot, fresh pizzas to our customers while representing our brand with excellent service.",
+          "requirements": [
+            "Valid driver's license and insurance",
+            "Reliable vehicle",
+            "Knowledge of local area",
+            "18+ years old"
+          ],
+          "wage": "$15/hour + tips + mileage"
+        },
+        {
+          "title": "Kitchen Manager",
+          "type": "Full-time",
+          "description": "Lead our kitchen team, ensure food quality, manage inventory, and maintain our high standards.",
+          "requirements": [
+            "2+ years restaurant management experience",
+            "Food safety certification",
+            "Leadership and training skills",
+            "Inventory management experience"
+          ],
+          "wage": "$45,000-55,000/year + bonuses"
+        }
+      ]
+    },
+    {
+      "id": "application",
+      "title": "How to Apply",
+      "content": [
+        "Ready to join our team? We're always looking for passionate, hardworking individuals who share our commitment to quality and customer service.",
+        "You can apply in person at our restaurant, or send your resume to the email address below. We review applications on a rolling basis and will contact qualified candidates within a week."
+      ],
+      "applicationInfo": {
+        "inPerson": "Visit us at 123 Hanover Street, Boston, MA 02113",
+        "email": "careers@bostonpizzahouse.com",
+        "phone": "(617) 555-JOBS",
+        "bestTimes": "Best times to apply in person: Tuesday-Thursday, 2:00-4:00 PM"
+      }
+    }
+  ],
+  "companyValues": [
+    {
+      "title": "Quality First",
+      "description": "We never compromise on the quality of our ingredients or service"
+    },
+    {
+      "title": "Team Spirit",
+      "description": "We support each other and work together to succeed"
+    },
+    {
+      "title": "Customer Focus",
+      "description": "Every customer should leave happy and satisfied"
+    },
+    {
+      "title": "Growth Mindset",
+      "description": "We encourage learning, improvement, and advancement"
+    }
+  ]
+}

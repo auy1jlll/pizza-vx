@@ -1,0 +1,105 @@
+{
+  "page": {
+    "title": "Contact Us",
+    "subtitle": "We'd Love to Hear From You!",
+    "lastUpdated": "2025-08-22"
+  },
+  "restaurant": {
+    "name": "Boston Pizza House",
+    "address": {
+      "street": "123 Hanover Street",
+      "city": "Boston",
+      "state": "MA",
+      "zip": "02113",
+      "formatted": "123 Hanover Street, Boston, MA 02113"
+    },
+    "contact": {
+      "phone": "(617) 555-PIZZA",
+      "email": "info@bostonpizzahouse.com",
+      "website": "www.bostonpizzahouse.com"
+    },
+    "hours": {
+      "monday": "10:30 AM - 8:00 PM",
+      "tuesday": "10:30 AM - 8:00 PM",
+      "wednesday": "10:30 AM - 8:00 PM",
+      "thursday": "10:30 AM - 8:00 PM",
+      "friday": "10:30 AM - 8:00 PM",
+      "saturday": "10:30 AM - 8:00 PM",
+      "sunday": "10:30 AM - 8:00 PM"
+    },
+    "socialMedia": {
+      "facebook": "https://facebook.com/bostonpizzahouse",
+      "instagram": "@bostonpizzahouse",
+      "twitter": "@bostonpizza",
+      "yelp": "https://yelp.com/biz/boston-pizza-house"
+    }
+  },
+  "departments": [
+    {
+      "name": "General Inquiries",
+      "email": "info@bostonpizzahouse.com",
+      "description": "Questions about menu, hours, or general information"
+    },
+    {
+      "name": "Catering",
+      "email": "catering@bostonpizzahouse.com",
+      "phone": "(617) 555-CATER",
+      "description": "Corporate events, parties, and special occasions"
+    },
+    {
+      "name": "Customer Service",
+      "email": "service@bostonpizzahouse.com",
+      "description": "Order issues, feedback, or complaints"
+    },
+    {
+      "name": "Private Events",
+      "email": "events@bostonpizzahouse.com",
+      "description": "Birthday parties, group reservations, and special events"
+    },
+    {
+      "name": "Media & Press",
+      "email": "media@bostonpizzahouse.com",
+      "description": "Press inquiries and media requests"
+    }
+  ],
+  "quickContact": {
+    "delivery": {
+      "title": "Order Delivery",
+      "phone": "(617) 555-PIZZA",
+      "online": "Order online at www.bostonpizzahouse.com"
+    },
+    "pickup": {
+      "title": "Order Pickup",
+      "phone": "(617) 555-PIZZA",
+      "note": "Call ahead or order online for faster pickup"
+    },
+    "reservations": {
+      "title": "Dine-In Reservations",
+      "phone": "(617) 555-PIZZA",
+      "note": "Reservations recommended for parties of 6 or more"
+    }
+  },
+  "directions": {
+    "public_transport": [
+      "Green Line: Haymarket Station (0.2 miles)",
+      "Orange Line: North Station (0.4 miles)",
+      "Blue Line: Government Center (0.3 miles)"
+    ],
+    "parking": [
+      "Street parking available on Hanover Street",
+      "Municipal parking garage at 136 Blackstone Street",
+      "Valet parking available Friday-Saturday evenings"
+    ],
+    "landmarks": [
+      "Located in Boston's historic North End",
+      "Near Paul Revere House and Old North Church",
+      "Walking distance from Faneuil Hall"
+    ]
+  },
+  "mapInfo": {
+    "latitude": 42.3647,
+    "longitude": -71.0542,
+    "googleMapsUrl": "https://maps.google.com/?q=123+Hanover+Street,+Boston,+MA+02113",
+    "embedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2948.0!2d-71.0542!3d42.3647!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1"
+  }
+}

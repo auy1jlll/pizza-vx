@@ -210,6 +210,33 @@ export default function AdminDashboard() {
       unit: 'components'
     },
     {
+      title: 'User Management',
+      description: 'Manage customers, employees, and user accounts',
+      href: '/admin/users',
+      icon: '👥',
+      gradient: 'from-indigo-500 to-purple-600',
+      count: 6, // This could be dynamic based on total users
+      unit: 'total users'
+    },
+    {
+      title: 'Content Management',
+      description: 'Edit static pages (About, Terms, Privacy, FAQ)',
+      href: '/admin/content',
+      icon: '📝',
+      gradient: 'from-violet-500 to-purple-600',
+      count: 5, // Number of content files
+      unit: 'pages'
+    },
+    {
+      title: 'Cart Management',
+      description: 'Monitor and manage customer shopping carts',
+      href: '/admin/carts',
+      icon: '🛒',
+      gradient: 'from-blue-500 to-cyan-600',
+      count: 3, // This could be dynamic based on active carts
+      unit: 'active carts'
+    },
+    {
       title: 'Orders',
       description: 'View and manage customer orders',
       href: '/admin/orders',

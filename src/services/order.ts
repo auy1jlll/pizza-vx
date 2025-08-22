@@ -17,6 +17,9 @@ export interface OrderCreationData {
     instructions?: string;
   };
   orderType: 'PICKUP' | 'DELIVERY';
+  scheduleType?: 'NOW' | 'LATER';
+  scheduledDate?: string | null;
+  scheduledTime?: string | null;
   paymentMethod?: string;
   subtotal: number;
   deliveryFee: number;
@@ -235,6 +238,16 @@ export class OrderService extends BaseService {
   const authoritativeTax = +(authoritativeSubtotal * (taxRate / 100)).toFixed(2);
         const authoritativeTotal = authoritativeSubtotal + deliveryFee + authoritativeTax + (tipAmount || 0);
 
+        // Create scheduled time if needed
+        let scheduledDateTime = null;
+        if (data.scheduleType === 'LATER' && data.scheduledDate && data.scheduledTime) {
+          try {
+            scheduledDateTime = new Date(`${data.scheduledDate}T${data.scheduledTime}`);
+          } catch (error) {
+            console.warn('Invalid scheduled date/time provided:', { scheduledDate: data.scheduledDate, scheduledTime: data.scheduledTime });
+          }
+        }
+
         order = await tx.order.create({
           // Cast to any to allow optional nullable pricing fields present in schema but blocked by narrowed type inference
           data: {
@@ -244,6 +257,8 @@ export class OrderService extends BaseService {
             customerEmail: data.customer.email,
             customerPhone: data.customer.phone,
             orderType: data.orderType,
+            scheduleType: data.scheduleType || 'NOW',
+            scheduledTime: scheduledDateTime,
             // Assign paymentMethod only if provided to satisfy narrowed type; cast due to prisma type inference issue
             ...(data.paymentMethod ? { paymentMethod: data.paymentMethod } : {}),
             deliveryAddress: data.delivery?.address,

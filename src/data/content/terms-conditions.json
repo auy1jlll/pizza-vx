@@ -1,0 +1,116 @@
+{
+  "page": {
+    "title": "Terms & Conditions",
+    "subtitle": "Terms of Service for Boston Pizza House",
+    "lastUpdated": "2025-01-15",
+    "effectiveDate": "2025-01-01"
+  },
+  "sections": [
+    {
+      "id": "acceptance",
+      "title": "1. Acceptance of Terms",
+      "content": [
+        "By accessing and using Boston Pizza House's website and services, you accept and agree to be bound by the terms and provision of this agreement.",
+        "If you do not agree to abide by the above, please do not use this service."
+      ]
+    },
+    {
+      "id": "ordering",
+      "title": "2. Online Ordering",
+      "subsections": [
+        {
+          "title": "Order Acceptance",
+          "content": "All orders are subject to acceptance by Boston Pizza House. We reserve the right to refuse any order for any reason."
+        },
+        {
+          "title": "Pricing",
+          "content": "All prices are listed in USD and are subject to change without notice. Prices include applicable taxes and fees."
+        },
+        {
+          "title": "Payment",
+          "content": "Payment is required at the time of order placement. We accept major credit cards and cash for pickup orders."
+        },
+        {
+          "title": "Order Modifications",
+          "content": "Order modifications or cancellations must be made within 5 minutes of placing the order by calling our restaurant directly."
+        }
+      ]
+    },
+    {
+      "id": "delivery",
+      "title": "3. Delivery Terms",
+      "subsections": [
+        {
+          "title": "Delivery Areas",
+          "content": "We deliver within a 5-mile radius of our restaurant location. Delivery times are estimates and may vary based on weather, traffic, and order volume."
+        },
+        {
+          "title": "Delivery Fees",
+          "content": "A delivery fee of $3.99 applies to all delivery orders. This fee is not a tip and does not go to the driver."
+        },
+        {
+          "title": "Minimum Orders",
+          "content": "A minimum order of $15.00 (before tax and delivery fee) is required for delivery."
+        },
+        {
+          "title": "Contact Requirements",
+          "content": "You must provide a valid phone number and address. Someone must be available to receive the order at the specified address."
+        }
+      ]
+    },
+    {
+      "id": "food-safety",
+      "title": "4. Food Safety & Allergies",
+      "content": [
+        "Please inform us of any food allergies or dietary restrictions when placing your order.",
+        "While we take precautions, our kitchen handles common allergens including wheat, dairy, nuts, and shellfish.",
+        "Boston Pizza House cannot guarantee that any menu item is completely free from allergens.",
+        "Customers with severe allergies should exercise caution when ordering."
+      ]
+    },
+    {
+      "id": "liability",
+      "title": "5. Limitation of Liability",
+      "content": [
+        "Boston Pizza House's liability is limited to the cost of the food ordered.",
+        "We are not responsible for any indirect, incidental, or consequential damages.",
+        "In case of any issues with your order, please contact us within 24 hours."
+      ]
+    },
+    {
+      "id": "refunds",
+      "title": "6. Refunds & Returns",
+      "content": [
+        "Refunds are provided at our discretion for orders that are significantly delayed, incorrect, or of poor quality.",
+        "Food items cannot be returned once delivered due to health and safety regulations.",
+        "Refund requests must be made within 24 hours of order completion."
+      ]
+    },
+    {
+      "id": "privacy",
+      "title": "7. Privacy",
+      "content": [
+        "Your privacy is important to us. Please refer to our Privacy Policy for information about how we collect, use, and protect your personal information."
+      ]
+    },
+    {
+      "id": "modifications",
+      "title": "8. Modifications to Terms",
+      "content": [
+        "Boston Pizza House reserves the right to modify these terms at any time.",
+        "Changes will be effective immediately upon posting on our website.",
+        "Continued use of our services constitutes acceptance of modified terms."
+      ]
+    },
+    {
+      "id": "contact",
+      "title": "9. Contact Information",
+      "content": [
+        "If you have any questions about these Terms & Conditions, please contact us:",
+        "Email: info@bostonpizzahouse.com",
+        "Phone: (617) 555-PIZZA",
+        "Address: 123 Hanover Street, Boston, MA 02113"
+      ]
+    }
+  ]
+}

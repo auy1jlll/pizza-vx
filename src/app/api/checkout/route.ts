@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
     const validation = validateSchema(CreateOrderSchema, requestData);
     if (!validation.success) {
       console.log('❌ Validation failed:', validation.error);
+      console.log('❌ Request data that failed validation:', JSON.stringify(requestData, null, 2));
       return NextResponse.json(
         createApiError(`Validation error: ${validation.error}`, 400),
         { status: 400 }
@@ -40,6 +41,9 @@ export async function POST(request: NextRequest) {
       customer, 
       delivery, 
       orderType, 
+      scheduleType,
+      scheduledDate,
+      scheduledTime,
       paymentMethod,
       subtotal, 
       deliveryFee, 
@@ -80,6 +84,9 @@ export async function POST(request: NextRequest) {
       customer,
       delivery: delivery || undefined,
       orderType,
+      scheduleType: scheduleType || 'NOW',
+      scheduledDate: scheduledDate || undefined,
+      scheduledTime: scheduledTime || undefined,
       paymentMethod,
       subtotal,
       deliveryFee,

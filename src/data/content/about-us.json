@@ -1,0 +1,63 @@
+{
+  "page": {
+    "title": "About Us",
+    "subtitle": "Authentic North Shore Roast Beef & Pizza Since 1987",
+    "heroImage": "/images/restaurant-interior.jpg",
+    "lastUpdated": "2025-08-22"
+  },
+  "sections": [
+    {
+      "id": "our-story",
+      "title": "Our Story",
+      "content": [
+        "For over 40 years, our homemade pizza dough has been serving authentic, best pizzas to the Greater Boston North Shore, and now we have been in NH for 8 wonderful years. What started as a small family-owned Roast Beef & pizzeria in Medford has grown into the most beloved pizza and Roast Beef destination.",
+        "Our people, our customers, and the communities made us who we are today.",
+        "Today, we continue a legacy using the same traditional techniques, fresh ingredients, and the simple approach that made us famous. Every pizza is hand-stretched and made to order with love."
+      ]
+    },
+    {
+      "id": "our-mission",
+      "title": "Our Mission",
+      "content": [
+        "To serve the most authentic Italian pizzas using traditional recipes, fresh ingredients, and time-honored cooking methods.",
+        "We believe that great food brings people together, and every pizza we make is crafted to create memorable moments for our customers and their families."
+      ]
+    },
+    {
+      "id": "what-makes-us-special",
+      "title": "What Makes Us Special",
+      "items": [
+        {
+          "title": "Wood-Fired Tradition",
+          "description": "Our brick ovens reach 900°F, creating the perfect crispy crust with a tender, airy interior."
+        },
+        {
+          "title": "Fresh Daily Ingredients",
+          "description": "We make our dough fresh every morning and use only the finest San Marzano tomatoes and fresh mozzarella."
+        },
+        {
+          "title": "Family Recipes",
+          "description": "Every sauce, seasoning blend, and specialty pizza follows recipes passed down through four generations."
+        },
+        {
+          "title": "Local Community",
+          "description": "We've been proud to serve the Boston community for decades, supporting local events and charities."
+        }
+      ]
+    }
+  ],
+  "contactInfo": {
+    "address": "381 Portsmouth Ave, Greenland, NH 03840",
+    "phone": "(603) 501-0774",
+    "email": "info@GreenlandFamous.com",
+    "hours": {
+      "monday": "10:30 AM - 8:00 PM",
+      "tuesday": "10:30 AM - 8:00 PM",
+      "wednesday": "10:30 AM - 8:00 PM",
+      "thursday": "10:30 AM - 8:00 PM",
+      "friday": "10:30 AM - 8:00 PM",
+      "saturday": "10:30 AM - 8:00 PM",
+      "sunday": "10:30 AM - 8:00 PM"
+    }
+  }
+}
