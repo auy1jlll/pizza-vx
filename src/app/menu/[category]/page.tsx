@@ -409,19 +409,19 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
             .map((item, index) => (
               <div
                 key={item.id}
-                className={`${components.card.interactive} ${animations.fadeIn}`}
+                className={`${components.card.interactive} ${animations.fadeIn} flex flex-col h-full`}
                 style={animations.staggered(index)}
               >
                 {/* Floating Background Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
                 {/* Floating Item Icon - Large */}
-                <div className={`${components.icon.floating} absolute top-4 right-4`}>
+                <div className={`${components.icon.floating} absolute top-4 right-4 z-20`}>
                   {getItemIcon(item.name, category)}
                 </div>
 
-                {/* Content */}
-                <div className="relative z-10 p-6">
+                {/* Content - Flex grow to push button to bottom */}
+                <div className="relative z-10 p-6 flex flex-col flex-grow">
                   {/* Header with Icon Badge */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start space-x-4 flex-1">
@@ -457,8 +457,8 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
                     </div>
                   </div>
 
-                  {/* Customization Pills - Enhanced */}
-                  <div className="mb-6">
+                  {/* Customization Pills - Enhanced - Flex grow to fill space */}
+                  <div className="mb-6 flex-grow">
                     {item.customizationGroups.length > 0 && (
                       <>
                         <div className={`${designSystem.tiny} flex items-center text-white/60 mb-3`}>
@@ -484,25 +484,27 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
                     )}
                   </div>
 
-                  {/* Enhanced CTA Button */}
-                  <button
-                    onClick={() => {
-                      if (category === 'sandwiches') {
-                        router.push(`/build-sandwich?id=${item.id}`);
-                      } else {
-                        selectItem(item);
-                      }
-                    }}
-                    className={`${components.button.shimmer} w-full py-4 px-6`}
-                  >
-                    {/* Button Background Animation */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700"></div>
-                    
-                    <div className="relative flex items-center justify-center space-x-3">
-                      <Plus className="w-5 h-5 group-hover/btn:rotate-90 transition-transform duration-300" />
-                      <span className={`${designSystem.bodyLarge} font-semibold`}>Customize & Add</span>
-                    </div>
-                  </button>
+                  {/* Enhanced CTA Button - Always at bottom */}
+                  <div className="mt-auto">
+                    <button
+                      onClick={() => {
+                        if (category === 'sandwiches') {
+                          router.push(`/build-sandwich?id=${item.id}`);
+                        } else {
+                          selectItem(item);
+                        }
+                      }}
+                      className={`${components.button.shimmer} w-full py-4 px-6`}
+                    >
+                      {/* Button Background Animation */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700"></div>
+                      
+                      <div className="relative flex items-center justify-center space-x-3">
+                        <Plus className="w-5 h-5 group-hover/btn:rotate-90 transition-transform duration-300" />
+                        <span className={`${designSystem.bodyLarge} font-semibold`}>Customize & Add</span>
+                      </div>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Floating Corner Accent */}

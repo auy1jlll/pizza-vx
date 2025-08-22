@@ -31,7 +31,7 @@ interface MenuStructure {
   };
 }
 
-export default function HybridNavigation() {
+export default function HybridNavigationWithSubmenus() {
   const { settings, loading } = useAppSettingsContext();
   const [isHydrated, setIsHydrated] = useState(false);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
@@ -42,13 +42,8 @@ export default function HybridNavigation() {
   // Handle hydration
   useEffect(() => {
     setIsHydrated(true);
+    fetchCategories();
   }, []);
-
-  useEffect(() => {
-    if (isHydrated) {
-      fetchCategories();
-    }
-  }, [isHydrated]);
 
   const fetchCategories = async () => {
     try {
@@ -128,18 +123,18 @@ export default function HybridNavigation() {
         name: 'Chicken',
         icon: '🍗',
         subcategories: [
-          { name: 'Wings', slug: 'chicken-wings', items: categories.find(c => c.slug === 'chicken-wings')?._count?.menuItems },
-          { name: 'Fingers', slug: 'chicken-fingers', items: categories.find(c => c.slug === 'chicken-fingers')?._count?.menuItems }
-        ].filter(sub => categories.find(c => c.slug === sub.slug))
+          { name: 'Wings', slug: 'chicken-wings', items: 6 }, // Will be created from side orders
+          { name: 'Fingers', slug: 'chicken-fingers', items: 3 } // Will be created from side orders
+        ]
       },
       'appetizers': {
         name: 'Appetizers',
         icon: '🍤',
         subcategories: [
-          { name: 'Fried Appetizers', slug: 'fried-appetizers', items: categories.find(c => c.slug === 'fried-appetizers')?._count?.menuItems },
-          { name: 'Soups & Chowders', slug: 'soups-chowders', items: categories.find(c => c.slug === 'soups-chowders')?._count?.menuItems },
-          { name: 'Specialty Items', slug: 'specialty-items', items: categories.find(c => c.slug === 'specialty-items')?._count?.menuItems }
-        ].filter(sub => categories.find(c => c.slug === sub.slug))
+          { name: 'Fried Appetizers', slug: 'fried-appetizers', items: 5 },
+          { name: 'Soups & Chowders', slug: 'soups-chowders', items: 4 },
+          { name: 'Specialty Items', slug: 'specialty-items', items: 4 }
+        ]
       }
     };
 
@@ -188,8 +183,8 @@ export default function HybridNavigation() {
               Home
             </Link>
 
-            {/* Main Menu Items with Submenus - Only render after hydration */}
-            {isHydrated && Object.entries(menuStructure).map(([key, menu]) => (
+            {/* Main Menu Items with Submenus */}
+            {Object.entries(menuStructure).map(([key, menu]) => (
               <div key={key} className="relative">
                 <button
                   className="text-white hover:text-orange-300 transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/10 flex items-center gap-1"
@@ -241,7 +236,7 @@ export default function HybridNavigation() {
               </div>
             ))}
 
-            {/* Standalone Salads Link - Always show */}
+            {/* Standalone Salads Link */}
             <Link 
               href="/menu/salads" 
               className="text-white hover:text-orange-300 transition-colors font-medium px-3 py-2 rounded-lg hover:bg-white/10 flex items-center gap-1"
@@ -292,7 +287,7 @@ export default function HybridNavigation() {
               </Link>
 
               {/* Mobile Menu Categories */}
-              {isHydrated && Object.entries(menuStructure).map(([key, menu]) => (
+              {Object.entries(menuStructure).map(([key, menu]) => (
                 <div key={key} className="space-y-1">
                   <div className="text-white font-medium px-3 py-2 flex items-center">
                     <span className="mr-2">{menu.icon}</span>

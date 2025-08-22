@@ -114,6 +114,9 @@ export class CustomizationEngine {
             }
           },
           orderBy: { sortOrder: 'asc' }
+        },
+        _count: {
+          select: { menuItems: true }
         }
       },
       orderBy: { sortOrder: 'asc' }
