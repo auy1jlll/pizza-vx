@@ -110,6 +110,72 @@ export default function CheckoutPage() {
     }
   }, [allCartItems, menuItems, pizzaItems]);
 
+  // Populate customer info from logged-in user's profile
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (user) {
+        console.log('👤 Loading user profile for checkout...');
+        try {
+          const response = await fetch('/api/user/profile');
+          if (response.ok) {
+            const data = await response.json();
+            const userProfile = data.user;
+            
+            console.log('📋 User profile loaded:', userProfile);
+            
+            // Get default address if available
+            const defaultAddress = userProfile.addresses?.find((addr: any) => addr.isDefault) || userProfile.addresses?.[0];
+            
+            setCustomerInfo({
+              name: userProfile.name || '',
+              email: userProfile.email || '',
+              phone: userProfile.phone || userProfile.customerProfile?.phone || '',
+              address: defaultAddress?.addressLine1 || '',
+              city: defaultAddress?.city || '',
+              zip: defaultAddress?.zipCode || ''
+            });
+            
+            console.log('✅ Customer info populated from profile');
+          } else {
+            console.warn('Failed to load user profile, using basic user data');
+            // Fallback to basic user data
+            setCustomerInfo({
+              name: user.name || '',
+              email: user.email || '',
+              phone: '',
+              address: '',
+              city: '',
+              zip: ''
+            });
+          }
+        } catch (error) {
+          console.error('Error loading user profile:', error);
+          // Fallback to basic user data
+          setCustomerInfo({
+            name: user.name || '',
+            email: user.email || '',
+            phone: '',
+            address: '',
+            city: '',
+            zip: ''
+          });
+        }
+      } else {
+        // Clear customer info if user logs out
+        setCustomerInfo({
+          name: '',
+          email: '',
+          phone: '',
+          address: '',
+          city: '',
+          zip: ''
+        });
+      }
+    };
+
+    loadUserProfile();
+  }, [user]);
+
   // Calculate menu subtotal with current prices AND customizations (FIXED)
   const calculateMenuSubtotal = () => {
     return menuItems.reduce((total, item) => {
