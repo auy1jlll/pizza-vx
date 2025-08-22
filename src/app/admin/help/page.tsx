@@ -9,7 +9,7 @@ export default function AdminHelpPage() {
       title: 'Admin User Guide',
       description: 'Complete guide for managing the restaurant system',
       icon: <BookOpen className="w-6 h-6" />,
-      href: '/ADMIN_USER_GUIDE.md',
+      href: '/api/docs/ADMIN_USER_GUIDE.md',
       sections: ['User Management', 'Order Management', 'Pizza Configuration', 'Menu Items', 'System Settings', 'Reports & Analytics'],
       color: 'from-blue-500 to-blue-600'
     },
@@ -17,7 +17,7 @@ export default function AdminHelpPage() {
       title: 'Quick Reference Guide',
       description: 'Daily tasks and quick navigation help',
       icon: <Zap className="w-6 h-6" />,
-      href: '/QUICK_REFERENCE.md',
+      href: '/api/docs/QUICK_REFERENCE.md',
       sections: ['Daily Checklist', 'Order Status Workflow', 'Emergency Procedures', 'Contact Information'],
       color: 'from-green-500 to-green-600'
     },
@@ -25,7 +25,7 @@ export default function AdminHelpPage() {
       title: 'Technical Documentation',
       description: 'System architecture and development guide',
       icon: <Settings className="w-6 h-6" />,
-      href: '/TECHNICAL_HANDOVER.md',
+      href: '/api/docs/TECHNICAL_HANDOVER.md',
       sections: ['Technology Stack', 'API Endpoints', 'Database Schema', 'Authentication System'],
       color: 'from-purple-500 to-purple-600'
     },
@@ -33,7 +33,7 @@ export default function AdminHelpPage() {
       title: 'Deployment Guide',
       description: 'Production setup and operations manual',
       icon: <FileText className="w-6 h-6" />,
-      href: '/DEPLOYMENT_OPERATIONS.md',
+      href: '/api/docs/DEPLOYMENT_OPERATIONS.md',
       sections: ['Production Setup', 'Database Backup', 'Security Configuration', 'Monitoring'],
       color: 'from-orange-500 to-orange-600'
     }

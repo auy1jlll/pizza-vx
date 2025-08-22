@@ -59,11 +59,15 @@ export default function SpecialtyPizzasPage() {
       const response = await fetch('/api/specialty-pizzas');
       if (response.ok) {
         const data = await response.json();
-        setPizzas(Array.isArray(data) ? data : []);
+        // Filter out calzones - only show pizzas
+        const pizzasOnly = Array.isArray(data) ? data.filter((item: SpecialtyPizza) => 
+          item.category !== 'CALZONE'
+        ) : [];
+        setPizzas(pizzasOnly);
         
         // Set default sizes to the first available size for each pizza
         const defaultSizes: Record<string, string> = {};
-        data.forEach((pizza: SpecialtyPizza) => {
+        pizzasOnly.forEach((pizza: SpecialtyPizza) => {
           if (pizza.sizes && pizza.sizes.length > 0) {
             defaultSizes[pizza.id] = pizza.sizes[0].pizzaSize.id;
           }

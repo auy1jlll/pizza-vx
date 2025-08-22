@@ -222,7 +222,7 @@ export const responsive = {
   // Grid systems
   grid: {
     mobile: 'grid grid-cols-1 gap-4',
-    tablet: 'grid grid-cols-1 md:grid-cols-2 gap-6',
+    tablet: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4',
     desktop: 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8',
     auto: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8'
   },

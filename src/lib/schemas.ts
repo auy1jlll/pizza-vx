@@ -13,7 +13,7 @@ export const ToppingSection = z.enum(['LEFT', 'RIGHT', 'WHOLE']);
 export const ToppingIntensity = z.enum(['LIGHT', 'REGULAR', 'EXTRA']);
 export const SettingType = z.enum(['STRING', 'NUMBER', 'BOOLEAN', 'JSON']);
 
-// Pizza Component Schemas
+// Pizza Component Schemas (Full Database Objects)
 export const PizzaSizeSchema = z.object({
   id: z.string(),
   name: z.string().min(1, 'Size name is required'),
@@ -42,6 +42,37 @@ export const PizzaSauceSchema = z.object({
   priceModifier: z.number(),
   isActive: z.boolean(),
   sortOrder: z.number(),
+});
+
+// Simplified Schemas for Frontend/API (Only Essential Fields)
+export const SimplePizzaSizeSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  basePrice: nonNegativeNumber,
+  diameter: z.string().optional(),
+  isActive: z.boolean().optional(),
+  sortOrder: z.number().optional(),
+  description: z.string().optional(),
+});
+
+export const SimplePizzaCrustSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  priceModifier: z.number(),
+  description: z.string().optional(),
+  isActive: z.boolean().optional(),
+  sortOrder: z.number().optional(),
+});
+
+export const SimplePizzaSauceSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  priceModifier: z.number(),
+  description: z.string().optional(),
+  color: z.string().optional(),
+  spiceLevel: z.number().optional(),
+  isActive: z.boolean().optional(),
+  sortOrder: z.number().optional(),
 });
 
 export const PizzaToppingSchema = z.object({
@@ -104,9 +135,9 @@ export const CartItemSchema = z.object({
   customizations: z.array(CustomizationSchema).optional(),
   
   // Pizza-specific fields (legacy support)
-  size: PizzaSizeSchema.optional(),
-  crust: PizzaCrustSchema.optional(), 
-  sauce: PizzaSauceSchema.optional(),
+  size: SimplePizzaSizeSchema.optional(),
+  crust: SimplePizzaCrustSchema.optional(), 
+  sauce: SimplePizzaSauceSchema.optional(),
   toppings: z.array(CartToppingSchema).optional(),
   
   // Pizza size/crust/sauce IDs (alternative format)

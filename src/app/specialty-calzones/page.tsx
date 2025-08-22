@@ -38,20 +38,24 @@ export default function SpecialtyCalzonesPage() {
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
   const { addDetailedPizza } = useCart();
 
-  // Fetch specialty pizzas (we'll convert these to calzone versions)
+  // Fetch specialty calzones
   const fetchSpecialtyPizzas = async (calzoneData?: any) => {
     try {
       const response = await fetch('/api/specialty-pizzas');
       if (response.ok) {
         const data = await response.json();
-        setPizzas(Array.isArray(data) ? data : []);
+        // Filter to only show calzones
+        const calzonesOnly = Array.isArray(data) ? data.filter((item: SpecialtyPizza) => 
+          item.category === 'CALZONE'
+        ) : [];
+        setPizzas(calzonesOnly);
         
         // Set default sizes to the first available calzone size for each pizza
         const defaultSizes: Record<string, string> = {};
-        data.forEach((pizza: SpecialtyPizza) => {
-          // For calzones, we'll use calzone sizing
-          if (calzoneData?.sizes && calzoneData.sizes.length > 0) {
-            defaultSizes[pizza.id] = calzoneData.sizes[0].id;
+        calzonesOnly.forEach((pizza: SpecialtyPizza) => {
+          // Use the pizza's own sizes
+          if (pizza.sizes && pizza.sizes.length > 0) {
+            defaultSizes[pizza.id] = pizza.sizes[0].pizzaSize.id;
           }
         });
         setSelectedSizes(defaultSizes);
@@ -98,13 +102,15 @@ export default function SpecialtyCalzonesPage() {
   // Get selected calzone size for a pizza
   const getSelectedCalzoneSize = (pizza: SpecialtyPizza) => {
     const selectedSizeId = selectedSizes[pizza.id];
-    return pizzaData?.sizes?.find((size: any) => size.id === selectedSizeId);
+    const sizeOption = pizza.sizes?.find((s: any) => s.pizzaSize.id === selectedSizeId);
+    return sizeOption?.pizzaSize;
   };
 
   // Get price for selected calzone size
   const getCalzonePrice = (pizza: SpecialtyPizza): number => {
-    const selectedSize = getSelectedCalzoneSize(pizza);
-    return selectedSize ? selectedSize.basePrice : 16.00; // Default to small calzone price
+    const selectedSizeId = selectedSizes[pizza.id];
+    const sizeOption = pizza.sizes?.find((s: any) => s.pizzaSize.id === selectedSizeId);
+    return sizeOption?.price || pizza.basePrice;
   };
 
   // Handle size selection
@@ -221,22 +227,22 @@ export default function SpecialtyCalzonesPage() {
                   </div>
 
                   {/* Size Selection */}
-                  {pizzaData?.sizes && (
+                  {pizza.sizes && pizza.sizes.length > 0 && (
                     <div className="mb-4">
                       <p className="text-sm font-semibold text-gray-700 mb-2">Choose Size:</p>
                       <div className="grid grid-cols-2 gap-2">
-                        {pizzaData.sizes.map((size: any) => (
+                        {pizza.sizes.map((sizeOption: any) => (
                           <button
-                            key={size.id}
-                            onClick={() => handleSizeSelect(pizza.id, size.id)}
+                            key={sizeOption.pizzaSize.id}
+                            onClick={() => handleSizeSelect(pizza.id, sizeOption.pizzaSize.id)}
                             className={`p-2 rounded-lg border text-sm font-medium transition-colors ${
-                              selectedSizes[pizza.id] === size.id
+                              selectedSizes[pizza.id] === sizeOption.pizzaSize.id
                                 ? 'border-amber-500 bg-amber-50 text-amber-700'
                                 : 'border-gray-200 hover:border-gray-300 text-gray-700'
                             }`}
                           >
-                            <div>{size.name.replace(' Calzone', '')}</div>
-                            <div className="text-xs text-gray-500">${size.basePrice}</div>
+                            <div>{sizeOption.pizzaSize.name}</div>
+                            <div className="text-xs text-gray-500">${sizeOption.price}</div>
                           </button>
                         ))}
                       </div>

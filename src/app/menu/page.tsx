@@ -317,7 +317,7 @@ export default function MenuPage() {
             </div>
 
             {/* Category Cards Grid */}
-            <div className={`${responsive.grid.tablet} max-w-6xl mx-auto`}>
+            <div className={`${responsive.grid.tablet} max-w-5xl mx-auto`}>
               {categories.map((category, index) => (
                 <Link
                   key={category.id}
@@ -326,42 +326,42 @@ export default function MenuPage() {
                   style={animations.staggered(index)}
                 >
                   {/* Floating Category Icon */}
-                  <div className={`${components.icon.floating} absolute top-6 right-6`}>
+                  <div className={`${components.icon.floating} absolute top-4 right-4`}>
                     {getCategoryIcon(category.slug)}
                   </div>
                   
                   {/* Gradient Hover Effect */}
                   <div className={`absolute inset-0 bg-gradient-to-r ${getCategoryGradient(category.slug)} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-3xl`}></div>
                   
-                  <div className="relative z-10 p-8">
+                  <div className="relative z-10 p-5">
                     {/* Category Icon Badge */}
-                    <div className={`${components.icon.interactive} mb-6`} style={{
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg mb-4`} style={{
                       background: `linear-gradient(to right, ${getCategoryGradient(category.slug).replace('from-', '').replace('to-', '').split(' ').join(', ')})`
                     }}>
-                      <span className="text-2xl filter brightness-110">
+                      <span className="text-lg filter brightness-110">
                         {getCategoryIcon(category.slug)}
                       </span>
                     </div>
                     
                     {/* Category Info */}
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h3 className={`${designSystem.h2} text-white mb-2 group-hover:text-orange-300 transition-colors`}>
+                        <h3 className={`text-lg md:text-xl font-bold leading-relaxed text-white mb-1 group-hover:text-orange-300 transition-colors`}>
                           {category.name}
                         </h3>
-                        <div className={`${designSystem.small} text-white/60 font-medium`}>
+                        <div className={`${designSystem.tiny} text-white/60 font-medium`}>
                           {category.menuItems?.length || 0} delicious items
                         </div>
                       </div>
                     </div>
                     
-                    <p className={`${designSystem.body} text-white/70 mb-6 group-hover:text-white/90 transition-colors`}>
+                    <p className={`text-sm leading-relaxed text-white/70 mb-4 group-hover:text-white/90 transition-colors`}>
                       {category.description}
                     </p>
                     
-                    <div className={`${designSystem.body} flex items-center text-green-400 font-semibold group-hover:text-green-300 transition-colors`}>
+                    <div className={`text-sm leading-relaxed flex items-center text-green-400 font-semibold group-hover:text-green-300 transition-colors`}>
                       <span>Explore Menu</span>
-                      <ChevronRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
                 </Link>

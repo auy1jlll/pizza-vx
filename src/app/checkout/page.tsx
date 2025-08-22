@@ -374,6 +374,9 @@ export default function CheckoutPage() {
     setLoading(true);
     
     try {
+      // Debug: Log the raw cart items before formatting
+      console.log('🛒 Raw cart items before formatting:', JSON.stringify(allCartItems, null, 2));
+      
       // Format items properly for API validation
       const formattedItems = await Promise.all(allCartItems.map(async (item: any) => {
         if (item.type === 'menu' || item.menuItemId) {
@@ -488,8 +491,8 @@ export default function CheckoutPage() {
         orderData.scheduledTime = scheduledTime;
       }
 
-      console.log('🛒 Submitting order data:', orderData);
-      console.log('📦 Formatted items:', formattedItems);
+      console.log('🛒 Submitting order data:', JSON.stringify(orderData, null, 2));
+      console.log('📦 Formatted items:', JSON.stringify(formattedItems, null, 2));
 
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -500,6 +503,7 @@ export default function CheckoutPage() {
       });
 
       console.log('Checkout response status:', response.status);
+      console.log('Checkout response headers:', Object.fromEntries(response.headers.entries()));
 
       if (response.ok) {
         const result = await response.json();
@@ -530,9 +534,35 @@ export default function CheckoutPage() {
         router.push(`/order/${orderId}`);
         
       } else {
-        const error = await response.json();
-        console.error('Checkout error response:', error);
-        showToast(`Order failed: ${error.message || 'Please try again'}`, { type: 'error' });
+        let error;
+        let responseText;
+        try {
+          // First, let's see what the response body actually contains
+          responseText = await response.text();
+          console.log('Raw error response text:', responseText);
+          console.log('Response status:', response.status);
+          console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+          
+          if (!responseText || responseText.trim() === '') {
+            console.error('Empty response body received from server');
+            showToast(`Order failed: Server returned empty response (${response.status})`, { type: 'error' });
+            return;
+          }
+          
+          // Try to parse as JSON
+          error = JSON.parse(responseText);
+          console.error('Checkout error response:', error);
+          console.log('Error object type:', typeof error);
+          console.log('Error object keys:', Object.keys(error || {}));
+          
+          const errorMessage = error?.error || error?.message || 'Unknown error occurred';
+          showToast(`Order failed: ${errorMessage}`, { type: 'error' });
+        } catch (parseError) {
+          console.error('Failed to parse error response as JSON:', parseError);
+          console.error('Raw response text was:', responseText);
+          const errorDetails = parseError instanceof Error ? parseError.message : 'Unknown parse error';
+          showToast(`Order failed: Server error (${response.status}) - ${errorDetails}`, { type: 'error' });
+        }
       }
     } catch (error) {
       console.error('Checkout network error:', error);

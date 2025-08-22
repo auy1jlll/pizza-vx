@@ -85,28 +85,28 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Logo positioned at far left top */}
+      <div className="fixed top-4 left-4 z-50">
+        <div className="flex items-center space-x-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl">
+            <span className="text-2xl">🍕</span>
+          </div>
+          <div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-orange-400 to-pink-400 bg-clip-text text-transparent">
+              Pizza Builder
+            </h1>
+            <p className="text-xs text-white/60 font-medium">Admin Portal</p>
+          </div>
+        </div>
+      </div>
+
       {/* Enhanced Navigation */}
-      <nav className="backdrop-blur-xl bg-black/20 border-b border-white/10 sticky top-0 z-50">
+      <nav className="backdrop-blur-xl bg-black/20 border-b border-white/10 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20">
             <div className="flex items-center">
-              {/* Logo */}
-              <div className="flex-shrink-0 flex items-center">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl">
-                    <span className="text-2xl">🍕</span>
-                  </div>
-                  <div>
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-orange-400 to-pink-400 bg-clip-text text-transparent">
-                      Pizza Builder
-                    </h1>
-                    <p className="text-xs text-white/60 font-medium">Admin Portal</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Desktop Navigation */}
-              <div className="hidden lg:ml-10 lg:flex lg:space-x-1">
+              {/* Desktop Navigation - moved to left after removing logo */}
+              <div className="hidden lg:flex lg:space-x-1 lg:ml-48">
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
@@ -151,7 +151,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
 
           {/* Mobile Navigation */}
-          <div className="lg:hidden pb-4">
+          <div className="lg:hidden pb-4 pt-16">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {navItems.map((item) => (
                 <Link
@@ -176,7 +176,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </nav>
 
       {/* Main content */}
-      <main className="relative">
+      <main className="relative pt-20">
         {children}
       </main>
     </div>

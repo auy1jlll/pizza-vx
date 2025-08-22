@@ -23,10 +23,12 @@ export async function POST(request: NextRequest) {
     console.log('- Order type:', requestData.orderType);
     console.log('- Customer:', requestData.customer);
     console.log('- Items count:', requestData.items?.length);
-    console.log('- Items:', JSON.stringify(requestData.items, null, 2));
+    console.log('- Full request data:', JSON.stringify(requestData, null, 2));
 
     // Validate request data with Zod schema
+    console.log('🔍 Starting validation...');
     const validation = validateSchema(CreateOrderSchema, requestData);
+    console.log('🔍 Validation result:', validation.success ? 'SUCCESS' : 'FAILED');
     if (!validation.success) {
       console.log('❌ Validation failed:', validation.error);
       console.log('❌ Request data that failed validation:', JSON.stringify(requestData, null, 2));
@@ -130,9 +132,17 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Checkout error:', error);
-    return NextResponse.json(
-      createApiError('Failed to process order. Please try again.', 500),
-      { status: 500 }
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('Error message:', error instanceof Error ? error.message : String(error));
+    console.error('Error type:', typeof error);
+    console.error('Error constructor:', error?.constructor?.name);
+    
+    const errorResponse = createApiError(
+      error instanceof Error ? error.message : 'Failed to process order. Please try again.', 
+      500
     );
+    console.log('Sending error response:', JSON.stringify(errorResponse, null, 2));
+    
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }

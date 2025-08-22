@@ -63,14 +63,14 @@ export async function GET(request: NextRequest) {
         console.log('Fetching pizza data...');
         
         // Try memory cache first (fastest)
-        let pizzaData = cacheService.get('pizza-data', CACHE_KEYS.PIZZA_DATA.COMPLETE);
+        let pizzaData = cacheService.get('pizza-data', `${CACHE_KEYS.PIZZA_DATA.COMPLETE}-${productType}`);
         
         if (!pizzaData) {
           console.log('[API] Cache MISS - fetching from database');
           
           // Fetch actual data from database in parallel
           const [sizes, crusts, sauces, toppings] = await Promise.all([
-            cacheService.getOrSet('sizes', CACHE_KEYS.SIZES.ALL_AVAILABLE, async () => {
+            cacheService.getOrSet('sizes', `${CACHE_KEYS.SIZES.ALL_AVAILABLE}-${productType}`, async () => {
               return prisma.pizzaSize.findMany({
                 where: { 
                   isActive: true,
@@ -149,7 +149,7 @@ export async function GET(request: NextRequest) {
           };
 
           // Cache the complete data
-          cacheService.set('pizza-data', CACHE_KEYS.PIZZA_DATA.COMPLETE, pizzaData);
+          cacheService.set('pizza-data', `${CACHE_KEYS.PIZZA_DATA.COMPLETE}-${productType}`, pizzaData);
         } else {
           console.log('[API] Cache HIT - serving from memory');
           (pizzaData as any).metadata = {
@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching pizza data:', error);
     
     // Try to serve stale cache data if available
-    const staleData = cacheService.get('pizza-data', CACHE_KEYS.PIZZA_DATA.COMPLETE);
+    const staleData = cacheService.get('pizza-data', `${CACHE_KEYS.PIZZA_DATA.COMPLETE}-${productType}`);
     if (staleData) {
       console.log('[API] Serving stale cache data due to error');
       const response = NextResponse.json({

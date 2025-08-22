@@ -660,7 +660,7 @@ export default function PizzaBuilder() {
     
     const breakdown = {
       basePrice,
-      baseName: specialtyPizza ? specialtyPizza.name : `${selection.size.name} Pizza`,
+      baseName: specialtyPizza ? specialtyPizza.name : `${selection.size.name} ${isCalzoneMode ? 'Calzone' : 'Pizza'}`,
       crustModifier: !specialtyPizza && selection.crust ? selection.crust.priceModifier : 0,
       sauceModifier: !specialtyPizza && selection.sauce ? selection.sauce.priceModifier : 0,
       addedToppingsPrice: 0,
