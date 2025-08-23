@@ -2,23 +2,29 @@
 
 ## Our Story
 
-RestoApp was born from a passion for authentic Italian cuisine and a commitment to serving the Greenland and Portsmouth communities with exceptional food and service. 
+RestoApp was born from a passion for authentic Italian cuisine and a commitment to serving the local community with exceptional food and service. 
 
 ### Our Mission
 
-To bring the authentic taste of Italy to Greenland, New Hampshire, while supporting our local community and providing an exceptional dining experience that brings families and friends together.
+To bring the authentic taste of Italy to our local area, while supporting our local community and providing an exceptional dining experience that brings families and friends together.
 
 ### What Makes Us Different
 
 **Authentic Recipes:** Our recipes have been perfected over generations, bringing you the true taste of traditional Italian pizza and cuisine.
 
-**Local Ingredients:** We source our ingredients from local New Hampshire farms whenever possible, supporting our community while ensuring the freshest flavors.
+**Local Ingredients:** We source our ingredients from local farms whenever possible, supporting our community while ensuring the freshest flavors.
 
-**Community Commitment:** As a locally-owned business, we're invested in the success of Greenland, Portsmouth, and the entire Seacoast region.
+**Community Commitment:** As a locally-owned business, we're invested in the success of our local area and the entire region.
 
 ### Our Team
 
-Our experienced chefs and friendly staff are dedicated to making every visit memorable. From our pizza makers who hand-stretch every dough to our servers who ensure your dining experience is perfect, every team member is committed to excellence.
+Our people are dedicated to making every visit memorable. From our pizza makers who hand-stretch every dough to our team members who ensure your dining experience is perfect, every person is committed to excellence.
+
+### Hot Pizza Oven
+Our pizza oven exceeds 650 degrees, creating the perfect crispy crust with a tender, airy interior that delivers exceptional flavor in every bite.
+
+### Fresh Ingredients
+Fresh ingredients locally sourced - our home made fresh daily dough is never frozen. We're committed to quality ingredients that make every meal exceptional.
 
 ### Awards & Recognition
 
@@ -35,11 +41,11 @@ Every ingredient that goes into our pizzas and salads is carefully selected for 
 Experience the difference that passion and dedication make. We're located in the heart of Greenland, NH, and we're ready to serve you the best pizza and salads in the Seacoast area.
 
 **Contact Information:**
-- Address: [Your Address], Greenland, NH 03840
-- Phone: [Your Phone Number]
+- Address: [Your Address], Local Area
+- Phone: (630) 501-0774
 - Email: [Your Email]
 
-*Come taste why we're Greenland's favorite pizza destination!*
+*Come taste why we're your local favorite pizza destination!*
 
 ---
 

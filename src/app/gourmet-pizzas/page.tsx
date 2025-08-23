@@ -59,15 +59,11 @@ export default function SpecialtyPizzasPage() {
       const response = await fetch('/api/specialty-pizzas');
       if (response.ok) {
         const data = await response.json();
-        // Filter out calzones - only show pizzas
-        const pizzasOnly = Array.isArray(data) ? data.filter((item: SpecialtyPizza) => 
-          item.category !== 'CALZONE'
-        ) : [];
-        setPizzas(pizzasOnly);
+        setPizzas(Array.isArray(data) ? data : []);
         
         // Set default sizes to the first available size for each pizza
         const defaultSizes: Record<string, string> = {};
-        pizzasOnly.forEach((pizza: SpecialtyPizza) => {
+        data.forEach((pizza: SpecialtyPizza) => {
           if (pizza.sizes && pizza.sizes.length > 0) {
             defaultSizes[pizza.id] = pizza.sizes[0].pizzaSize.id;
           }
@@ -248,8 +244,8 @@ export default function SpecialtyPizzasPage() {
             Our <span className="text-orange-400">Signature</span> Pizzas
           </h1>
           <p className="text-xl text-gray-200 mb-2 max-w-3xl mx-auto">
-            Handcrafted specialty pizzas with authentic Boston flavor. Each recipe perfected with 
-            locally-sourced ingredients and traditional techniques from the North End.
+            Handcrafted specialty pizzas with authentic local flavor. Each recipe perfected with 
+            locally-sourced ingredients and traditional techniques.
           </p>
         </div>
       </div>

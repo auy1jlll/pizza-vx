@@ -110,16 +110,7 @@ export default function DynamicFooter() {
             <div className="space-y-1">
               <h4 className="text-sm font-semibold text-orange-300 mb-2">Links</h4>
               <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-                {settings.enable_menu_ordering && (
-                  <Link href="/menu" className="text-gray-300 hover:text-orange-300 transition-colors">
-                    Menu
-                  </Link>
-                )}
-                {settings.enable_pizza_builder && (
-                  <Link href="/build-pizza" className="text-gray-300 hover:text-orange-300 transition-colors">
-                    Pizza Builder
-                  </Link>
-                )}
+                {/* Only render static links until client-side hydration to avoid hydration mismatch */}
                 <Link href="/about" className="text-gray-300 hover:text-orange-300 transition-colors">
                   About Us
                 </Link>
@@ -135,23 +126,35 @@ export default function DynamicFooter() {
                 <Link href="/privacy" className="text-gray-300 hover:text-orange-300 transition-colors">
                   Privacy
                 </Link>
-                <Link href="/settings-demo" className="text-gray-300 hover:text-orange-300 transition-colors">
-                  Settings
-                </Link>
-                {settings.terms_url && (
-                  <a href={settings.terms_url} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-orange-300 transition-colors">
-                    External Terms
-                  </a>
-                )}
-                {settings.privacy_url && (
-                  <a href={settings.privacy_url} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-orange-300 transition-colors">
-                    External Privacy
-                  </a>
-                )}
-                {settings.refund_policy_url && (
-                  <a href={settings.refund_policy_url} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-orange-300 transition-colors">
-                    Refunds
-                  </a>
+                {/* After hydration, render dynamic links */}
+                {isClient && (
+                  <>
+                    {settings.enable_menu_ordering && (
+                      <Link href="/menu" className="text-gray-300 hover:text-orange-300 transition-colors">
+                        Menu
+                      </Link>
+                    )}
+                    {settings.enable_pizza_builder && (
+                      <Link href="/build-pizza" className="text-gray-300 hover:text-orange-300 transition-colors">
+                        Pizza Builder
+                      </Link>
+                    )}
+                    {settings.terms_url && (
+                      <a href={settings.terms_url} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-orange-300 transition-colors">
+                        External Terms
+                      </a>
+                    )}
+                    {settings.privacy_url && (
+                      <a href={settings.privacy_url} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-orange-300 transition-colors">
+                        External Privacy
+                      </a>
+                    )}
+                    {settings.refund_policy_url && (
+                      <a href={settings.refund_policy_url} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-orange-300 transition-colors">
+                        Refunds
+                      </a>
+                    )}
+                  </>
                 )}
               </div>
             </div>

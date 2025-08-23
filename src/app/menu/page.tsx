@@ -162,7 +162,7 @@ export default function MenuPage() {
               {/* Floating Badge */}
               <div className={`${components.badge.floating}`}>
                 <Star className="w-4 h-4 mr-2 text-yellow-400" />
-                Boston's Favorite Restaurant
+                Local Favorite Restaurant
                 <Star className="w-4 h-4 ml-2 text-yellow-400" />
               </div>
 
@@ -177,8 +177,8 @@ export default function MenuPage() {
 
               {/* Subtitle */}
               <p className={`${responsive.text.subtitle} text-white/80 mb-12 max-w-3xl mx-auto font-light`}>
-                From wood-fired pizzas to fresh seafood rolls, crisp salads to hearty dinner plates — 
-                discover our complete selection of <span className="text-orange-400 font-semibold">Boston-inspired dishes</span>
+                From 650 degree oven pizzas to fresh seafood rolls, crisp salads to hearty dinner plates — 
+                discover our complete selection of <span className="text-orange-400 font-semibold">local inspired dishes</span>
               </p>
 
               {/* Feature Pills */}
@@ -223,12 +223,12 @@ export default function MenuPage() {
               </span>
             </h2>
             <p className="text-xl text-white/70 max-w-2xl mx-auto">
-              Hand-tossed dough, premium ingredients, wood-fired perfection
+              Hand-tossed dough, premium ingredients, 650 degree oven perfection
             </p>
           </div>
 
           {/* Pizza Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 max-w-7xl mx-auto">
             <Link 
               href="/build-pizza"
               className="group relative overflow-hidden rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 p-8 hover:scale-105 transition-all duration-500 shadow-2xl hover:shadow-red-500/25 hover:bg-white/15"
@@ -281,7 +281,7 @@ export default function MenuPage() {
                 </h3>
                 
                 <p className="text-white/70 mb-6 text-lg leading-relaxed group-hover:text-white/90 transition-colors">
-                  Discover our signature Boston-inspired pizza creations. 
+                  Discover our signature local pizza creations. 
                   Chef-crafted combinations with local flavors and premium ingredients.
                 </p>
                 
@@ -293,6 +293,40 @@ export default function MenuPage() {
 
               {/* Hover Gradient */}
               <div className="absolute inset-0 bg-gradient-to-r from-green-600/0 to-emerald-600/0 group-hover:from-green-600/10 group-hover:to-emerald-600/10 transition-all duration-500 rounded-3xl"></div>
+            </Link>
+
+            {/* Specialty Calzones Card */}
+            <Link 
+              href="/specialty-calzones"
+              className="group relative overflow-hidden rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 p-8 hover:scale-105 transition-all duration-500 shadow-2xl hover:shadow-amber-500/25 hover:bg-white/15"
+            >
+              {/* Floating Calzone Icon */}
+              <div className="absolute top-6 right-6 text-6xl opacity-20 group-hover:opacity-40 transition-opacity duration-300 rotate-12 group-hover:rotate-0">
+                🥟
+              </div>
+              
+              <div className="relative z-10">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center mb-6 shadow-lg">
+                  <span className="text-2xl">🥟</span>
+                </div>
+                
+                <h3 className="text-3xl font-bold text-white mb-4 group-hover:text-amber-300 transition-colors">
+                  Specialty Calzones
+                </h3>
+                
+                <p className="text-white/70 mb-6 text-lg leading-relaxed group-hover:text-white/90 transition-colors">
+                  Folded pizza perfection with our signature recipes. 
+                  Hand-folded dough filled with premium ingredients and melted cheese.
+                </p>
+                
+                <div className="flex items-center text-amber-400 font-semibold text-lg group-hover:text-amber-300 transition-colors">
+                  <span>View Calzones</span>
+                  <ChevronRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+
+              {/* Hover Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-600/0 to-orange-600/0 group-hover:from-amber-600/10 group-hover:to-orange-600/10 transition-all duration-500 rounded-3xl"></div>
             </Link>
           </div>
         </div>
@@ -312,12 +346,12 @@ export default function MenuPage() {
                 </span>
               </h2>
               <p className={`${responsive.text.body} text-white/70 max-w-2xl mx-auto`}>
-                From fresh sandwiches to crisp salads, discover our full range of Boston favorites
+                From fresh sandwiches to crisp salads, discover our full range of local favorites
               </p>
             </div>
 
             {/* Category Cards Grid */}
-            <div className={`${responsive.grid.tablet} max-w-5xl mx-auto`}>
+            <div className={`${responsive.grid.tablet} max-w-6xl mx-auto`}>
               {categories.map((category, index) => (
                 <Link
                   key={category.id}
@@ -326,42 +360,42 @@ export default function MenuPage() {
                   style={animations.staggered(index)}
                 >
                   {/* Floating Category Icon */}
-                  <div className={`${components.icon.floating} absolute top-4 right-4`}>
+                  <div className={`${components.icon.floating} absolute top-6 right-6`}>
                     {getCategoryIcon(category.slug)}
                   </div>
                   
                   {/* Gradient Hover Effect */}
                   <div className={`absolute inset-0 bg-gradient-to-r ${getCategoryGradient(category.slug)} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-3xl`}></div>
                   
-                  <div className="relative z-10 p-5">
+                  <div className="relative z-10 p-8">
                     {/* Category Icon Badge */}
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg mb-4`} style={{
+                    <div className={`${components.icon.interactive} mb-6`} style={{
                       background: `linear-gradient(to right, ${getCategoryGradient(category.slug).replace('from-', '').replace('to-', '').split(' ').join(', ')})`
                     }}>
-                      <span className="text-lg filter brightness-110">
+                      <span className="text-2xl filter brightness-110">
                         {getCategoryIcon(category.slug)}
                       </span>
                     </div>
                     
                     {/* Category Info */}
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className={`text-lg md:text-xl font-bold leading-relaxed text-white mb-1 group-hover:text-orange-300 transition-colors`}>
+                        <h3 className={`${designSystem.h2} text-white mb-2 group-hover:text-orange-300 transition-colors`}>
                           {category.name}
                         </h3>
-                        <div className={`${designSystem.tiny} text-white/60 font-medium`}>
+                        <div className={`${designSystem.small} text-white/60 font-medium`}>
                           {category.menuItems?.length || 0} delicious items
                         </div>
                       </div>
                     </div>
                     
-                    <p className={`text-sm leading-relaxed text-white/70 mb-4 group-hover:text-white/90 transition-colors`}>
+                    <p className={`${designSystem.body} text-white/70 mb-6 group-hover:text-white/90 transition-colors`}>
                       {category.description}
                     </p>
                     
-                    <div className={`text-sm leading-relaxed flex items-center text-green-400 font-semibold group-hover:text-green-300 transition-colors`}>
+                    <div className={`${designSystem.body} flex items-center text-green-400 font-semibold group-hover:text-green-300 transition-colors`}>
                       <span>Explore Menu</span>
-                      <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
                 </Link>

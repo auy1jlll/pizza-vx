@@ -7,9 +7,9 @@ Located in the heart of Greenland, NH, RestoApp has been serving the Portsmouth 
 ### 🍕 Our Signature Pizzas
 
 Our pizza dough is made fresh daily using traditional Italian methods passed down through generations. We use only the finest ingredients:
-- **Premium mozzarella cheese** sourced from local New Hampshire farms
+- **Premium mozzarella cheese** sourced from local farms
 - **Fresh herbs** grown in our own garden
-- **Authentic San Marzano tomatoes** for our signature sauce
+- **Signature tomatoes** for our authentic sauce
 - **Artisan toppings** including pepperoni, Italian sausage, fresh vegetables
 
 ### 🥗 Garden-Fresh Salads
@@ -37,7 +37,7 @@ We proudly deliver to:
 - Stratham, NH
 - Newington, NH
 
-**Order Online or Call:** Ready to taste the difference? Place your order online or call us at [Your Phone Number]
+**Order Online or Call:** Ready to taste the difference? Place your order online or call us at (630) 501-0774
 
 **Address:** [Your Address], Greenland, NH 03840
 

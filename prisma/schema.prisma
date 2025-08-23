@@ -123,20 +123,21 @@ model CustomerFavorite {
 }
 
 model PizzaSize {
-  id                  String               @id @default(cuid())
-  name                String               @unique
-  diameter            String
-  basePrice           Float
-  isActive            Boolean              @default(true)
-  sortOrder           Int                  @default(0)
-  description         String?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  productType         ProductType          @default(PIZZA)
-  cartItems           CartItem[]
-  orderItems          OrderItem[]
-  specialtyPizzaSizes SpecialtyPizzaSize[]
-  customerProfiles    CustomerProfile[]   @relation("CustomerFavoritePizzaSize")
+  id                   String                 @id @default(cuid())
+  name                 String                 @unique
+  diameter             String
+  basePrice            Float
+  isActive             Boolean                @default(true)
+  sortOrder            Int                    @default(0)
+  description          String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  productType          ProductType            @default(PIZZA)
+  cartItems            CartItem[]
+  orderItems           OrderItem[]
+  specialtyPizzaSizes  SpecialtyPizzaSize[]
+  specialtyCalzoneSizes SpecialtyCalzoneSize[]
+  customerProfiles     CustomerProfile[]      @relation("CustomerFavoritePizzaSize")
 
   @@map("pizza_sizes")
 }
@@ -223,6 +224,38 @@ model SpecialtyPizzaSize {
 
   @@unique([specialtyPizzaId, pizzaSizeId])
   @@map("specialty_pizza_sizes")
+}
+
+model SpecialtyCalzone {
+  id               String                 @id @default(cuid())
+  calzoneName      String                 @unique
+  calzoneDescription String
+  basePrice        Float
+  category         String
+  imageUrl         String?
+  fillings         String
+  isActive         Boolean                @default(true)
+  sortOrder        Int                    @default(0)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  sizes            SpecialtyCalzoneSize[]
+
+  @@map("specialty_calzones")
+}
+
+model SpecialtyCalzoneSize {
+  id                String           @id @default(cuid())
+  specialtyCalzoneId String
+  pizzaSizeId       String
+  price             Float
+  isAvailable       Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  pizzaSize         PizzaSize        @relation(fields: [pizzaSizeId], references: [id])
+  specialtyCalzone  SpecialtyCalzone @relation(fields: [specialtyCalzoneId], references: [id], onDelete: Cascade)
+
+  @@unique([specialtyCalzoneId, pizzaSizeId])
+  @@map("specialty_calzone_sizes")
 }
 
 model Order {
@@ -636,4 +669,57 @@ enum PriceType {
   FLAT
   PERCENTAGE
   PER_UNIT
+}
+
+// Promotion Management
+model Promotion {
+  id                     String    @id @default(cuid())
+  name                   String
+  description            String?
+  type                   PromotionType
+  discountType           DiscountType
+  discountValue          Decimal   @db.Decimal(10,2)
+  minimumOrderAmount     Decimal?  @db.Decimal(10,2)
+  maximumDiscountAmount  Decimal?  @db.Decimal(10,2)
+  minimumQuantity        Int?
+  applicableCategories   String[]  // Category IDs this promotion applies to
+  applicableItems        String[]  // Specific item IDs this promotion applies to
+  requiresLogin          Boolean   @default(false)
+  userGroupRestrictions  String[]  // User roles/groups that can use this promotion
+  startDate              DateTime?
+  endDate                DateTime?
+  isActive               Boolean   @default(true)
+  usageLimit             Int?      // Total usage limit across all users
+  usageCount             Int       @default(0)
+  perUserLimit           Int?      // Usage limit per user
+  stackable              Boolean   @default(false) // Can be combined with other promotions
+  priority               Int       @default(0) // Higher priority promotions apply first
+  terms                  String?   // Terms and conditions
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@index([type])
+  @@index([isActive])
+  @@index([startDate, endDate])
+  @@index([priority])
+  @@map("promotions")
+}
+
+enum PromotionType {
+  PERCENTAGE_DISCOUNT    // X% off
+  FIXED_AMOUNT_DISCOUNT  // $X off
+  BOGO_HALF_OFF         // Buy one get second half off
+  BOGO_FREE             // Buy one get one free
+  BUY_X_GET_Y_PERCENT   // Buy X items get Y% off
+  BUY_X_GET_Y_FREE      // Buy X items get Y free
+  CATEGORY_DISCOUNT     // Discount on specific categories
+  ITEM_DISCOUNT         // Discount on specific items
+  FREE_DELIVERY         // Free delivery promotion
+  HAPPY_HOUR            // Time-based discount
+}
+
+enum DiscountType {
+  PERCENTAGE            // Percentage off (5, 10, 20, etc.)
+  FIXED_AMOUNT         // Fixed dollar amount off ($5, $10, etc.)
+  FREE_ITEM            // Free item/service
 }

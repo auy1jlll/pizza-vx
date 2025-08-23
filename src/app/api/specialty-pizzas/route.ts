@@ -7,7 +7,10 @@ export async function GET() {
     
     const specialtyPizzas = await prisma.specialtyPizza.findMany({
       where: {
-        isActive: true
+        isActive: true,
+        category: {
+          not: 'CALZONE' // Exclude calzones from gourmet pizzas
+        }
       },
       include: {
         sizes: {

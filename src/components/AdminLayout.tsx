@@ -78,9 +78,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { href: '/admin/content', label: 'Content Management', icon: '📝' },
     { href: '/admin/kitchen', label: 'Kitchen Display', icon: '🍳' },
     { href: '/admin/pizza-manager', label: 'Pizza Manager', icon: '🍕' },
+    { href: '/admin/calzone-manager', label: 'Calzone Manager', icon: '🥟' },
+    { href: '/admin/specialty-calzones', label: 'Specialty Calzones', icon: '🥙' },
     { href: '/admin/menu-manager', label: 'Menu Manager', icon: '🍽️' },
+    { href: '/admin/promotions', label: 'Promotions', icon: '�️' },
     { href: '/admin/global-settings', label: 'Global Settings', icon: '🌐' },
-    { href: '/admin/help', label: 'Help & Docs', icon: '📖' },
   ];
 
   return (

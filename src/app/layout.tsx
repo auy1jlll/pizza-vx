@@ -6,9 +6,7 @@ import { SettingsProvider } from '@/contexts/SettingsContext';
 import { AppSettingsProvider } from '@/contexts/AppSettingsContext';
 import { ToastProvider } from '@/components/ToastProvider';
 import { SexyToastProvider } from '@/components/SexyToastProvider';
-import FloatingCartButton from '@/components/FloatingCartButton';
-import HybridNavigation from '@/components/HybridNavigation';
-import DynamicFooter from '@/components/DynamicFooter';
+import { ConditionalTopNavigation, ConditionalBottomElements } from '@/components/ConditionalNavigation';
 import { generateMetadata as generateDynamicMetadata } from '@/lib/dynamic-metadata';
 
 // Instrumentation is only meaningful on the Node server; defer to runtime dynamic import
@@ -36,18 +34,14 @@ export default function RootLayout({
               <CartProvider>
                 <ToastProvider>
                   <SexyToastProvider>
-                    <HybridNavigation />
-                  
-                  <main>
-                    {children}
-                  </main>
-                  
-                  <FloatingCartButton />
-                  
-                  <DynamicFooter />
-                </SexyToastProvider>
-              </ToastProvider>
-            </CartProvider>
+                    <ConditionalTopNavigation />
+                    <main>
+                      {children}
+                    </main>
+                    <ConditionalBottomElements />
+                  </SexyToastProvider>
+                </ToastProvider>
+              </CartProvider>
             </AppSettingsProvider>
           </SettingsProvider>
         </UserProvider>

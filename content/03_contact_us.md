@@ -10,7 +10,7 @@ Ready to experience the best pizza and salads in Greenland, NH? We'd love to hea
 [Your Address]
 Greenland, NH 03840
 
-**Phone:** [Your Phone Number]
+**Phone:** (630) 501-0774
 **Email:** info@restoapp.com
 
 ### Hours of Operation
@@ -27,23 +27,9 @@ Greenland, NH 03840
 
 **📞 Phone Orders:** Call ahead for quick pickup - your order will be ready when you arrive
 
-**🚗 Delivery:** We deliver throughout Greenland, Portsmouth, and surrounding Seacoast communities
+** Online Ordering:** Order through our website for the fastest service
 
-**💻 Online Ordering:** Order through our website for the fastest service
-
-### Delivery Areas
-
-We proudly deliver to these New Hampshire communities:
-- Greenland, NH
-- Portsmouth, NH
-- Rye, NH
-- Stratham, NH
-- Newington, NH
-- North Hampton, NH
-
-*Delivery fees and minimum orders may apply*
-
-### Private Events & Catering
+### Catering Services
 
 Planning a party, corporate event, or special celebration? RestoApp provides catering services for:
 - Birthday parties
@@ -52,7 +38,7 @@ Planning a party, corporate event, or special celebration? RestoApp provides cat
 - Family gatherings
 - Community events
 
-**Catering Phone:** [Catering Number]
+**Catering Phone:** (630) 501-0774
 **Catering Email:** catering@restoapp.com
 
 ### Feedback & Reviews
@@ -79,19 +65,19 @@ Stay updated on specials, new menu items, and community events:
 
 **Ready to Order?**
 
-Call now at [Your Phone Number] or visit us at [Your Address] in Greenland, NH!
+Call now at (630) 501-0774 or visit us at [Your Address]!
 
-*Serving the best pizza and salads in Greenland and Portsmouth since [year]!*
+*Serving the best pizza and salads in the local area since [year]!*
 
 ---
 
 **SEO FIELDS FOR ADMIN:**
 
-**Page Title:** Contact Us | RestoApp Greenland NH - Order Pizza & Salads
+**Page Title:** Contact Us | RestoApp - Order Pizza & Salads
 
-**Meta Title:** Contact RestoApp | Pizza Delivery Greenland NH Portsmouth
+**Meta Title:** Contact RestoApp | Local Pizza Restaurant
 
-**Meta Description:** Contact RestoApp for the best pizza & salads in Greenland, NH. Order online, by phone, or visit us. Delivery to Portsmouth, Rye, Stratham. Call [phone]!
+**Meta Description:** Contact RestoApp for the best pizza & salads. Order online, by phone, or visit us. Call (630) 501-0774!
 
 **Meta Keywords:** contact RestoApp, pizza delivery Greenland NH, pizza Portsmouth NH, order pizza online, Greenland NH restaurant, pizza phone number
 

@@ -7,7 +7,7 @@ Discover why RestoApp is Greenland's favorite pizza destination! Our menu featur
 ### 🍕 Signature Pizzas
 
 **Margherita Classic** - $14.99 (Small) | $18.99 (Medium) | $22.99 (Large)
-Fresh mozzarella, San Marzano tomatoes, fresh basil, extra virgin olive oil
+Fresh mozzarella, signature tomatoes, fresh basil, extra virgin olive oil
 
 **Greenland Special** - $16.99 (Small) | $21.99 (Medium) | $26.99 (Large)
 Pepperoni, Italian sausage, mushrooms, green peppers, onions, mozzarella
@@ -62,7 +62,6 @@ Italian meats, cheeses, olives, and vegetables
 ### 🧀 Build Your Own Pizza
 
 **Small (10")** - $10.99 + toppings
-**Medium (12")** - $13.99 + toppings  
 **Large (16")** - $16.99 + toppings
 
 **Premium Toppings** ($2.50 each): Pepperoni, Sausage, Meatballs, Chicken, Bacon, Ham
@@ -106,20 +105,16 @@ Monday-Thursday: 11:00 AM - 9:00 PM
 Friday-Saturday: 11:00 AM - 10:00 PM
 Sunday: 12:00 PM - 9:00 PM
 
-### 🚚 Delivery Information
+### � Pickup Information
 
-**Free Delivery** on orders over $25 within our delivery zone
-**Delivery Fee:** $3.99 for orders under $25
-**Delivery Areas:** Greenland, Portsmouth, Rye, Stratham, Newington
-
-**Why Choose RestoApp Over Other Greenland Pizza Places?**
+**Why Choose RestoApp Over Other Local Pizza Places?**
 ✓ Fresh ingredients sourced locally
 ✓ Authentic Italian recipes
-✓ Fast, reliable delivery
-✓ Consistently voted best pizza in Greenland, NH
+✓ Fast, reliable service
+✓ Consistently voted best pizza in the area
 ✓ Family-owned and operated
 
-*Order online or call [Your Phone Number] for the best pizza experience in the Seacoast!*
+*Order online or call (630) 501-0774 for the best pizza experience!*
 
 ---
 

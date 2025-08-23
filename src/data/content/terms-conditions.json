@@ -2,7 +2,7 @@
   "page": {
     "title": "Terms & Conditions",
     "subtitle": "Terms of Service for Boston Pizza House",
-    "lastUpdated": "2025-01-15",
+    "lastUpdated": "2025-08-23",
     "effectiveDate": "2025-01-01"
   },
   "sections": [
@@ -37,12 +37,12 @@
       ]
     },
     {
-      "id": "delivery",
+      "id": "delivery If & When we do Delivery",
       "title": "3. Delivery Terms",
       "subsections": [
         {
           "title": "Delivery Areas",
-          "content": "We deliver within a 5-mile radius of our restaurant location. Delivery times are estimates and may vary based on weather, traffic, and order volume."
+          "content": "if and when we do delivery We deliver within a 5-mile radius of our restaurant location. Delivery times are estimates and may vary based on weather, traffic, and order volume."
         },
         {
           "title": "Delivery Fees",
@@ -50,7 +50,7 @@
         },
         {
           "title": "Minimum Orders",
-          "content": "A minimum order of $15.00 (before tax and delivery fee) is required for delivery."
+          "content": "A minimum order of $4.00 (before tax and delivery fee) is required for delivery."
         },
         {
           "title": "Contact Requirements",
@@ -72,7 +72,7 @@
       "id": "liability",
       "title": "5. Limitation of Liability",
       "content": [
-        "Boston Pizza House's liability is limited to the cost of the food ordered.",
+        "Greenland Famous Pizza House's liability is limited to the cost of the food ordered.",
         "We are not responsible for any indirect, incidental, or consequential damages.",
         "In case of any issues with your order, please contact us within 24 hours."
       ]
@@ -82,7 +82,7 @@
       "title": "6. Refunds & Returns",
       "content": [
         "Refunds are provided at our discretion for orders that are significantly delayed, incorrect, or of poor quality.",
-        "Food items cannot be returned once delivered due to health and safety regulations.",
+        "Food items cannot be returned once picked  up due to health and safety regulations.",
         "Refund requests must be made within 24 hours of order completion."
       ]
     },
@@ -97,7 +97,7 @@
       "id": "modifications",
       "title": "8. Modifications to Terms",
       "content": [
-        "Boston Pizza House reserves the right to modify these terms at any time.",
+        "Greenland Famous Pizza House reserves the right to modify these terms at any time.",
         "Changes will be effective immediately upon posting on our website.",
         "Continued use of our services constitutes acceptance of modified terms."
       ]
@@ -107,9 +107,9 @@
       "title": "9. Contact Information",
       "content": [
         "If you have any questions about these Terms & Conditions, please contact us:",
-        "Email: info@bostonpizzahouse.com",
-        "Phone: (617) 555-PIZZA",
-        "Address: 123 Hanover Street, Boston, MA 02113"
+        "Email: info@GreenLandfamous.com.com",
+        "Phone: (603) 501-0774",
+        "Address: 381 Portsmouth Ave Greenland NH 03840"
       ]
     }
   ]

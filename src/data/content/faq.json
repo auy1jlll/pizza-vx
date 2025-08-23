@@ -23,11 +23,11 @@
         },
         {
           "question": "Can I modify or cancel my order?",
-          "answer": "Orders can be modified or cancelled within 5 minutes of placement by calling us directly at (617) 555-PIZZA."
+          "answer": "Orders can be modified or cancelled within 5 minutes of placement by calling us directly at (630) 501-0774."
         },
         {
-          "question": "Do you offer contactless delivery?",
-          "answer": "Yes! You can request contactless delivery in the special instructions when placing your order."
+          "question": "Do you offer contactless pickup?",
+          "answer": "Yes! You can request contactless pickup in the special instructions when placing your order."
         }
       ]
     },
@@ -36,12 +36,8 @@
       "title": "Menu & Food",
       "questions": [
         {
-          "question": "Do you offer gluten-free options?",
-          "answer": "Yes! We offer gluten-free pizza crusts and several gluten-free menu items. Please inform us of any allergies when ordering."
-        },
-        {
           "question": "Are your ingredients fresh?",
-          "answer": "Absolutely! We make our dough fresh daily, use San Marzano tomatoes, and source the highest quality ingredients."
+          "answer": "Absolutely! We make our dough fresh daily and source the highest quality ingredients locally."
         },
         {
           "question": "Can I customize my pizza?",
@@ -53,47 +49,39 @@
         },
         {
           "question": "What size pizzas do you offer?",
-          "answer": "We offer Personal (10\"), Medium (14\"), Large (16\"), and Extra Large (18\") pizzas."
+          "answer": "We offer Small (10\") and Large (16\") pizzas."
         }
       ]
     },
     {
-      "id": "delivery",
-      "title": "Delivery & Pickup",
+      "id": "pickup",
+      "title": "Pickup",
       "questions": [
-        {
-          "question": "What areas do you deliver to?",
-          "answer": "We deliver within a 5-mile radius of our Boston location. Enter your address during checkout to confirm delivery availability."
-        },
-        {
-          "question": "How long does delivery take?",
-          "answer": "Typical delivery time is 25-35 minutes, but may vary during peak hours or bad weather."
-        },
-        {
-          "question": "What's the delivery fee?",
-          "answer": "Our delivery fee is $3.99. This fee covers our delivery service but is not a tip for the driver."
-        },
         {
           "question": "Can I track my order?",
           "answer": "Yes! You'll receive order updates via SMS and email, and can track your order status online."
         },
         {
-          "question": "What if no one is home for delivery?",
-          "answer": "Our driver will attempt to contact you. If unreachable, the order will be returned to the store and you may need to arrange pickup."
+          "question": "How long does my pickup order take?",
+          "answer": "Typical pickup time is 15-25 minutes, but may vary during peak hours."
+        },
+        {
+          "question": "Where do I park for pickup?",
+          "answer": "We have convenient parking available in front of our restaurant for pickup orders."
         }
       ]
     },
     {
       "id": "account",
-      "title": "Account & Rewards",
+      "title": "Account & Gift Certificates",
       "questions": [
         {
           "question": "Do I need to create an account to order?",
-          "answer": "No, you can place orders as a guest. However, creating an account allows you to save addresses, track orders, and earn rewards."
+          "answer": "No, you can place orders as a guest. However, creating an account allows you to save addresses and track orders."
         },
         {
-          "question": "Do you have a loyalty program?",
-          "answer": "Yes! Create an account to start earning points with every order. Points can be redeemed for free pizzas and discounts."
+          "question": "Do you have gift certificates?",
+          "answer": "Yes! Gift certificates are available for purchase at our restaurant location."
         },
         {
           "question": "How do I reset my password?",
@@ -101,7 +89,7 @@
         },
         {
           "question": "Can I save multiple addresses?",
-          "answer": "Yes, logged-in users can save multiple delivery addresses for quick ordering."
+          "answer": "Yes, logged-in users can save multiple addresses for quick ordering."
         }
       ]
     },
@@ -115,7 +103,7 @@
         },
         {
           "question": "Do you cater events?",
-          "answer": "Yes! We offer catering for parties, corporate events, and special occasions. Contact us at (617) 555-PIZZA for catering details."
+          "answer": "Yes! We offer catering for parties, corporate events, and special occasions. Contact us at (630) 501-0774 for catering details."
         },
         {
           "question": "Can I buy gift cards?",
@@ -131,8 +119,8 @@
   "contactInfo": {
     "stillHaveQuestions": "Still have questions?",
     "contactText": "Don't see your question here? We're happy to help!",
-    "phone": "(617) 555-PIZZA",
-    "email": "info@bostonpizzahouse.com",
-    "hours": "Monday-Sunday: 10:30 AM - 8:00 PM"
+    "phone": "(630) 501-0774",
+    "email": "info@localpizzahouse.com",
+    "hours": "Monday-Sunday: 11:00 AM - 9:00 PM"
   }
 }

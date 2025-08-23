@@ -8,14 +8,14 @@ async function seedSettings() {
     const defaultSettings = [
       // Business Information
       { key: 'businessName', value: 'Greenland Famous Pizza', type: 'STRING' },
-      { key: 'businessPhone', value: '(555) 123-4567', type: 'STRING' },
+      { key: 'businessPhone', value: '(630) 501-0774', type: 'STRING' },
       { key: 'businessEmail', value: 'info@greenlandfamous.com', type: 'STRING' },
       { key: 'businessAddress', value: '123 Main Street, Boston, MA 02101', type: 'STRING' },
       { key: 'businessDescription', value: 'Authentic pizza and sandwiches since 1995', type: 'STRING' },
       
       // Pricing & Payments (taxRate already exists)
       { key: 'deliveryFee', value: '3.99', type: 'NUMBER' },
-      { key: 'deliveryEnabled', value: 'true', type: 'BOOLEAN' },
+      { key: 'deliveryEnabled', value: 'false', type: 'BOOLEAN' },
       { key: 'minimumOrder', value: '15.00', type: 'NUMBER' },
       { key: 'tipPercentages', value: '[15, 18, 20, 22, 25]', type: 'JSON' },
       { key: 'defaultTipPercentage', value: '18', type: 'NUMBER' },

@@ -29,7 +29,7 @@ export default function Home() {
               More Delicious Options
             </h2>
             <p className="text-xl text-gray-200 mb-8 max-w-3xl mx-auto">
-              Explore our full range of authentic Boston-style Italian favorites
+              Explore our full range of authentic local Italian favorites
             </p>
           </div>
 
@@ -73,24 +73,24 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Boston Features */}
+          {/* Local Features */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/20 hover:bg-black/40 transition-all duration-300">
               <div className="text-3xl mb-3">🧱</div>
-              <h3 className="text-lg font-semibold text-orange-400 mb-2">North End Inspired</h3>
-              <p className="text-gray-300 text-sm">Traditional recipes passed down through generations in Boston's historic Italian quarter.</p>
+              <h3 className="text-lg font-semibold text-orange-400 mb-2">Traditional Recipes</h3>
+              <p className="text-gray-300 text-sm">Traditional recipes passed down through generations in our local Italian kitchen.</p>
             </div>
             
             <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/20 hover:bg-black/40 transition-all duration-300">
               <div className="text-3xl mb-3">🦞</div>
               <h3 className="text-lg font-semibold text-green-400 mb-2">Local Ingredients</h3>
-              <p className="text-gray-300 text-sm">Fresh from New England farms and the finest local suppliers around Greater Boston.</p>
+              <p className="text-gray-300 text-sm">Fresh from New England farms and the finest local suppliers in our area.</p>
             </div>
             
             <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/20 hover:bg-black/40 transition-all duration-300">
               <div className="text-3xl mb-3">⚾</div>
               <h3 className="text-lg font-semibold text-orange-400 mb-2">Game Day Ready</h3>
-              <p className="text-gray-300 text-sm">Perfect for Red Sox games, Celtics nights, or any Boston sports celebration.</p>
+              <p className="text-gray-300 text-sm">Perfect for game nights, celebrations, or any local sports event.</p>
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-3xl font-bold text-orange-400 mb-2">25+</div>
-              <div className="text-gray-300">Years Serving Boston</div>
+              <div className="text-gray-300">Years Serving Locally</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-green-400 mb-2">50+</div>

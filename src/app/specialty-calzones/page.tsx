@@ -38,79 +38,70 @@ export default function SpecialtyCalzonesPage() {
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
   const { addDetailedPizza } = useCart();
 
-  // Fetch specialty calzones
-  const fetchSpecialtyPizzas = async (calzoneData?: any) => {
+  // Fetch specialty calzones (filter for CALZONE category only)
+  const fetchSpecialtyCalzones = async () => {
     try {
-      const response = await fetch('/api/specialty-pizzas');
+      const response = await fetch('/api/specialty-calzones');
       if (response.ok) {
         const data = await response.json();
-        // Filter to only show calzones
-        const calzonesOnly = Array.isArray(data) ? data.filter((item: SpecialtyPizza) => 
-          item.category === 'CALZONE'
-        ) : [];
-        setPizzas(calzonesOnly);
+        // Data is already filtered for calzones
+        setPizzas(Array.isArray(data) ? data : []);
         
-        // Set default sizes to the first available calzone size for each pizza
+        // Set default sizes to the first available size for each calzone
         const defaultSizes: Record<string, string> = {};
-        calzonesOnly.forEach((pizza: SpecialtyPizza) => {
-          // Use the pizza's own sizes
-          if (pizza.sizes && pizza.sizes.length > 0) {
-            defaultSizes[pizza.id] = pizza.sizes[0].pizzaSize.id;
+        data.forEach((calzone: SpecialtyPizza) => {
+          if (calzone.sizes && calzone.sizes.length > 0) {
+            defaultSizes[calzone.id] = calzone.sizes[0].pizzaSize.id;
           }
         });
         setSelectedSizes(defaultSizes);
       } else {
-        console.error('Failed to fetch specialty pizzas');
+        console.error('Failed to fetch specialty calzones');
         setPizzas([]);
       }
     } catch (error) {
-      console.error('Error fetching specialty pizzas:', error);
+      console.error('Error fetching specialty calzones:', error);
       setPizzas([]);
+    }
+  };
+
+  // Fetch pizza data (sizes, crusts, sauces, toppings)
+  const fetchPizzaData = async () => {
+    try {
+      const response = await fetch('/api/pizza-data');
+      if (response.ok) {
+        const data = await response.json();
+        setPizzaData(data);
+      } else {
+        console.error('Failed to fetch pizza data');
+      }
+    } catch (error) {
+      console.error('Error fetching pizza data:', error);
     }
   };
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      
-      // First fetch calzone data
-      const calzoneData = await (async () => {
-        try {
-          const response = await fetch('/api/pizza-data?productType=calzone');
-          if (response.ok) {
-            const data = await response.json();
-            setPizzaData(data);
-            return data;
-          } else {
-            console.error('Failed to fetch calzone data');
-            return null;
-          }
-        } catch (error) {
-          console.error('Error fetching calzone data:', error);
-          return null;
-        }
-      })();
-      
-      // Then fetch specialty pizzas using the calzone data
-      await fetchSpecialtyPizzas(calzoneData);
-      
+      await Promise.all([
+        fetchPizzaData(),
+        fetchSpecialtyCalzones()
+      ]);
       setLoading(false);
     };
     loadData();
-  }, []); // Only run once on mount
+  }, []);
 
-  // Get selected calzone size for a pizza
-  const getSelectedCalzoneSize = (pizza: SpecialtyPizza) => {
+  // Get selected size for a calzone
+  const getSelectedSize = (pizza: SpecialtyPizza): SpecialtyPizzaSize | undefined => {
     const selectedSizeId = selectedSizes[pizza.id];
-    const sizeOption = pizza.sizes?.find((s: any) => s.pizzaSize.id === selectedSizeId);
-    return sizeOption?.pizzaSize;
+    return pizza.sizes?.find(size => size.pizzaSize.id === selectedSizeId);
   };
 
-  // Get price for selected calzone size
-  const getCalzonePrice = (pizza: SpecialtyPizza): number => {
-    const selectedSizeId = selectedSizes[pizza.id];
-    const sizeOption = pizza.sizes?.find((s: any) => s.pizzaSize.id === selectedSizeId);
-    return sizeOption?.price || pizza.basePrice;
+  // Get price for selected size or fallback to base price
+  const getPizzaPrice = (pizza: SpecialtyPizza): number => {
+    const selectedSize = getSelectedSize(pizza);
+    return selectedSize ? selectedSize.price : pizza.basePrice;
   };
 
   // Handle size selection
@@ -121,31 +112,114 @@ export default function SpecialtyCalzonesPage() {
     }));
   };
 
-  // Handle quick add to cart
-  const handleQuickAdd = (pizza: SpecialtyPizza) => {
-    const selectedSize = getSelectedCalzoneSize(pizza);
-    if (!selectedSize || !pizzaData) {
-      showToast('Please select a size first');
+  // Add to cart function
+  const addToCart = (pizza: SpecialtyPizza) => {
+    if (!pizzaData) {
+      showToast('Pizza data still loading. Try again in a moment.', { type: 'info' });
       return;
     }
 
-    // Find default components
-    const defaultCrust = pizzaData.crusts?.[0];
-    const defaultSauce = pizzaData.sauces?.[0];
-
+    const selectedSize = getSelectedSize(pizza);
+    const price = getPizzaPrice(pizza);
+    
+    // Get default crust and sauce from loaded pizza data
+    const defaultCrust = pizzaData.crusts?.find((c: any) => c.isActive) || pizzaData.crusts?.[0];
+    const defaultSauce = pizzaData.sauces?.find((s: any) => s.isActive) || pizzaData.sauces?.[0];
+    
+    // Parse ingredients and match with toppings
+    const ingredientNames = parseIngredients(pizza.ingredients);
+    const matchedToppings: Array<{
+      id: string;
+      name: string;
+      category?: string;
+      price: number;
+      quantity: number;
+      section: 'WHOLE' | 'LEFT' | 'RIGHT';
+    }> = ingredientNames
+      .map(ingredient => {
+        // Try to find a matching topping by name (case-insensitive)
+        const topping = pizzaData.toppings?.find((t: any) => 
+          t.name.toLowerCase().includes(ingredient.toLowerCase()) ||
+          ingredient.toLowerCase().includes(t.name.toLowerCase())
+        );
+        return topping ? {
+          id: topping.id,
+          name: topping.name,
+          category: topping.category,
+          price: topping.price || 0,
+          quantity: 1,
+          section: 'WHOLE' as const
+        } : null;
+      })
+      .filter((topping): topping is NonNullable<typeof topping> => topping !== null);
+    
+    // Use the new CartItem format with real database data
     addDetailedPizza({
-      size: selectedSize,
-      crust: defaultCrust,
-      sauce: defaultSauce,
-      sauceIntensity: 'REGULAR',
-      crustCookingLevel: 'REGULAR',
-      toppings: [],
+      size: selectedSize?.pizzaSize ? {
+        id: selectedSize.pizzaSize.id,
+        name: selectedSize.pizzaSize.name,
+        diameter: selectedSize.pizzaSize.diameter,
+        basePrice: selectedSize.pizzaSize.basePrice,
+        isActive: true,
+        sortOrder: 1
+      } : {
+        id: 'cmeb4wr360000vk9s8q3wu9o1', // Fallback Small size ID
+        name: 'Small',
+        diameter: '12"',
+        basePrice: 12.99,
+        isActive: true,
+        sortOrder: 1
+      },
+      crust: defaultCrust ? {
+        id: defaultCrust.id,
+        name: defaultCrust.name,
+        description: defaultCrust.description,
+        priceModifier: defaultCrust.priceModifier,
+        isActive: defaultCrust.isActive,
+        sortOrder: defaultCrust.sortOrder
+      } : {
+        id: 'cmeacm01d0001vkvg7sz15lue', // Fallback Thin crust ID
+        name: 'Thin',
+        description: 'Thin crust',
+        priceModifier: 0,
+        isActive: true,
+        sortOrder: 1
+      },
+      sauce: defaultSauce ? {
+        id: defaultSauce.id,
+        name: defaultSauce.name,
+        description: defaultSauce.description,
+        color: defaultSauce.color,
+        spiceLevel: defaultSauce.spiceLevel,
+        priceModifier: defaultSauce.priceModifier,
+        isActive: defaultSauce.isActive,
+        sortOrder: defaultSauce.sortOrder
+      } : {
+        id: 'cmeafxdoj0003vkzcc66kq3nl', // Fallback Original sauce ID
+        name: 'Original',
+        description: 'Original sauce',
+        color: '#FF0000',
+        spiceLevel: 1,
+        priceModifier: 0,
+        isActive: true,
+        sortOrder: 1
+      },
+      toppings: matchedToppings, // Matched toppings from ingredients
+      quantity: 1,
       notes: `Specialty Calzone: ${pizza.name}`,
-      totalPrice: getCalzonePrice(pizza),
-      specialtyPizzaName: `${pizza.name} Calzone`
+      basePrice: pizza.basePrice || 12.99,
+      totalPrice: price,
     });
+    showToast(`${pizza.name} (${selectedSize?.pizzaSize.name || 'Medium'}) added to cart! 🥟`, { type: 'success' });
+  };
 
-    showToast(`${pizza.name} Calzone added to cart! 🥟`);
+  // Parse ingredients from JSON string
+  const parseIngredients = (ingredientsStr: string): string[] => {
+    try {
+      return JSON.parse(ingredientsStr);
+    } catch {
+      return [];
+    }
   };
 
   if (loading) {
@@ -227,22 +301,22 @@ export default function SpecialtyCalzonesPage() {
                   </div>
 
                   {/* Size Selection */}
-                  {pizza.sizes && pizza.sizes.length > 0 && (
+                  {pizzaData?.sizes && (
                     <div className="mb-4">
                       <p className="text-sm font-semibold text-gray-700 mb-2">Choose Size:</p>
                       <div className="grid grid-cols-2 gap-2">
-                        {pizza.sizes.map((sizeOption: any) => (
+                        {pizzaData.sizes.map((size: any) => (
                           <button
-                            key={sizeOption.pizzaSize.id}
-                            onClick={() => handleSizeSelect(pizza.id, sizeOption.pizzaSize.id)}
+                            key={size.id}
+                            onClick={() => handleSizeSelect(pizza.id, size.id)}
                             className={`p-2 rounded-lg border text-sm font-medium transition-colors ${
-                              selectedSizes[pizza.id] === sizeOption.pizzaSize.id
+                              selectedSizes[pizza.id] === size.id
                                 ? 'border-amber-500 bg-amber-50 text-amber-700'
                                 : 'border-gray-200 hover:border-gray-300 text-gray-700'
                             }`}
                           >
-                            <div>{sizeOption.pizzaSize.name}</div>
-                            <div className="text-xs text-gray-500">${sizeOption.price}</div>
+                            <div>{size.name.replace(' Calzone', '')}</div>
+                            <div className="text-xs text-gray-500">${size.basePrice}</div>
                           </button>
                         ))}
                       </div>
@@ -253,13 +327,13 @@ export default function SpecialtyCalzonesPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-2xl font-bold text-amber-600">
-                        ${getCalzonePrice(pizza).toFixed(2)}
+                        ${getPizzaPrice(pizza).toFixed(2)}
                       </span>
                       <span className="text-sm text-gray-500 ml-1">starting</span>
                     </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleQuickAdd(pizza)}
+                        onClick={() => addToCart(pizza)}
                         className="bg-amber-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-amber-700 transition-colors text-sm"
                       >
                         Quick Add

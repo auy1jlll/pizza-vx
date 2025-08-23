@@ -1,14 +1,13 @@
-# Fast Pizza Delivery in Greenland, NH | RestoApp
+# Pizza Pickup & Dine-In in Greenland, NH | RestoApp
 
-## Fresh, Hot Pizza Delivered to Your Door
+## Fresh, Hot Pizza for Pickup and Dine-In
 
-Craving the best pizza in Greenland, NH? RestoApp delivers authentic Italian pizza and fresh salads directly to your home or office. With faster delivery times and fresher ingredients than any other pizza place in the area, we're your go-to choice for quality Italian cuisine.
+Craving the best pizza in Greenland, NH? RestoApp serves authentic Italian pizza and fresh salads for pickup and dine-in. With faster service and fresher ingredients than any other pizza place in the area, we're your go-to choice for quality Italian cuisine.
 
-### 🚚 Lightning-Fast Delivery Service
+### � Quick Pickup Service
 
-**Average Delivery Time: 25-35 minutes**
-**Free Delivery** on orders over $25
-**Hot & Fresh Guarantee** - Your pizza arrives hot or we'll make it right
+**Average Pickup Time: 15-25 minutes**
+**Hot & Fresh Guarantee** - Your pizza is ready when you arrive or we'll make it right
 
 ### 📍 Delivery Coverage Areas
 
@@ -28,9 +27,9 @@ We proudly deliver throughout the Seacoast region:
 
 ### 🍕 Why Choose RestoApp for Pizza Delivery?
 
-**Superior Quality:** Unlike other pizza delivery services in Greenland, we use only premium ingredients:
-- Fresh mozzarella from local NH farms
-- San Marzano tomatoes for authentic flavor
+**Superior Quality:** Unlike other pizza places in the area, we use only premium ingredients:
+- Fresh mozzarella from local farms
+- Signature tomatoes for authentic flavor
 - Daily-made pizza dough
 - Fresh herbs and premium toppings
 
@@ -119,28 +118,28 @@ As a Greenland-based restaurant, we understand our community's needs:
 
 ### 🏆 Customer Reviews
 
-*"Finally, pizza delivery in Greenland that's actually better than driving to Portsmouth! RestoApp beats all the competition."* - Sarah M., Greenland
+*"Finally found a local pizza place that's actually better than the chains! RestoApp beats all the competition."* - Sarah M., Local Customer
 
-*"Faster delivery than Nick & Charlie's and much better quality. This is our new go-to pizza place."* - Mike T., Portsmouth
+*"Faster service than the other places and much better quality. This is our new go-to pizza place."* - Mike T., Local Customer
 
-*"The best Italian food delivery in the Seacoast area. Fresh ingredients and always on time."* - Lisa P., Rye
+*"The best Italian food in the area. Fresh ingredients and always ready on time."* - Lisa P., Local Customer
 
 **Order Now and Taste the Difference!**
 
-Experience why RestoApp is quickly becoming Greenland's favorite pizza delivery choice. Order online or call [Your Phone Number] today!
+Experience why RestoApp is quickly becoming the area's favorite pizza choice. Order online or call (630) 501-0774 today!
 
-*Authentic Italian pizza delivery - From our kitchen to your door in 30 minutes or less!*
+*Authentic Italian pizza - From our kitchen to your table!*
 
 ---
 
 **SEO FIELDS FOR ADMIN:**
 
-**Page Title:** Pizza Delivery Greenland NH | Order Online | RestoApp
+**Page Title:** Pizza Pickup & Dine-In | Order Online | RestoApp
 
-**Meta Title:** Pizza Delivery Greenland NH | Fast Online Ordering | RestoApp
+**Meta Title:** Pizza Pickup & Dine-In | Fast Online Ordering | RestoApp
 
-**Meta Description:** Best pizza delivery in Greenland, NH. Order online for fast delivery to Portsmouth, Rye, Stratham. Fresh Italian pizza, better than Nick & Charlie Pizza. Free delivery $25+!
+**Meta Description:** Best pizza pickup and dine-in service. Order online for fast pickup. Fresh Italian pizza, better than other local pizza places!
 
-**Meta Keywords:** pizza delivery Greenland NH, pizza delivery Portsmouth NH, online pizza ordering, Greenland pizza delivery, fast pizza delivery Seacoast NH
+**Meta Keywords:** pizza pickup, pizza dine-in, online pizza ordering, local pizza, fast pizza pickup
 
 **Status:** Published

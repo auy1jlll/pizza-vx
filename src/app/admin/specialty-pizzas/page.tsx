@@ -79,7 +79,9 @@ export default function SpecialtyPizzasAdmin() {
       }
       if (response.ok) {
         const data = await response.json();
-        setPizzas(Array.isArray(data) ? data : []);
+        // Filter out calzones - only show pizzas in this admin page
+        const pizzasOnly = Array.isArray(data) ? data.filter(item => item.category !== 'CALZONE') : [];
+        setPizzas(pizzasOnly);
       } else {
         console.error('Failed to fetch specialty pizzas');
         setPizzas([]);
@@ -337,6 +339,21 @@ export default function SpecialtyPizzasAdmin() {
               Add New Specialty Pizza
             </button>
           </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="mt-6 border-b border-slate-600">
+          <nav className="-mb-px flex space-x-8">
+            <div className="border-orange-500 text-orange-400 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+              Specialty Pizzas ({pizzas.length})
+            </div>
+            <a
+              href="/admin/specialty-calzones"
+              className="border-transparent text-gray-400 hover:border-gray-300 hover:text-gray-300 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors"
+            >
+              Specialty Calzones
+            </a>
+          </nav>
         </div>
 
         {/* Form Modal */}
