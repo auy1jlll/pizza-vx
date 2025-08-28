@@ -228,7 +228,9 @@ export default function CheckoutPage() {
     pizzaItems.forEach(item => {
       allItems.push({
         id: item.id,
-        name: item.size?.name ? `${item.size.name} Pizza` : 'Pizza',
+        name: item.size?.name?.includes('Calzone') 
+          ? item.size.name 
+          : (item.size?.name ? `${item.size.name} Pizza` : 'Pizza'),
         basePrice: item.basePrice || 0,
         totalPrice: item.totalPrice || 0,
         quantity: item.quantity || 1,
@@ -289,7 +291,9 @@ export default function CheckoutPage() {
     
     // For regular pizza items, construct name from size
     if (item.size) {
-      return `${item.size.name || 'Custom'} Pizza`;
+      return item.size.name?.includes('Calzone') 
+        ? item.size.name 
+        : `${item.size.name || 'Custom'} Pizza`;
     }
     
     // Fallback

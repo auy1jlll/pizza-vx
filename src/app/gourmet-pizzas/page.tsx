@@ -1,9 +1,7 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useToast } from '@/components/ToastProvider';
+import { prisma } from '@/lib/prisma';
+import { Metadata } from 'next';
 import Link from 'next/link';
-import { useCart } from '@/contexts/CartContext';
+import GourmetPizzasClient from '@/components/GourmetPizzasClient';
 
 interface SpecialtyPizzaSize {
   id: string;
@@ -14,7 +12,7 @@ interface SpecialtyPizzaSize {
     name: string;
     diameter: string;
     basePrice: number;
-    description?: string;
+    description?: string | null;
   };
 }
 
@@ -30,389 +28,187 @@ interface SpecialtyPizza {
   sizes?: SpecialtyPizzaSize[];
 }
 
-export default function SpecialtyPizzasPage() {
-  const [pizzas, setPizzas] = useState<SpecialtyPizza[]>([]);
-  const [pizzaData, setPizzaData] = useState<any>(null); // Will store sizes, crusts, sauces, toppings
-  const [loading, setLoading] = useState(true);
-  const { show: showToast } = useToast();
-  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({});
-  const { addDetailedPizza } = useCart();
-
-  // Fetch pizza data (sizes, crusts, sauces, toppings)
-  const fetchPizzaData = async () => {
-    try {
-      const response = await fetch('/api/pizza-data');
-      if (response.ok) {
-        const data = await response.json();
-        setPizzaData(data);
-      } else {
-        console.error('Failed to fetch pizza data');
-      }
-    } catch (error) {
-      console.error('Error fetching pizza data:', error);
-    }
+// Generate metadata for SEO
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: 'Gourmet Specialty Pizzas - Pizza Builder Pro | Authentic Italian Recipes',
+    description: 'Discover our signature gourmet pizzas crafted with authentic Italian recipes, premium ingredients, and traditional techniques. Order online for delivery.',
+    keywords: 'gourmet pizza, specialty pizza, authentic Italian pizza, premium ingredients, traditional recipes, artisan pizza',
+    openGraph: {
+      title: 'Gourmet Specialty Pizzas - Pizza Builder Pro',
+      description: 'Authentic Italian gourmet pizzas with premium ingredients and traditional recipes.',
+      type: 'website',
+      images: ['/pizza-hero.jpg'],
+    },
   };
+}
 
-  // Fetch specialty pizzas
-  const fetchPizzas = async () => {
-    try {
-      const response = await fetch('/api/specialty-pizzas');
-      if (response.ok) {
-        const data = await response.json();
-        setPizzas(Array.isArray(data) ? data : []);
-        
-        // Set default sizes to the first available size for each pizza
-        const defaultSizes: Record<string, string> = {};
-        data.forEach((pizza: SpecialtyPizza) => {
-          if (pizza.sizes && pizza.sizes.length > 0) {
-            defaultSizes[pizza.id] = pizza.sizes[0].pizzaSize.id;
+// Server-side data fetching
+async function getSpecialtyPizzas(): Promise<SpecialtyPizza[]> {
+  try {
+    const pizzas = await prisma.specialtyPizza.findMany({
+      where: { isActive: true },
+      include: {
+        sizes: {
+          include: {
+            pizzaSize: true
+          },
+          where: { isAvailable: true },
+          orderBy: {
+            pizzaSize: {
+              sortOrder: 'asc'
+            }
           }
-        });
-        setSelectedSizes(defaultSizes);
-      } else {
-        console.error('Failed to fetch specialty pizzas');
-        setPizzas([]);
-      }
-    } catch (error) {
-      console.error('Error fetching specialty pizzas:', error);
-      setPizzas([]);
-    }
-  };
-
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      await Promise.all([
-        fetchPizzaData(),
-        fetchPizzas()
-      ]);
-      setLoading(false);
-    };
-    loadData();
-  }, []);
-
-  // Get selected size for a pizza
-  const getSelectedSize = (pizza: SpecialtyPizza): SpecialtyPizzaSize | undefined => {
-    const selectedSizeId = selectedSizes[pizza.id];
-    return pizza.sizes?.find(size => size.pizzaSize.id === selectedSizeId);
-  };
-
-  // Get price for selected size or fallback to base price
-  const getPizzaPrice = (pizza: SpecialtyPizza): number => {
-    const selectedSize = getSelectedSize(pizza);
-    return selectedSize ? selectedSize.price : pizza.basePrice;
-  };
-
-  // Add to cart function
-  const addToCart = (pizza: SpecialtyPizza) => {
-    if (!pizzaData) {
-  showToast('Pizza data still loading. Try again in a moment.', { type: 'info' });
-      return;
-    }
-
-    const selectedSize = getSelectedSize(pizza);
-    const price = getPizzaPrice(pizza);
-    
-    // Get default crust and sauce from loaded pizza data
-    const defaultCrust = pizzaData.crusts?.find((c: any) => c.isActive) || pizzaData.crusts?.[0];
-    const defaultSauce = pizzaData.sauces?.find((s: any) => s.isActive) || pizzaData.sauces?.[0];
-    
-    // Parse ingredients and match with toppings
-    const ingredientNames = parseIngredients(pizza.ingredients);
-    const matchedToppings: Array<{
-      id: string;
-      name: string;
-      category?: string;
-      price: number;
-      quantity: number;
-      section: 'WHOLE' | 'LEFT' | 'RIGHT';
-    }> = ingredientNames
-      .map(ingredient => {
-        // Try to find a matching topping by name (case-insensitive)
-        const topping = pizzaData.toppings?.find((t: any) => 
-          t.name.toLowerCase().includes(ingredient.toLowerCase()) ||
-          ingredient.toLowerCase().includes(t.name.toLowerCase())
-        );
-        return topping ? {
-          id: topping.id,
-          name: topping.name,
-          category: topping.category,
-          price: topping.price || 0, // Use price instead of priceModifier
-          quantity: 1, // Full topping
-          section: 'WHOLE' as const // Use section instead of side
-        } : null;
-      })
-      .filter((topping): topping is NonNullable<typeof topping> => topping !== null);
-    
-    // Use the new CartItem format with real database data
-    addDetailedPizza({
-      size: selectedSize?.pizzaSize ? {
-        id: selectedSize.pizzaSize.id,
-        name: selectedSize.pizzaSize.name,
-        diameter: selectedSize.pizzaSize.diameter,
-        basePrice: selectedSize.pizzaSize.basePrice,
-        isActive: true,
-        sortOrder: 1
-      } : {
-        id: 'cmeb4wr360000vk9s8q3wu9o1', // Fallback Small size ID
-        name: 'Small',
-        diameter: '12"',
-        basePrice: 12.99,
-        isActive: true,
-        sortOrder: 1
+        }
       },
-      crust: defaultCrust ? {
-        id: defaultCrust.id,
-        name: defaultCrust.name,
-        description: defaultCrust.description,
-        priceModifier: defaultCrust.priceModifier,
-        isActive: defaultCrust.isActive,
-        sortOrder: defaultCrust.sortOrder
-      } : {
-        id: 'cmeacm01d0001vkvg7sz15lue', // Fallback Thin crust ID
-        name: 'Thin',
-        description: 'Thin crust',
-        priceModifier: 0,
-        isActive: true,
-        sortOrder: 1
-      },
-      sauce: defaultSauce ? {
-        id: defaultSauce.id,
-        name: defaultSauce.name,
-        description: defaultSauce.description,
-        color: defaultSauce.color,
-        spiceLevel: defaultSauce.spiceLevel,
-        priceModifier: defaultSauce.priceModifier,
-        isActive: defaultSauce.isActive,
-        sortOrder: defaultSauce.sortOrder
-      } : {
-        id: 'cmeafxdoj0003vkzcc66kq3nl', // Fallback Original sauce ID
-        name: 'Original',
-        description: 'Original sauce',
-        color: '#FF0000',
-        spiceLevel: 1,
-        priceModifier: 0,
-        isActive: true,
-        sortOrder: 1
-      },
-      toppings: matchedToppings, // Matched toppings from ingredients
-      quantity: 1,
-      notes: `Specialty Pizza: ${pizza.name}`,
-      basePrice: pizza.basePrice || 12.99,
-      totalPrice: price,
+      orderBy: { name: 'asc' }
     });
-  showToast(`${pizza.name} (${selectedSize?.pizzaSize.name || 'Medium'}) added to cart! 🍕`, { type: 'success' });
-  };
 
-  // Parse ingredients from JSON string
-  const parseIngredients = (ingredientsStr: string): string[] => {
-    try {
-      return JSON.parse(ingredientsStr);
-    } catch {
-      return [];
-    }
-  };
+    return pizzas.map(pizza => ({
+      id: pizza.id,
+      name: pizza.name,
+      description: pizza.description,
+      basePrice: pizza.basePrice,
+      category: pizza.category,
+      imageUrl: pizza.imageUrl || undefined,
+      ingredients: pizza.ingredients,
+      isActive: pizza.isActive,
+      sizes: pizza.sizes.map(size => ({
+        id: size.id,
+        price: size.price,
+        isAvailable: size.isAvailable,
+        pizzaSize: {
+          id: size.pizzaSize.id,
+          name: size.pizzaSize.name,
+          diameter: size.pizzaSize.diameter,
+          basePrice: size.pizzaSize.basePrice,
+          description: size.pizzaSize.description || undefined
+        }
+      }))
+    }));
+  } catch (error) {
+    console.error('Error fetching specialty pizzas:', error);
+    // Return fallback pizzas for SEO
+    return [
+      {
+        id: '1',
+        name: 'Margherita Supreme',
+        description: 'Classic Italian pizza with fresh mozzarella, San Marzano tomatoes, and fresh basil',
+        basePrice: 16.99,
+        category: 'Classic',
+        ingredients: 'Fresh Mozzarella, San Marzano Tomatoes, Fresh Basil, Extra Virgin Olive Oil',
+        isActive: true,
+        sizes: []
+      },
+      {
+        id: '2',
+        name: 'Quattro Stagioni',
+        description: 'Four seasons pizza with artichokes, mushrooms, ham, and olives representing each season',
+        basePrice: 19.99,
+        category: 'Traditional',
+        ingredients: 'Artichokes, Mushrooms, Ham, Black Olives, Mozzarella, Tomato Sauce',
+        isActive: true,
+        sizes: []
+      },
+      {
+        id: '3',
+        name: 'Prosciutto e Arugula',
+        description: 'Elegant pizza topped with prosciutto di Parma, fresh arugula, and Parmigiano-Reggiano',
+        basePrice: 22.99,
+        category: 'Gourmet',
+        ingredients: 'Prosciutto di Parma, Fresh Arugula, Parmigiano-Reggiano, Mozzarella, Olive Oil',
+        isActive: true,
+        sizes: []
+      }
+    ];
+  }
+}
 
-  // Group pizzas by category
-  const groupedPizzas = pizzas.reduce((acc, pizza) => {
-    if (!acc[pizza.category]) {
-      acc[pizza.category] = [];
-    }
-    acc[pizza.category].push(pizza);
-    return acc;
-  }, {} as Record<string, SpecialtyPizza[]>);
+async function getPizzaData() {
+  try {
+    const [sizes, crusts, sauces, toppings] = await Promise.all([
+      prisma.pizzaSize.findMany({
+        where: { isActive: true },
+        orderBy: { basePrice: 'asc' }
+      }),
+      prisma.pizzaCrust.findMany({
+        where: { isActive: true },
+        orderBy: { name: 'asc' }
+      }),
+      prisma.pizzaSauce.findMany({
+        where: { isActive: true },
+        orderBy: { name: 'asc' }
+      }),
+      prisma.pizzaTopping.findMany({
+        where: { isActive: true },
+        orderBy: { name: 'asc' }
+      })
+    ]);
 
-  // Category color mapping for Boston theme
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      'CLASSIC': 'from-green-600 to-green-700',
-      'PREMIUM': 'from-orange-600 to-red-600',
-      'VEGETARIAN': 'from-emerald-500 to-green-600',
-      'VEGAN': 'from-green-500 to-emerald-600',
-      'MEAT_LOVERS': 'from-red-600 to-orange-700',
-      'SPECIALTY': 'from-orange-500 to-yellow-600'
+    return { sizes, crusts, sauces, toppings };
+  } catch (error) {
+    console.error('Error fetching pizza data:', error);
+    return {
+      sizes: [
+        { id: '1', name: 'Small', diameter: '10"', basePrice: 0, description: 'Perfect for 1-2 people', isActive: true },
+        { id: '2', name: 'Medium', diameter: '12"', basePrice: 3, description: 'Great for 2-3 people', isActive: true },
+        { id: '3', name: 'Large', diameter: '14"', basePrice: 6, description: 'Ideal for 3-4 people', isActive: true }
+      ],
+      crusts: [],
+      sauces: [],
+      toppings: []
     };
-    return colors[category] || 'from-gray-600 to-gray-700';
-  };
+  }
+}
+
+export default async function GourmetPizzasPage() {
+  const [pizzas, pizzaData] = await Promise.all([
+    getSpecialtyPizzas(),
+    getPizzaData()
+  ]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-green-800 to-orange-900">
-      {/* Hero Section */}
-      <div className="relative py-16 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            Our <span className="text-orange-400">Signature</span> Pizzas
-          </h1>
-          <p className="text-xl text-gray-200 mb-2 max-w-3xl mx-auto">
-            Handcrafted specialty pizzas with authentic local flavor. Each recipe perfected with 
-            locally-sourced ingredients and traditional techniques.
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-orange-800 to-yellow-700"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-red-600/20 via-transparent to-transparent"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-orange-600/20 via-transparent to-transparent"></div>
+      
+      {/* Floating Orbs */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-red-500/10 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
 
-      {/* Specialty Pizzas */}
-      <div className="max-w-7xl mx-auto px-4 pb-16">
-        {loading ? (
-          <div className="text-center py-16">
-            <div className="text-white text-xl">Loading our delicious specialty pizzas...</div>
+      {/* Content */}
+      <div className="relative z-10">
+        <div className="container mx-auto px-4 py-16">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight">
+              Gourmet <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400">Pizzas</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-200 max-w-4xl mx-auto leading-relaxed mb-8">
+              Discover our signature collection of artisan pizzas, crafted with premium ingredients and authentic Italian techniques passed down through generations
+            </p>
+            
+            {/* Quick Action */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link 
+                href="/build-pizza"
+                className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300 hover:scale-105 shadow-lg"
+              >
+                🎨 Build Your Own Pizza
+              </Link>
+              <Link 
+                href="/menu"
+                className="border-2 border-white text-white hover:bg-white hover:text-orange-600 font-bold px-8 py-4 rounded-xl text-lg transition-all duration-300"
+              >
+                📋 View Full Menu
+              </Link>
+            </div>
           </div>
-        ) : pizzas.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="text-gray-300 text-xl">No specialty pizzas available at the moment.</div>
-            <Link 
-              href="/build-pizza"
-              className="inline-block mt-6 bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-3 rounded-lg hover:from-orange-700 hover:to-orange-800 transition-all duration-300"
-            >
-              Create Custom Pizza Instead
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {Object.entries(groupedPizzas).map(([category, categoryPizzas]) => (
-              <div key={category}>
-                {/* Category Header */}
-                <div className="text-left mb-4">
-                  <h2 className={`inline-block text-xs md:text-sm font-medium text-white bg-gradient-to-r ${getCategoryColor(category)} px-1 py-1 rounded-sm shadow-sm`}>
-                    {category.replace('_', ' ')} ({categoryPizzas.length})
-                  </h2>
-                </div>
 
-                {/* Pizza Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {categoryPizzas.map((pizza) => (
-                    <div 
-                      key={pizza.id} 
-                      className="bg-slate-800/90 rounded-lg overflow-hidden shadow-xl border border-white/10 hover:shadow-2xl hover:scale-105 transition-all duration-300"
-                    >
-                      {/* Pizza Image */}
-                      {pizza.imageUrl ? (
-                        <div className="w-full h-48 relative overflow-hidden">
-                          <img 
-                            src={pizza.imageUrl} 
-                            alt={pizza.name}
-                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-                            onError={(e) => {
-                              // Fallback to pizza emoji if image fails to load
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const fallback = target.nextElementSibling as HTMLElement;
-                              if (fallback) fallback.style.display = 'flex';
-                            }}
-                          />
-                          <div className="w-full h-full bg-gradient-to-br from-orange-500/30 to-green-500/30 flex items-center justify-center" style={{display: 'none'}}>
-                            <span className="text-6xl">🍕</span>
-                          </div>
-                          {/* Image overlay for better text readability */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-                        </div>
-                      ) : (
-                        <div className="w-full h-48 bg-gradient-to-br from-orange-500/30 to-green-500/30 flex items-center justify-center">
-                          <div className="text-center">
-                            <span className="text-6xl mb-2 block">🍕</span>
-                            <p className="text-white/60 text-sm">No image available</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Pizza Content */}
-                      <div className="p-6">
-                        <div className="flex justify-between items-start mb-3">
-                          <h3 className="text-xl font-bold text-white">{pizza.name}</h3>
-                          <span className="text-2xl font-bold text-green-400">
-                            ${getPizzaPrice(pizza).toFixed(2)}
-                          </span>
-                        </div>
-
-                        <p className="text-gray-300 text-sm mb-4 leading-relaxed">
-                          {pizza.description}
-                        </p>
-
-                        {/* Size Selection */}
-                        {pizza.sizes && pizza.sizes.length > 0 && (
-                          <div className="mb-4">
-                            <h4 className="text-sm font-semibold text-orange-400 mb-2">Size:</h4>
-                            <div className="grid grid-cols-3 gap-2">
-                              {pizza.sizes.map((sizeOption) => (
-                                <button
-                                  key={sizeOption.pizzaSize.id}
-                                  onClick={() => setSelectedSizes(prev => ({
-                                    ...prev,
-                                    [pizza.id]: sizeOption.pizzaSize.id
-                                  }))}
-                                  className={`p-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                                    selectedSizes[pizza.id] === sizeOption.pizzaSize.id
-                                      ? 'bg-gradient-to-r from-green-600 to-green-700 text-white border-2 border-green-400'
-                                      : 'bg-slate-700 text-gray-300 border-2 border-slate-600 hover:bg-slate-600'
-                                  }`}
-                                >
-                                  <div className="text-center">
-                                    <div className="font-bold">{sizeOption.pizzaSize.name}</div>
-                                    <div className="text-xs opacity-75">{sizeOption.pizzaSize.diameter}</div>
-                                    <div className="text-xs text-green-400 font-bold">${sizeOption.price.toFixed(2)}</div>
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Ingredients */}
-                        {pizza.ingredients && (
-                          <div className="mb-6">
-                            <h4 className="text-sm font-semibold text-orange-400 mb-2">Ingredients:</h4>
-                            <div className="flex flex-wrap gap-1">
-                              {parseIngredients(pizza.ingredients).map((ingredient, index) => (
-                                <span 
-                                  key={index}
-                                  className="text-xs bg-slate-700 text-gray-300 px-2 py-1 rounded-full border border-slate-600"
-                                >
-                                  {ingredient}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Action Buttons */}
-                        <div className="flex space-x-3">
-                          <Link
-                            href={`/build-pizza?specialty=${pizza.id}&size=${selectedSizes[pizza.id] || ''}`}
-                            className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-center py-3 px-4 rounded-lg font-semibold transition-all duration-300 hover:scale-105"
-                          >
-                            🛠️ Customize
-                          </Link>
-                          <button
-                            onClick={() => addToCart(pizza)}
-                            className="flex-1 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 hover:scale-105"
-                          >
-                            🛒 Add to Cart
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Footer CTA */}
-      <div className="bg-black/40 backdrop-blur-sm py-12">
-        <div className="max-w-4xl mx-auto text-center px-4">
-          <h3 className="text-2xl font-bold text-white mb-4">
-            Can't find what you're looking for?
-          </h3>
-          <p className="text-gray-300 mb-6">
-            Create your own custom pizza with our interactive pizza builder!
-          </p>
-          <Link
-            href="/build-pizza"
-            className="inline-block bg-gradient-to-r from-green-600 to-orange-600 hover:from-green-700 hover:to-orange-700 text-white font-bold px-8 py-4 rounded-lg text-lg transition-all duration-300 hover:scale-105"
-          >
-            🍕 Build Custom Pizza
-          </Link>
+          {/* Server-rendered pizza grid with client functionality */}
+          <GourmetPizzasClient initialPizzas={pizzas} initialPizzaData={pizzaData} />
         </div>
       </div>
     </div>

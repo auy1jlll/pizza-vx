@@ -17,8 +17,8 @@ export default function DynamicNavigation() {
   // During SSR and before hydration, show a consistent placeholder
   // After hydration, show the real data
   const appName = isHydrated && !loading
-    ? (settings.app_name || settings.business_name || 'Omar Pizza')
-    : 'Omar Pizza'; // Consistent placeholder that matches expected content
+    ? (settings.app_name || settings.business_name || 'Local Pizza House')
+    : 'Local Pizza House'; // Consistent placeholder that matches expected content
 
   return (
     <>

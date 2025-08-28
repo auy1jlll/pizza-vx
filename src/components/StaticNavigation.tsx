@@ -10,7 +10,7 @@ export default function StaticNavigation() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           <Link href="/" className="text-2xl font-bold text-white hover:text-orange-300 transition-colors">
-            🍕 <span className="text-orange-300">Omar Pizza</span>
+            🍕 <span className="text-orange-300">Local Pizza House</span>
           </Link>
           
           <div className="flex items-center space-x-6">

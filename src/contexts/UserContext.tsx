@@ -13,6 +13,7 @@ interface UserContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  adminLogin: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -31,13 +32,30 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch('/api/auth/me', {
+      // Check if we're on an admin page
+      const isAdminPage = typeof window !== 'undefined' && window.location.pathname.startsWith('/management-portal');
+      
+      // Try admin auth first if on admin page, otherwise try customer auth
+      const authEndpoint = isAdminPage ? '/api/auth/me' : '/api/auth/customer/me';
+      
+      const response = await fetch(authEndpoint, {
         credentials: 'include'
       });
 
       if (response.ok) {
         const userData = await response.json();
         setUser(userData.user);
+      } else if (isAdminPage) {
+        // If admin auth failed, try customer auth as fallback
+        const customerResponse = await fetch('/api/auth/customer/me', {
+          credentials: 'include'
+        });
+        if (customerResponse.ok) {
+          const customerData = await customerResponse.json();
+          setUser(customerData.user);
+        } else {
+          setUser(null);
+        }
       } else {
         setUser(null);
       }
@@ -78,6 +96,44 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error: any) {
       console.error('Login error:', error);
+      // If it's a network error or other non-API error
+      if (error.name === 'TypeError' || error.message.includes('fetch')) {
+        return { success: false, error: 'Unable to connect to server. Please try again.' };
+      }
+      // Return a generic error message
+      return { success: false, error: 'An unexpected error occurred. Please try again.' };
+    }
+  };
+
+  const adminLogin = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        return { success: true };
+      } else {
+        // Handle API error responses
+        let errorMessage = 'Invalid username or password';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || 'Invalid username or password';
+        } catch (parseError) {
+          // If JSON parsing fails, use default message
+          errorMessage = 'Invalid username or password. Please try again.';
+        }
+        return { success: false, error: errorMessage };
+      }
+    } catch (error: any) {
+      console.error('Admin login error:', error);
       // If it's a network error or other non-API error
       if (error.name === 'TypeError' || error.message.includes('fetch')) {
         return { success: false, error: 'Unable to connect to server. Please try again.' };
@@ -147,6 +203,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       user,
       loading,
       login,
+      adminLogin,
       register,
       logout,
       refreshUser

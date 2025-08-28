@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Gourmet Specialty Pizzas | Artisan Pizza Collection | Omar Pizza',
+  title: 'Gourmet Specialty Pizzas | Artisan Pizza Collection | Local Pizza House',
   description: 'Discover our signature gourmet pizzas crafted with premium ingredients. From classic favorites to unique Boston-inspired creations. Order online for delivery or pickup.',
   keywords: [
     'gourmet pizza',
@@ -11,10 +11,10 @@ export const metadata: Metadata = {
     'signature pizzas',
     'Boston pizza',
     'pizza delivery',
-    'Omar Pizza'
+    'Local Pizza House'
   ],
   openGraph: {
-    title: 'Gourmet Specialty Pizzas | Omar Pizza',
+    title: 'Gourmet Specialty Pizzas | Local Pizza House',
     description: 'Discover our signature gourmet pizzas crafted with premium ingredients. From classic favorites to unique Boston-inspired creations.',
     type: 'website',
     url: '/gourmet-pizzas',
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Gourmet Specialty Pizzas | Omar Pizza',
+    title: 'Gourmet Specialty Pizzas | Local Pizza House',
     description: 'Discover our signature gourmet pizzas crafted with premium ingredients.',
     images: ['/images/gourmet-pizzas-og.jpg']
   },

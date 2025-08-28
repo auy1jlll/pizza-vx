@@ -4,12 +4,31 @@ Allow: /
 # Sitemaps
 Sitemap: https://yourrestoapp.com/sitemap.xml
 
-# Disallow old URLs to prevent indexing of redirect pages
-Disallow: /pizza-builder
-Disallow: /sandwich-customizer  
-Disallow: /specialty-pizzas
+# Disallow admin areas and API routes
+Disallow: /management-portal/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /debug-cart
+Disallow: /settings-demo
 
-# Allow new SEO-friendly URLs
+# Disallow old URLs to prevent indexing of redirect pages (these now redirect to SEO-friendly URLs)
+Disallow: /pizza-builder-old
+Disallow: /sandwich-customizer-old
+
+# Allow all main public pages
+Allow: /
 Allow: /build-pizza
-Allow: /build-sandwich
+Allow: /build-sandwich  
+Allow: /build-calzone
 Allow: /gourmet-pizzas
+Allow: /specialty-calzones
+Allow: /menu
+Allow: /menu/*
+Allow: /about
+Allow: /contact
+Allow: /faq
+Allow: /terms
+Allow: /privacy
+
+# Cache crawl delay for better server performance
+Crawl-delay: 1

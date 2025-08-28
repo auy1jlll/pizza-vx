@@ -176,7 +176,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
-      // Calculate actual subtotal (pre-tax) from item components
+      // Use the pre-calculated totalPrice if available, otherwise calculate it
+      if (item.totalPrice && item.totalPrice > 0) {
+        const itemQuantity = Number(item.quantity) || 1;
+        return total + (item.totalPrice * itemQuantity);
+      }
+      
+      // Fallback calculation for legacy items
       const basePrice = Number(item.basePrice) || 0;
       const crustPrice = Number(item.crust?.priceModifier) || 0;
       const saucePrice = Number(item.sauce?.priceModifier) || 0;

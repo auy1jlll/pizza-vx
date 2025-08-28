@@ -375,7 +375,18 @@ export default function CartPage() {
               {pizzaItems.length > 0 && (
                 <div className="mb-8">
                   <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    🍕 Pizzas ({pizzaItems.length})
+                    🍕 {(() => {
+                      const hasCalzones = pizzaItems.some(item => item.size?.name?.includes('Calzone'));
+                      const hasPizzas = pizzaItems.some(item => !item.size?.name?.includes('Calzone'));
+                      
+                      if (hasCalzones && hasPizzas) {
+                        return `Items (${pizzaItems.length})`;
+                      } else if (hasCalzones) {
+                        return `Calzones (${pizzaItems.length})`;
+                      } else {
+                        return `Pizzas (${pizzaItems.length})`;
+                      }
+                    })()}
                   </h2>
                   <div className="space-y-4">
                     {pizzaItems.map((item) => {
@@ -396,7 +407,12 @@ export default function CartPage() {
                                     {item.specialtyPizzaName ? (
                                       <span>{item.specialtyPizzaName} <span className="text-gray-500 text-sm">({item.size?.name || 'Custom'})</span></span>
                                     ) : (
-                                      <span>{item.size?.name || 'Custom'} Pizza</span>
+                                      <span>
+                                        {item.size?.name?.includes('Calzone') 
+                                          ? item.size.name 
+                                          : `${item.size?.name || 'Custom'} Pizza`
+                                        }
+                                      </span>
                                     )}
                                   </h3>
                                   <p className="text-gray-600 text-sm">
@@ -409,7 +425,11 @@ export default function CartPage() {
                                 <button
                                   onClick={() => removePizza(item.id)}
                                   className="text-gray-400 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-full"
-                                  aria-label={`Remove ${item.size?.name || 'Custom'} Pizza`}
+                                  aria-label={`Remove ${
+                                    item.size?.name?.includes('Calzone') 
+                                      ? item.size.name 
+                                      : `${item.size?.name || 'Custom'} Pizza`
+                                  }`}
                                 >
                                   <Trash2 size={18} />
                                 </button>
@@ -593,7 +613,18 @@ export default function CartPage() {
                 <div className="space-y-4 mb-6">
                   {pizzaSubtotal > 0 && (
                     <div className="flex justify-between text-gray-600">
-                      <span>Pizzas Subtotal</span>
+                      <span>{(() => {
+                        const hasCalzones = pizzaItems.some(item => item.size?.name?.includes('Calzone'));
+                        const hasPizzas = pizzaItems.some(item => !item.size?.name?.includes('Calzone'));
+                        
+                        if (hasCalzones && hasPizzas) {
+                          return 'Items Subtotal';
+                        } else if (hasCalzones) {
+                          return 'Calzones Subtotal';
+                        } else {
+                          return 'Pizzas Subtotal';
+                        }
+                      })()}</span>
                       <span>${pizzaSubtotal.toFixed(2)}</span>
                     </div>
                   )}

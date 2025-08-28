@@ -7,6 +7,8 @@ import { AppSettingsProvider } from '@/contexts/AppSettingsContext';
 import { ToastProvider } from '@/components/ToastProvider';
 import { SexyToastProvider } from '@/components/SexyToastProvider';
 import { ConditionalTopNavigation, ConditionalBottomElements } from '@/components/ConditionalNavigation';
+import RestaurantStructuredData from '@/components/RestaurantStructuredData';
+import Analytics from '@/components/Analytics';
 import { generateMetadata as generateDynamicMetadata } from '@/lib/dynamic-metadata';
 
 // Instrumentation is only meaningful on the Node server; defer to runtime dynamic import
@@ -27,6 +29,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <RestaurantStructuredData />
+        <Analytics />
+      </head>
       <body className="antialiased">
         <UserProvider>
           <SettingsProvider>

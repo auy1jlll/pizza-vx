@@ -1,15 +1,15 @@
-'use client';
 import Link from 'next/link';
-import { useAppSettingsContext } from '@/contexts/AppSettingsContext';
-import PizzaPromoHero from '@/components/PizzaPromoHero';
+import StaticPizzaPromoHero from '@/components/StaticPizzaPromoHero';
+import { generateMetadata as generateDynamicMetadata } from '@/lib/dynamic-metadata';
+
+// Generate metadata for this page
+export const generateMetadata = generateDynamicMetadata;
 
 export default function Home() {
-  const { settings } = useAppSettingsContext();
-
   return (
     <div className="min-h-screen">
-      {/* Pizza Promo Hero Section */}
-      <PizzaPromoHero />
+      {/* Static Pizza Promo Hero Section */}
+      <StaticPizzaPromoHero />
       
       {/* Additional Content Section */}
       <div className="bg-gradient-to-br from-emerald-900 via-green-800 to-orange-900 py-20">

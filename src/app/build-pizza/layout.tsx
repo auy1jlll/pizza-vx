@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Build Your Perfect Pizza | Custom Pizza Builder | Omar Pizza',
+  title: 'Build Your Perfect Pizza | Custom Pizza Builder | Local Pizza House',
   description: 'Create your dream pizza with our interactive pizza builder. Choose from fresh toppings, premium crusts, and signature sauces. Order online for delivery or pickup.',
   keywords: [
     'pizza builder',
@@ -11,10 +11,10 @@ export const metadata: Metadata = {
     'fresh toppings',
     'pizza delivery',
     'Boston pizza',
-    'Omar Pizza'
+    'Local Pizza House'
   ],
   openGraph: {
-    title: 'Build Your Perfect Pizza | Omar Pizza',
+    title: 'Build Your Perfect Pizza | Local Pizza House',
     description: 'Create your dream pizza with our interactive pizza builder. Choose from fresh toppings, premium crusts, and signature sauces.',
     type: 'website',
     url: '/build-pizza',
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Build Your Perfect Pizza | Omar Pizza',
+    title: 'Build Your Perfect Pizza | Local Pizza House',
     description: 'Create your dream pizza with our interactive pizza builder.',
     images: ['/images/pizza-builder-og.jpg']
   },
@@ -71,7 +71,7 @@ export default function BuildPizzaLayout({
         priceCurrency: 'USD',
         seller: {
           '@type': 'Restaurant',
-          name: 'Omar Pizza',
+          name: 'Local Pizza House',
           address: {
             '@type': 'PostalAddress',
             addressLocality: 'Boston',

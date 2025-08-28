@@ -41,7 +41,8 @@ export default function SpecialtyCalzonesPage() {
   // Fetch specialty calzones (filter for CALZONE category only)
   const fetchSpecialtyCalzones = async () => {
     try {
-      const response = await fetch('/api/specialty-calzones');
+      // Add cache busting parameter
+      const response = await fetch(`/api/specialty-calzones?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         // Data is already filtered for calzones
@@ -51,7 +52,7 @@ export default function SpecialtyCalzonesPage() {
         const defaultSizes: Record<string, string> = {};
         data.forEach((calzone: SpecialtyPizza) => {
           if (calzone.sizes && calzone.sizes.length > 0) {
-            defaultSizes[calzone.id] = calzone.sizes[0].pizzaSize.id;
+            defaultSizes[calzone.id] = calzone.sizes[0].id; // Use the SpecialtyCalzoneSize ID, not pizzaSize.id
           }
         });
         setSelectedSizes(defaultSizes);
@@ -95,7 +96,7 @@ export default function SpecialtyCalzonesPage() {
   // Get selected size for a calzone
   const getSelectedSize = (pizza: SpecialtyPizza): SpecialtyPizzaSize | undefined => {
     const selectedSizeId = selectedSizes[pizza.id];
-    return pizza.sizes?.find(size => size.pizzaSize.id === selectedSizeId);
+    return pizza.sizes?.find(size => size.id === selectedSizeId); // Use size.id instead of size.pizzaSize.id
   };
 
   // Get price for selected size or fallback to base price
@@ -301,11 +302,11 @@ export default function SpecialtyCalzonesPage() {
                   </div>
 
                   {/* Size Selection */}
-                  {pizzaData?.sizes && (
+                  {pizza.sizes && pizza.sizes.length > 0 && (
                     <div className="mb-4">
                       <p className="text-sm font-semibold text-gray-700 mb-2">Choose Size:</p>
                       <div className="grid grid-cols-2 gap-2">
-                        {pizzaData.sizes.map((size: any) => (
+                        {pizza.sizes.map((size: SpecialtyPizzaSize) => (
                           <button
                             key={size.id}
                             onClick={() => handleSizeSelect(pizza.id, size.id)}
@@ -315,8 +316,8 @@ export default function SpecialtyCalzonesPage() {
                                 : 'border-gray-200 hover:border-gray-300 text-gray-700'
                             }`}
                           >
-                            <div>{size.name.replace(' Calzone', '')}</div>
-                            <div className="text-xs text-gray-500">${size.basePrice}</div>
+                            <div>{size.pizzaSize.name}</div>
+                            <div className="text-xs text-gray-500">${size.price.toFixed(2)}</div>
                           </button>
                         ))}
                       </div>

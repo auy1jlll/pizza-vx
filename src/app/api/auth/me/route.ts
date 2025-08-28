@@ -11,11 +11,6 @@ export async function GET(request: NextRequest) {
     if (!token) {
       token = request.cookies.get('admin-token')?.value;
     }
-    
-    // Fallback to user-token for user context compatibility
-    if (!token) {
-      token = request.cookies.get('user-token')?.value;
-    }
 
     if (!token) {
       return NextResponse.json(
@@ -30,7 +25,7 @@ export async function GET(request: NextRequest) {
       process.env.JWT_SECRET || 'fallback-secret'
     ) as any;
 
-    // Get user from database
+    // Get user from database (only admins)
     const user = await prisma.user.findUnique({
       where: { 
         id: decoded.userId,

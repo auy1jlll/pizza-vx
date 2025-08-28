@@ -1,6 +1,9 @@
 'use client';
 
+import { useAppSettings } from '@/hooks/useAppSettings';
+
 export default function HeroPage() {
+  const { settings } = useAppSettings();
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50">
       {/* NAVIGATION PLACEHOLDER */}
@@ -90,7 +93,7 @@ export default function HeroPage() {
           <div className="lg:text-center">
             <h2 className="text-base text-red-600 font-semibold tracking-wide uppercase">Features</h2>
             <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-              Why Choose Omar Pizza?
+              Why Choose {settings.business_name}?
             </p>
           </div>
 
@@ -141,7 +144,7 @@ export default function HeroPage() {
             <span className="block">Start building your perfect pizza today.</span>
           </h2>
           <p className="mt-4 text-lg leading-6 text-red-100">
-            Join thousands of satisfied customers who trust Omar Pizza for their favorite meals.
+            Join thousands of satisfied customers who trust {settings.business_name} for their favorite meals.
           </p>
           <button className="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-red-600 bg-white hover:bg-red-50 sm:w-auto transition-colors">
             Order Now

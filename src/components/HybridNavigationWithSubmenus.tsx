@@ -152,8 +152,8 @@ export default function HybridNavigationWithSubmenus() {
 
   // Determine app name
   const appName = !loading && isHydrated && settings
-    ? (settings.app_name || settings.business_name || 'Omar Pizza')
-    : 'Omar Pizza';
+    ? (settings.app_name || settings.business_name || 'Local Pizza House')
+    : 'Local Pizza House';
 
   const menuStructure = getMenuStructure();
 

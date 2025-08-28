@@ -8,7 +8,7 @@ import { ToastProvider } from '@/components/ToastProvider';
 import { SexyToastProvider } from '@/components/SexyToastProvider';
 
 export const metadata: Metadata = {
-  title: "Hero Page - Omar Pizza",
+  title: "Hero Page - Local Pizza House",
   description: "Hero page design mockup with placeholders",
 };
 

@@ -73,15 +73,15 @@ interface AppSettings {
 
 // SSR-safe initial settings - matches expected content to prevent hydration issues
 const ssrSafeSettings: AppSettings = {
-  app_name: 'Omar Pizza',
+  app_name: 'Local Pizza House',
   app_tagline: 'Build your perfect pizza',
-  business_name: 'Omar Pizza',
+  business_name: 'Local Pizza House',
   business_slogan: 'Crafted to Perfection',
   business_phone: '(555) 123-PIZZA',
-  business_email: 'orders@omarpizza.com',
+  business_email: 'orders@localpizzahouse.com',
   business_address: '123 Pizza Street',
-  business_website: 'https://omarpizza.com',
-  meta_title: 'Omar Pizza',
+  business_website: 'https://localpizzahouse.com',
+  meta_title: 'Local Pizza House',
   meta_description: 'Build your perfect pizza',
   meta_keywords: 'pizza, custom pizza, pizza builder',
   facebook_url: '',
@@ -116,9 +116,9 @@ const ssrSafeSettings: AppSettings = {
     saturday: { open: '12:00', close: '23:00', closed: false },
     sunday: { open: '12:00', close: '21:00', closed: false }
   },
-  welcome_message: 'Welcome to Omar Pizza!',
+  welcome_message: 'Welcome to Local Pizza House!',
   welcome_subtitle: 'Create your perfect pizza',
-  footer_text: '© 2025 Omar Pizza. All rights reserved.',
+  footer_text: '© 2025 Local Pizza House. All rights reserved.',
   footer_description: 'Experience the art of pizza making.',
   terms_url: '/terms',
   privacy_url: '/privacy',

@@ -10,7 +10,7 @@ export function ConditionalTopNavigation() {
   const pathname = usePathname();
   
   // Hide public navigation on admin pages
-  const isAdminRoute = pathname?.startsWith('/admin');
+  const isAdminRoute = pathname?.startsWith('/management-portal');
   
   if (isAdminRoute) {
     return null; // Don't render public navigation on admin pages
@@ -24,7 +24,7 @@ export function ConditionalBottomElements() {
   const pathname = usePathname();
   
   // Hide public navigation on admin pages
-  const isAdminRoute = pathname?.startsWith('/admin');
+  const isAdminRoute = pathname?.startsWith('/management-portal');
   
   if (isAdminRoute) {
     return null; // Don't render public navigation on admin pages
