@@ -2,23 +2,43 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Ensure database connection with retry logic
+// Ensure database connection with retry logic and circuit breaker
+let connectionFailures = 0;
+let lastFailureTime = 0;
+const CIRCUIT_BREAKER_THRESHOLD = 5;
+const CIRCUIT_BREAKER_TIMEOUT = 30000; // 30 seconds
+
 async function ensureDatabaseConnection() {
-  let retries = 3;
+  // Circuit breaker: if too many failures, don't retry for a while
+  if (connectionFailures >= CIRCUIT_BREAKER_THRESHOLD) {
+    const timeSinceLastFailure = Date.now() - lastFailureTime;
+    if (timeSinceLastFailure < CIRCUIT_BREAKER_TIMEOUT) {
+      throw new Error(`Database circuit breaker open. Too many connection failures. Retry in ${Math.ceil((CIRCUIT_BREAKER_TIMEOUT - timeSinceLastFailure) / 1000)} seconds.`);
+    } else {
+      // Reset circuit breaker after timeout
+      connectionFailures = 0;
+    }
+  }
+
+  let retries = 2; // Reduced retries to prevent server overload
   
   while (retries > 0) {
     try {
       // Test the connection by making a simple query
       await prisma.$connect();
       console.log('🔌 Database connection established');
+      connectionFailures = 0; // Reset on success
       return true;
     } catch (error) {
       console.error(`❌ Database connection failed (${retries} retries left):`, error);
       retries--;
+      connectionFailures++;
+      lastFailureTime = Date.now();
       
       if (retries > 0) {
-        // Wait and try to reconnect
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Exponential backoff: wait longer between retries
+        const waitTime = Math.min(1000 * (3 - retries), 5000);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
         try {
           await prisma.$disconnect();
         } catch {}

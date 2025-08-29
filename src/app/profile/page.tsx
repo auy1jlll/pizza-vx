@@ -59,6 +59,21 @@ export default function ProfilePage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Password change state
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
+
   // Form data
   const [formData, setFormData] = useState({
     name: '',
@@ -210,6 +225,58 @@ export default function ProfilePage() {
     }));
   };
 
+  const handlePasswordChange = async () => {
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      setPasswordError('All password fields are required');
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError('New password must be at least 6 characters long');
+      return;
+    }
+
+    setPasswordLoading(true);
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    try {
+      const response = await fetch('/api/auth/customer/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPasswordSuccess('Password updated successfully!');
+        setPasswordData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+      } else {
+        setPasswordError(data.error || 'Failed to update password');
+      }
+    } catch (error) {
+      console.error('Error changing password:', error);
+      setPasswordError('Failed to update password');
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-green-800 to-orange-900 flex items-center justify-center">
@@ -270,6 +337,7 @@ export default function ProfilePage() {
             { id: 'personal', label: 'Personal Info', icon: '👤' },
             { id: 'addresses', label: 'Addresses', icon: '📍' },
             { id: 'favorites', label: 'Favorites', icon: '❤️' },
+            { id: 'security', label: 'Security', icon: '🔒' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -605,6 +673,128 @@ export default function ProfilePage() {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === 'security' && (
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-6">Security Settings</h2>
+              
+              <div className="max-w-md">
+                <h3 className="text-lg font-semibold text-white mb-4">Change Password</h3>
+                
+                {passwordError && (
+                  <div className="bg-red-500/20 border border-red-500 text-red-100 px-4 py-3 rounded mb-4">
+                    {passwordError}
+                  </div>
+                )}
+                
+                {passwordSuccess && (
+                  <div className="bg-green-500/20 border border-green-500 text-green-100 px-4 py-3 rounded mb-4">
+                    {passwordSuccess}
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                      Current Password *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPasswords.current ? 'text' : 'password'}
+                        value={passwordData.currentPassword}
+                        onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                        className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
+                        placeholder="Enter current password"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowPasswords({ ...showPasswords, current: !showPasswords.current })}
+                      >
+                        {showPasswords.current ? (
+                          <span className="text-gray-400">🙈</span>
+                        ) : (
+                          <span className="text-gray-400">👁️</span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                      New Password *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPasswords.new ? 'text' : 'password'}
+                        value={passwordData.newPassword}
+                        onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                        className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
+                        placeholder="Enter new password"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowPasswords({ ...showPasswords, new: !showPasswords.new })}
+                      >
+                        {showPasswords.new ? (
+                          <span className="text-gray-400">🙈</span>
+                        ) : (
+                          <span className="text-gray-400">👁️</span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                      Confirm New Password *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPasswords.confirm ? 'text' : 'password'}
+                        value={passwordData.confirmPassword}
+                        onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                        className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
+                        placeholder="Confirm new password"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowPasswords({ ...showPasswords, confirm: !showPasswords.confirm })}
+                      >
+                        {showPasswords.confirm ? (
+                          <span className="text-gray-400">🙈</span>
+                        ) : (
+                          <span className="text-gray-400">👁️</span>
+                        )}
+                      </button>
+                    </div>
+                    {passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword && (
+                      <p className="mt-1 text-sm text-red-400">Passwords do not match</p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handlePasswordChange}
+                    disabled={passwordLoading || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword || passwordData.newPassword !== passwordData.confirmPassword}
+                    className="w-full bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                  >
+                    {passwordLoading ? 'Updating Password...' : 'Update Password'}
+                  </button>
+                </div>
+
+                <div className="mt-6 bg-white/5 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-2">Password Requirements:</h4>
+                  <ul className="space-y-1 text-xs text-gray-400">
+                    <li>• At least 6 characters long</li>
+                    <li>• Should be unique and not used elsewhere</li>
+                    <li>• Mix of letters, numbers recommended</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           )}
         </div>

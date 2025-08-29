@@ -1,0 +1,5 @@
+Host production-server
+    HostName 91.99.194.255
+    User root
+    IdentityFile ./production_server_key
+    StrictHostKeyChecking no

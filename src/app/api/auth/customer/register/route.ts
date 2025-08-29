@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '@/lib/prisma';
+import { EmailService } from '@/lib/email-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -88,9 +89,18 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 604800, // 7 days
+      maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/'
     });
+
+    // Send welcome email (don't block registration if email fails)
+    try {
+      await EmailService.sendWelcomeEmail(user.email, user.name || 'Customer');
+      console.log(`✅ Welcome email sent to: ${user.email}`);
+    } catch (error) {
+      console.error('❌ Failed to send welcome email:', error);
+      // Don't fail registration if email fails
+    }
 
     return response;
 

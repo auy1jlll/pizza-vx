@@ -88,6 +88,15 @@ export default function AdminLogin() {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
+
+          <div className="text-center">
+            <a
+              href="/management-portal/forgot-password"
+              className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+            >
+              Forgot your password?
+            </a>
+          </div>
         </form>
       </div>
     </div>

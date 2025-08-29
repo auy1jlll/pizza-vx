@@ -14,6 +14,13 @@ services:
       NEXTAUTH_URL: "http://localhost:3000"
       # A secret is required for JWT signing. Generate a strong one for production.
       NEXTAUTH_SECRET: "your-super-secret-nextauth-secret"
+      # SMTP Configuration for Resend.com
+      SMTP_HOST: "smtp.resend.com"
+      SMTP_PORT: "587"
+      SMTP_USER: "resend"
+      SMTP_PASS: "re_iXc3XSMw_LqNmsMeFYKD7EwijAUQCnUwW"
+      SMTP_FROM_EMAIL: "noreply@resend.dev"
+      SMTP_FROM_NAME: "Boston Pizza"
     depends_on:
       db:
         condition: service_healthy

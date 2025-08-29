@@ -20,6 +20,8 @@ model User {
   emailVerified    Boolean           @default(false)
   marketingOptIn   Boolean           @default(false)
   role             UserRole          @default(CUSTOMER)
+  resetToken       String?
+  resetTokenExpiry DateTime?
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   cartItems        CartItem[]
@@ -722,4 +724,55 @@ enum DiscountType {
   PERCENTAGE            // Percentage off (5, 10, 20, etc.)
   FIXED_AMOUNT         // Fixed dollar amount off ($5, $10, etc.)
   FREE_ITEM            // Free item/service
+}
+
+// Email Configuration Models
+model EmailTemplate {
+  id           String   @id @default(cuid())
+  templateKey  String   @unique // 'password_reset', 'account_confirmation', 'order_confirmation'
+  name         String   // Display name
+  subject      String   // Email subject line
+  htmlContent  String   // HTML email template
+  textContent  String?  // Plain text version
+  variables    String[] // Array of available variables like ['{{name}}', '{{link}}']
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("email_templates")
+}
+
+model EmailSettings {
+  id                String   @id @default(cuid())
+  settingKey        String   @unique // 'smtp_host', 'from_email', 'from_name', etc.
+  settingValue      String   // The actual value
+  description       String?  // Description of what this setting does
+  isEncrypted       Boolean  @default(false) // For sensitive values like API keys
+  category          String   @default("general") // 'smtp', 'branding', 'general'
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("email_settings")
+}
+
+model EmailLog {
+  id           String      @id @default(cuid())
+  to           String      // Recipient email
+  subject      String      // Email subject
+  templateKey  String?     // Which template was used
+  status       EmailStatus @default(PENDING)
+  errorMessage String?     // Error message if failed
+  sentAt       DateTime?   // When email was actually sent
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("email_logs")
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
+  BOUNCED
 }

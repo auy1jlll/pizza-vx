@@ -1,0 +1,118 @@
+# Complete Step-by-Step Guide for Resend Email Setup
+# For beginners - every command explained
+
+## Step 1: Connect to Your Server
+# In your current SSH session, you should see something like:
+# root@ubuntu-2gb-nbg1-1:~#
+
+## Step 2: Find Your Application Directory
+# First, let's see where we are and what's available:
+
+pwd
+# This shows your current directory (probably /root)
+
+ls -la
+# This lists all files and folders
+
+# Look for your application. It might be in one of these locations:
+ls -la /opt/
+ls -la /var/www/
+ls -la /home/
+ls -la /root/
+
+# Common locations for web apps:
+# /opt/restoapp
+# /var/www/restoapp  
+# /home/restoapp
+# /root/restoapp
+
+## Step 3: Navigate to Your App Directory
+# Once you find it, navigate there. Most likely it's:
+cd /opt/restoapp
+
+# Or if it's elsewhere:
+# cd /var/www/restoapp
+# cd /home/restoapp
+
+## Step 4: Verify You're in the Right Place
+pwd
+# Should show something like /opt/restoapp
+
+ls -la
+# You should see files like:
+# - package.json
+# - .env
+# - src/ folder
+# - node_modules/ folder
+# - docker-compose.yml (maybe)
+
+## Step 5: Look at Current .env File
+cat .env
+# This shows the contents of your environment file
+
+## Step 6: Backup the .env File (Safety First!)
+cp .env .env.backup
+echo "✅ Backup created!"
+
+## Step 7: Edit the .env File
+# We'll use nano editor (easy for beginners)
+nano .env
+
+# INSIDE THE NANO EDITOR:
+# - Use arrow keys to move around
+# - Scroll to the bottom of the file
+# - Add these lines at the end:
+
+# Resend.com Email Configuration
+SMTP_HOST="smtp.resend.com"
+SMTP_PORT="587"
+SMTP_USER="resend"
+SMTP_PASS="re_iXc3XSMw_LqNmsMeFYKD7EwijAUQCnUwW"
+SMTP_FROM_EMAIL="noreply@resend.dev"
+SMTP_FROM_NAME="Boston Pizza"
+
+# TO SAVE AND EXIT NANO:
+# 1. Press Ctrl + X
+# 2. It will ask "Save modified buffer?" - Press Y
+# 3. It will show the filename - Press Enter
+
+## Step 8: Verify the Changes
+tail -10 .env
+# This shows the last 10 lines of .env file
+# You should see your Resend configuration
+
+## Step 9: Restart Your Application
+# Check what's running:
+pm2 list
+
+# Restart everything:
+pm2 restart all
+
+# Check status:
+pm2 status
+
+## Step 10: Test It Works
+# Test the email service:
+curl -X POST "http://localhost:3000/api/auth/customer/forgot-password" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"auy1jll@gmail.com"}'
+
+# You should see a response like:
+# {"message":"If an account with that email exists, a password reset link has been sent."}
+
+echo "🎉 Setup complete! Check your Gmail for the test email!"
+
+## If Something Goes Wrong:
+# Restore backup:
+# cp .env.backup .env
+# pm2 restart all
+
+## Need Help?
+# View application logs:
+# pm2 logs
+# 
+# Check if app is running:
+# pm2 status
+#
+# Check what's listening on port 3000:
+# netstat -tulpn | grep 3000

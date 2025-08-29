@@ -6,12 +6,21 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "8000:3005"
     environment:
-      DATABASE_URL: "${DATABASE_URL}"
-      NEXTAUTH_URL: "${NEXTAUTH_URL}"
-      NEXTAUTH_SECRET: "${NEXTAUTH_SECRET}"
+      DATABASE_URL: "postgresql://pizzabuilder:pizzapassword@db:5432/pizzadb"
+      NEXTAUTH_URL: "http://localhost:8000"
+      NEXTAUTH_SECRET: "your-super-secret-nextauth-secret"
       NODE_ENV: "production"
+      # SMTP Configuration for Resend.com
+      SMTP_HOST: "smtp.resend.com"
+      SMTP_PORT: "465"
+      SMTP_USER: "resend"
+      SMTP_PASS: "re_iXc3XSMw_LqNmsMeFYKD7EwijAUQCnUwW"
+      SMTP_FROM_EMAIL: "resto@greenlandFamous.net"
+      SMTP_FROM_NAME: "Boston Pizza"
+      # Resend API Configuration
+      RESEND_API_KEY: "re_iXc3XSMw_LqNmsMeFYKD7EwijAUQCnUwW"
     depends_on:
       db:
         condition: service_healthy
