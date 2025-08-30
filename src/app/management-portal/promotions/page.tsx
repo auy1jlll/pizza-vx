@@ -54,7 +54,7 @@ interface Promotion {
 const PROMOTION_TYPES = [
   { value: 'PERCENTAGE_DISCOUNT', label: 'Percentage Discount', icon: Percent, color: 'bg-blue-100 text-blue-800' },
   { value: 'FIXED_AMOUNT_DISCOUNT', label: 'Fixed Amount Off', icon: DollarSign, color: 'bg-green-100 text-green-800' },
-  { value: 'BOGO_HALF_OFF', label: 'Buy One Get 50% Off', icon: TrendingUp, color: 'bg-orange-100 text-orange-800' },
+  { value: 'BOGO_HALF_OFF', label: 'Buy One Pizza Get 50% Off', icon: TrendingUp, color: 'bg-orange-100 text-orange-800' },
   { value: 'BOGO_FREE', label: 'Buy One Get One Free', icon: Target, color: 'bg-purple-100 text-purple-800' },
   { value: 'BUY_X_GET_Y_PERCENT', label: 'Buy X Get Y% Off', icon: Tag, color: 'bg-yellow-100 text-yellow-800' },
   { value: 'CATEGORY_DISCOUNT', label: 'Category Discount', icon: Filter, color: 'bg-indigo-100 text-indigo-800' },

@@ -9,18 +9,16 @@ services:
       - "8000:3005"
     environment:
       DATABASE_URL: "postgresql://pizzabuilder:pizzapassword@db:5432/pizzadb"
-      NEXTAUTH_URL: "http://localhost:8000"
+      NEXTAUTH_URL: "https://greenlandfamous.net"
       NEXTAUTH_SECRET: "your-super-secret-nextauth-secret"
       NODE_ENV: "production"
-      # SMTP Configuration for Resend.com
-      SMTP_HOST: "smtp.resend.com"
-      SMTP_PORT: "465"
-      SMTP_USER: "resend"
-      SMTP_PASS: "re_iXc3XSMw_LqNmsMeFYKD7EwijAUQCnUwW"
-      SMTP_FROM_EMAIL: "resto@greenlandFamous.net"
+      # Gmail SMTP Configuration
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_PORT: "587"
+      SMTP_USER: "auy1jll@gmail.com"
+      SMTP_PASS: "your-gmail-app-password"
+      SMTP_FROM_EMAIL: "resto@greenlandfamous.net"
       SMTP_FROM_NAME: "Boston Pizza"
-      # Resend API Configuration
-      RESEND_API_KEY: "re_iXc3XSMw_LqNmsMeFYKD7EwijAUQCnUwW"
     depends_on:
       db:
         condition: service_healthy

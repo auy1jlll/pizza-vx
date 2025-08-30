@@ -24,7 +24,7 @@ export interface MenuItem {
 }
 
 export interface CartItem extends PizzaItem {
-  type: 'pizza' | 'menu';
+  type: 'pizza' | 'calzone' | 'menu';
   menuItemId?: string;
 }
 
@@ -85,7 +85,7 @@ class PromotionService {
         originalTotal: this.calculateTotal(items),
         discountAmount: 0,
         finalTotal: this.calculateTotal(items),
-        promotionApplied: 'None - Need at least 2 pizzas',
+        promotionApplied: 'None - Need at least 2 pizzas (calzones not eligible)',
         discountDetails: []
       };
     }
@@ -304,8 +304,8 @@ class PromotionService {
         isActive: true,
         discountValue: 50,
         applicableItemTypes: ['pizza'],
-        description: 'Buy any pizza and get the second pizza at 50% off. Discount applies to the lower-priced pizza.',
-        termsAndConditions: 'Valid on regular menu price pizzas. Cannot be combined with other offers.'
+        description: 'Buy any pizza and get the second pizza at 50% off. Calzones are not eligible for this promotion.',
+        termsAndConditions: 'Valid on regular menu price pizzas only. Calzones excluded. Cannot be combined with other offers.'
       },
       {
         id: 'pizza-combo-20',

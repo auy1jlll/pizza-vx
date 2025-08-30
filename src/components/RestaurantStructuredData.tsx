@@ -9,11 +9,11 @@ interface RestaurantStructuredDataProps {
 }
 
 export default function RestaurantStructuredData({
-  name = "Pizza Builder Pro",
-  description = "Authentic local Italian pizza and calzones with fresh ingredients. Custom pizza builder and traditional recipes.",
-  url = "https://yourpizzaplace.com",
-  phone = "(555) 123-PIZZA",
-  address = "123 Main St, Your City, State 12345"
+  name = process.env.NEXT_PUBLIC_APP_NAME || "Greenland Famous Roast Beef N' Pizza",
+  description = process.env.NEXT_PUBLIC_META_DESCRIPTION || "Authentic local Italian restaurant serving the best pizza near me, roast beef sandwiches, and fresh calzones. Family-owned with great ratings and exceptional quality.",
+  url = process.env.NEXT_PUBLIC_SITE_URL || "https://greenlandfamous.net",
+  phone = process.env.NEXT_PUBLIC_BUSINESS_PHONE || "(555) 123-PIZZA",
+  address = process.env.NEXT_PUBLIC_BUSINESS_ADDRESS || "123 Main St, Greenland, NH 03840"
 }: RestaurantStructuredDataProps) {
   const structuredData = {
     "@context": "https://schema.org",
@@ -24,16 +24,16 @@ export default function RestaurantStructuredData({
     "telephone": phone,
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": address.split(',')[0] || "123 Main St",
-      "addressLocality": address.split(',')[1]?.trim() || "Your City",
-      "addressRegion": address.split(',')[2]?.trim() || "State",
-      "postalCode": address.split(',')[3]?.trim() || "12345",
+      "streetAddress": address.split(',')[0]?.trim() || "123 Main St",
+      "addressLocality": process.env.NEXT_PUBLIC_BUSINESS_CITY || address.split(',')[1]?.trim() || "Greenland",
+      "addressRegion": process.env.NEXT_PUBLIC_BUSINESS_STATE || address.split(',')[2]?.trim() || "NH",
+      "postalCode": process.env.NEXT_PUBLIC_BUSINESS_ZIP || address.split(',')[3]?.trim() || "03840",
       "addressCountry": "US"
     },
     "geo": {
       "@type": "GeoCoordinates",
-      "latitude": "42.3601",
-      "longitude": "-71.0589"
+      "latitude": process.env.NEXT_PUBLIC_BUSINESS_LATITUDE || "43.0362",
+      "longitude": process.env.NEXT_PUBLIC_BUSINESS_LONGITUDE || "-70.8328"
     },
     "openingHours": [
       "Mo-Th 11:00-22:00",
@@ -47,7 +47,7 @@ export default function RestaurantStructuredData({
     "hasMenu": `${url}/menu`,
     "acceptsReservations": false,
     "takeout": true,
-    "delivery": true,
+    "delivery": false,
     "dineIn": true,
     "image": `${url}/pizza-hero.jpg`,
     "logo": `${url}/next.svg`,
@@ -58,8 +58,10 @@ export default function RestaurantStructuredData({
     ],
     "aggregateRating": {
       "@type": "AggregateRating",
-      "ratingValue": "4.5",
-      "reviewCount": "250"
+      "ratingValue": "4.6",
+      "reviewCount": "464",
+      "bestRating": "5",
+      "worstRating": "1"
     },
     "menu": {
       "@type": "Menu",
@@ -97,6 +99,43 @@ export default function RestaurantStructuredData({
               }
             }
           ]
+        }
+      ]
+    },
+    "mainEntity": {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What are your hours?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We are open Monday-Thursday 11AM-10PM, Friday-Saturday 11AM-11PM, and Sunday 12PM-9PM."
+          }
+        },
+        {
+          "@type": "Question", 
+          "name": "Do you offer pickup?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, we offer convenient pickup service. Place your order online and pick it up at your convenience."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What makes your pizza special?",
+          "acceptedAnswer": {
+            "@type": "Answer", 
+            "text": "We use fresh local ingredients and traditional Italian recipes. Our dough is made fresh daily and we offer custom pizza building."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you cater events?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, we offer catering services for parties, events, and corporate functions. Contact us for menu options and pricing."
+          }
         }
       ]
     }

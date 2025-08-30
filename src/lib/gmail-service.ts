@@ -81,6 +81,97 @@ class GmailService {
     }
   }
 
+  async sendWelcomeEmail(to: string, userName: string): Promise<boolean> {
+    try {
+      if (!this.transporter) return false;
+
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Welcome to ${this.storeName}! 🍕</h2>
+          <p>Hi ${userName},</p>
+          <p>Welcome to our pizza family! We're excited to serve you delicious pizzas and amazing food.</p>
+          <p>You can now:</p>
+          <ul>
+            <li>Browse our full menu</li>
+            <li>Place orders online</li>
+            <li>Track your orders</li>
+            <li>Save your favorite pizzas</li>
+          </ul>
+          <p>Thanks for choosing ${this.storeName}!</p>
+        </div>
+      `;
+
+      await this.transporter.sendMail({
+        from: `"${this.storeName}" <${this.fromEmail}>`,
+        to,
+        subject: `Welcome to ${this.storeName}! 🍕`,
+        html,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error sending welcome email:', error);
+      return false;
+    }
+  }
+
+  async sendOrderConfirmationEmail(order: any): Promise<boolean> {
+    try {
+      if (!this.transporter) return false;
+
+      const customerEmail = order.customerEmail;
+      if (!customerEmail) {
+        console.error('No customer email provided for order confirmation');
+        return false;
+      }
+
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f5f5f5; padding: 20px;">
+          <div style="background-color: white; padding: 20px; border-radius: 10px;">
+            <div style="background: linear-gradient(135deg, #FF6B35 0%, #FFA500 100%); color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;">
+              <h1 style="margin: 0; font-size: 24px;">🍕 Order Confirmed!</h1>
+              <p style="margin: 5px 0 0 0;">Thank you for your order</p>
+            </div>
+
+            <div style="padding: 20px;">
+              <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <h2 style="margin: 0 0 10px 0; color: #FF6B35;">Order #${order.orderNumber}</h2>
+                <p style="margin: 5px 0;"><strong>Status:</strong> ${order.status}</p>
+                <p style="margin: 5px 0;"><strong>Type:</strong> ${order.orderType}</p>
+                <p style="margin: 5px 0;"><strong>Items:</strong> ${order.orderItems?.length || 0} items</p>
+              </div>
+
+              <div style="text-align: center; font-size: 18px; font-weight: bold; color: #FF6B35; margin: 20px 0; padding: 15px; background-color: #fff5f5; border-radius: 5px;">
+                Total: $${order.total?.toFixed(2)}
+              </div>
+
+              <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                <p style="margin: 0;">We'll send you updates as your order progresses.</p>
+                <p style="margin: 10px 0 0 0;">Questions? Call us at (630) 501-0774</p>
+              </div>
+            </div>
+
+            <div style="text-align: center; color: #666; font-size: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+              <p style="margin: 0;">Greenland Famous Pizza - Authentic pizza since 1995</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      await this.transporter.sendMail({
+        from: `"${this.storeName}" <${this.fromEmail}>`,
+        to: customerEmail,
+        subject: `Order Confirmation #${order.orderNumber} - ${this.storeName}`,
+        html,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error sending order confirmation email:', error);
+      return false;
+    }
+  }
+
   isConfigured(): boolean {
     return !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD && this.transporter);
   }

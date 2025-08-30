@@ -114,7 +114,8 @@ export default function GourmetPizzasClient({ initialPizzas, initialPizzaData }:
       isSpecialty: true,
       specialtyId: pizza.id,
       ingredients: pizza.ingredients,
-      imageUrl: pizza.imageUrl
+      imageUrl: pizza.imageUrl,
+      specialtyPizzaName: pizza.name // Ensure specialty pizza name is preserved
     };
 
     addDetailedPizza(pizzaForCart);

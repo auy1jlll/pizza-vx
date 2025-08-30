@@ -37,8 +37,8 @@ const PROMOTION_TYPES = [
   },
   { 
     value: 'BOGO_HALF_OFF', 
-    label: 'Buy One Get 50% Off', 
-    description: 'Buy one item, get the second item at 50% off',
+    label: 'Buy One Pizza Get 50% Off', 
+    description: 'Buy one pizza, get the second pizza at 50% off (calzones excluded)',
     requiresCategories: true,
     supportsMinimum: false
   },

@@ -83,7 +83,7 @@ export default function StaticPizzaPromoHero() {
             <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-yellow-400/30">
               <p className="text-sm text-yellow-200">
                 <span className="font-semibold">Offer Details:</span> Second pizza must be of equal or lesser value. 
-                Valid on dine-in, pickup, and delivery orders. Cannot be combined with other offers.
+                Valid on pickup orders. Cannot be combined with other offers.
               </p>
             </div>
           </div>

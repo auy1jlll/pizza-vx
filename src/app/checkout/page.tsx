@@ -224,8 +224,13 @@ export default function CheckoutPage() {
     console.log('🍕 Pizza items for promotion:', pizzaItems);
     console.log('🍕 Menu items for promotion:', menuItems);
     
-    // Add pizza items
+    // Add pizza items (including calzones)
     pizzaItems.forEach(item => {
+      // Determine if this is a calzone based on size name or notes
+      const isCalzone = item.size?.name?.includes('Calzone') || 
+                       item.notes?.includes('Calzone') || 
+                       item.specialtyPizzaName?.includes('Calzone');
+      
       allItems.push({
         id: item.id,
         name: item.size?.name?.includes('Calzone') 
@@ -234,7 +239,7 @@ export default function CheckoutPage() {
         basePrice: item.basePrice || 0,
         totalPrice: item.totalPrice || 0,
         quantity: item.quantity || 1,
-        type: 'pizza',
+        type: isCalzone ? 'calzone' : 'pizza',
         size: item.size ? { name: item.size.name, basePrice: item.size.basePrice } : undefined
       });
     });

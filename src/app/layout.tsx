@@ -8,6 +8,7 @@ import { ToastProvider } from '@/components/ToastProvider';
 import { SexyToastProvider } from '@/components/SexyToastProvider';
 import { ConditionalTopNavigation, ConditionalBottomElements } from '@/components/ConditionalNavigation';
 import RestaurantStructuredData from '@/components/RestaurantStructuredData';
+import LocalBusinessStructuredData from '@/components/LocalBusinessStructuredData';
 import Analytics from '@/components/Analytics';
 import { generateMetadata as generateDynamicMetadata } from '@/lib/dynamic-metadata';
 
@@ -31,6 +32,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <RestaurantStructuredData />
+        <LocalBusinessStructuredData />
         <Analytics />
       </head>
       <body className="antialiased">

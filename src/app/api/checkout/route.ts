@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { CreateOrderSchema, validateSchema, createApiResponse, createApiError } from '@/lib/schemas';
 import { OrderService } from '@/services';
 import { orderLimiter } from '@/lib/simple-rate-limit';
+import { gmailService } from '@/lib/gmail-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -110,6 +111,56 @@ export async function POST(request: NextRequest) {
         createApiError('Failed to create order. Please try again.', 500),
         { status: 500 }
       );
+    }
+
+    // Send order confirmation email (non-blocking)
+    try {
+      const emailNotificationsEnabled = await prisma.appSetting.findUnique({
+        where: { key: 'emailNotifications' }
+      });
+
+      if (emailNotificationsEnabled?.value === 'true') {
+        console.log('📧 Sending order confirmation email...');
+
+        // Get order details with items for email
+        const orderWithDetails = await prisma.order.findUnique({
+          where: { id: order.id },
+          include: {
+            orderItems: {
+              include: {
+                pizzaSize: true,
+                pizzaCrust: true,
+                pizzaSauce: true,
+                toppings: {
+                  include: {
+                    pizzaTopping: true
+                  }
+                },
+                menuItem: true,
+                customizations: {
+                  include: {
+                    customizationOption: {
+                      include: {
+                        group: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        });
+
+        if (orderWithDetails) {
+          await gmailService.sendOrderConfirmationEmail(orderWithDetails);
+          console.log('✅ Order confirmation email sent successfully');
+        }
+      } else {
+        console.log('📧 Email notifications disabled, skipping order confirmation email');
+      }
+    } catch (emailError) {
+      console.error('❌ Failed to send order confirmation email:', emailError);
+      // Don't fail the order if email fails - just log the error
     }
 
     // Get preparation time setting for estimated delivery  

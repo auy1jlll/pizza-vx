@@ -47,6 +47,7 @@ export interface CartItem {
   basePrice: number;
   totalPrice: number;
   specialtyPizzaName?: string; // Added to track specialty pizza names
+  name?: string; // Added to preserve item names for display
 }
 
 interface CartContextType {
@@ -145,7 +146,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       notes: pizzaData.notes || '',
       basePrice: pizzaData.basePrice || pizzaData.size?.basePrice || 0,
       totalPrice: pizzaData.totalPrice || 0,
-      specialtyPizzaName: pizzaData.specialtyPizzaName || undefined
+      specialtyPizzaName: pizzaData.specialtyPizzaName || undefined,
+      name: pizzaData.name || pizzaData.specialtyPizzaName || undefined
     };
     
     console.log('🛒 Converted cart item:', cartItem);

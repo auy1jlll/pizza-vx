@@ -4,6 +4,47 @@ Allow: /
 # Sitemaps
 Sitemap: https://yourrestoapp.com/sitemap.xml
 
+# Allow all main public pages for local search
+Allow: /
+Allow: /menu
+Allow: /build-pizza
+Allow: /build-sandwich
+Allow: /gourmet-pizzas
+Allow: /specialty-calzones
+Allow: /sandwiches
+Allow: /about
+Allow: /contact
+Allow: /faq
+Allow: /portsmouth
+Allow: /exeter
+Allow: /hampton
+Allow: /rye
+Allow: /newington
+
+# Disallow admin areas and API routes
+Disallow: /management-portal/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /debug-cart
+Disallow: /settings-demo
+
+# Disallow old URLs to prevent indexing of redirect pages
+Disallow: /pizza-builder-old
+Disallow: /sandwich-customizer-old
+
+# Google-specific directives for local search
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Bing-specific directives
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1: /
+
+# Sitemaps
+Sitemap: https://yourrestoapp.com/sitemap.xml
+
 # Disallow admin areas and API routes
 Disallow: /management-portal/
 Disallow: /api/
