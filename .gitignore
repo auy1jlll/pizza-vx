@@ -48,3 +48,11 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Data backups (keep local, don't commit to git)
+/data-backups/
+
+# Temporary files
+*.tmp
+*.bak
+test-*.js
