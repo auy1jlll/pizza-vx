@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "dev": "npm run backup:auto && next dev -p 3005",
+    "dev:original": "next dev -p 3005",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "backup": "node backup-data.js",
+    "backup:auto": "node data-manager.js auto",
+    "restore": "node data-manager.js restore",
+    "data:list": "node data-manager.js list",
+    "data:menu": "node data-manager.js",
+    "db:backup-and-push": "npm run backup && npx prisma db push",
+    "db:backup-and-generate": "npm run backup && npx prisma generate",
+    "git:safe-commit": "npm run backup && git add . && git commit -m",
+    "emergency:restore": "node data-manager.js restore"
+  }
+}

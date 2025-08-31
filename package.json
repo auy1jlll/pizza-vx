@@ -3,20 +3,27 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run backup:auto && next dev --port 3005",
+    "dev": "npm run dev:safe",
+    "dev:safe": "node workspace-protector.js start && npm run backup:auto && next dev --port 3005",
     "dev:original": "next dev --port 3005",
+    "dev:stop": "node workspace-protector.js stop",
     "build": "next build",
     "start": "next start --port 3005",
     "lint": "next lint",
     "backup": "node backup-data.js",
     "backup:auto": "node data-manager.js auto",
-    "restore": "node data-manager.js restore",
+    "restore": "node smart-restore.js",
+    "restore:force": "node smart-restore.js --force",
+    "restore:unsafe": "node data-manager.js restore",
     "data:list": "node data-manager.js list",
     "data:menu": "node data-manager.js",
+    "workspace:status": "node workspace-protector.js status",
+    "workspace:protect": "node workspace-protector.js start",
+    "workspace:unprotect": "node workspace-protector.js stop",
     "db:backup-and-push": "npm run backup && npx prisma db push",
     "db:backup-and-generate": "npm run backup && npx prisma generate",
     "git:safe-commit": "npm run backup && git add . && git commit -m",
-    "emergency:restore": "node data-manager.js restore"
+    "emergency:restore": "node workspace-protector.js protect && node smart-restore.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
