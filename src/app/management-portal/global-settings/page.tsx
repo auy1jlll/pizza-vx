@@ -65,7 +65,7 @@ export default function GlobalSettingsPage() {
   const loadSettings = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/settings?format=array');
+      const response = await fetch('/api/management-portal/settings?format=array');
       if (!response.ok) throw new Error('Failed to load settings');
       const data = await response.json();
       
@@ -93,6 +93,8 @@ export default function GlobalSettingsPage() {
   useEffect(() => {
     loadSettings();
   }, []);
+
+  // Helper function to render setting input based on type
 
   // Define setting sections with categorized settings
   const settingSections: SettingSection[] = [
@@ -164,6 +166,16 @@ export default function GlobalSettingsPage() {
       color: 'from-red-500 to-red-600',
       settings: allSettings.filter(s => 
         ['emailNotifications', 'smsNotifications', 'adminAlerts', 'orderNotifications', 'inventoryAlerts', 'lowStockAlerts', 'customerNotifications'].includes(s.key)
+      )
+    },
+    {
+      id: 'email',
+      title: 'Email Configuration',
+      description: 'Gmail service settings for email notifications and communications',
+      icon: Mail,
+      color: 'from-blue-500 to-blue-600',
+      settings: allSettings.filter(s => 
+        ['gmailUser', 'gmailAppPassword', 'emailServiceEnabled', 'emailFromName', 'emailReplyTo'].includes(s.key)
       )
     },
     {
@@ -288,7 +300,7 @@ export default function GlobalSettingsPage() {
       }
 
       // Send bulk update to API
-      const response = await fetch('/api/admin/settings', {
+      const response = await fetch('/api/management-portal/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ settings: settingsToUpdate }),

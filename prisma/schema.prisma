@@ -8,138 +8,136 @@ datasource db {
 }
 
 model User {
-  id               String            @id @default(cuid())
-  email            String            @unique
-  name             String?
-  password         String?
-  phone            String?
-  dateOfBirth      DateTime?
-  avatarUrl        String?
-  isActive         Boolean           @default(true)
-  lastLoginAt      DateTime?
-  emailVerified    Boolean           @default(false)
-  marketingOptIn   Boolean           @default(false)
-  role             UserRole          @default(CUSTOMER)
-  resetToken       String?
-  resetTokenExpiry DateTime?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  cartItems        CartItem[]
-  orders           Order[]
-  refreshTokens    RefreshToken[]
-  customerProfile  CustomerProfile?
-  employeeProfile  EmployeeProfile?
+  id                String             @id @default(cuid())
+  email             String             @unique
+  name              String?
+  password          String?
+  phone             String?
+  dateOfBirth       DateTime?
+  avatarUrl         String?
+  isActive          Boolean            @default(true)
+  lastLoginAt       DateTime?
+  emailVerified     Boolean            @default(false)
+  marketingOptIn    Boolean            @default(false)
+  role              UserRole           @default(CUSTOMER)
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  cartItems         CartItem[]
   customerAddresses CustomerAddress[]
   customerFavorites CustomerFavorite[]
+  customerProfile   CustomerProfile?
+  employeeProfile   EmployeeProfile?
+  orders            Order[]
+  refreshTokens     RefreshToken[]
 
+  @@index([email])
+  @@index([isActive])
   @@map("users")
 }
 
 model CustomerProfile {
-  id                   String       @id @default(cuid())
-  userId               String       @unique
-  firstName            String?
-  lastName             String?
-  dateOfBirth          DateTime?
-  phone                String?
-  avatarUrl            String?
-  dietaryPreferences   String[]     // ['vegan', 'gluten-free', 'dairy-free', etc.]
-  favoritePizzaSizeId  String?
-  favoriteCrustId      String?
-  defaultOrderType     OrderType    @default(PICKUP)
-  marketingOptIn       Boolean      @default(false)
-  loyaltyPoints        Int          @default(0)
-  totalOrders          Int          @default(0)
-  totalSpent           Float        @default(0.00)
-  lastOrderDate        DateTime?
-  notes                String?
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
-  
-  user                 User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  favoritePizzaSize    PizzaSize?   @relation("CustomerFavoritePizzaSize", fields: [favoritePizzaSizeId], references: [id])
-  favoriteCrust        PizzaCrust?  @relation("CustomerFavoriteCrust", fields: [favoriteCrustId], references: [id])
+  id                  String      @id @default(cuid())
+  userId              String      @unique
+  firstName           String?
+  lastName            String?
+  dateOfBirth         DateTime?
+  phone               String?
+  avatarUrl           String?
+  dietaryPreferences  String[]
+  favoritePizzaSizeId String?
+  favoriteCrustId     String?
+  defaultOrderType    OrderType   @default(PICKUP)
+  marketingOptIn      Boolean     @default(false)
+  loyaltyPoints       Int         @default(0)
+  totalOrders         Int         @default(0)
+  totalSpent          Float       @default(0.00)
+  lastOrderDate       DateTime?
+  notes               String?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  favoriteCrust       PizzaCrust? @relation("CustomerFavoriteCrust", fields: [favoriteCrustId], references: [id])
+  favoritePizzaSize   PizzaSize?  @relation("CustomerFavoritePizzaSize", fields: [favoritePizzaSizeId], references: [id])
+  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("customer_profiles")
 }
 
 model CustomerAddress {
-  id                   String       @id @default(cuid())
+  id                   String   @id @default(cuid())
   userId               String
-  label                String       // 'Home', 'Work', 'Other'
+  label                String
   addressLine1         String
   addressLine2         String?
   city                 String
   state                String
   zipCode              String
-  country              String       @default("US")
+  country              String   @default("US")
   deliveryInstructions String?
-  isDefault            Boolean      @default(false)
-  isActive             Boolean      @default(true)
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
-  
-  user                 User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isDefault            Boolean  @default(false)
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("customer_addresses")
 }
 
 model EmployeeProfile {
-  id                     String       @id @default(cuid())
-  userId                 String       @unique
-  employeeId             String       @unique
-  firstName              String
-  lastName               String
-  position               String?      // 'Manager', 'Chef', 'Delivery', 'Cashier'
-  department             String?      // 'Kitchen', 'Front', 'Delivery'
-  phone                  String?
-  emergencyContactName   String?
-  emergencyContactPhone  String?
-  hireDate               DateTime?
-  hourlyWage             Float?
-  isActive               Boolean      @default(true)
-  permissions            String[]     // ['order_management', 'menu_edit', 'user_management']
-  scheduleNotes          String?
-  createdAt              DateTime     @default(now())
-  updatedAt              DateTime     @updatedAt
-  
-  user                   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  employeeId            String    @unique
+  firstName             String
+  lastName              String
+  position              String?
+  department            String?
+  phone                 String?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  hireDate              DateTime?
+  hourlyWage            Float?
+  isActive              Boolean   @default(true)
+  permissions           String[]
+  scheduleNotes         String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("employee_profiles")
 }
 
 model CustomerFavorite {
-  id            String       @id @default(cuid())
-  userId        String
-  favoriteName  String
-  itemType      String       // 'PIZZA', 'CALZONE', 'SPECIALTY'
-  itemData      Json         // Complete item configuration
-  orderCount    Int          @default(0)
-  lastOrdered   DateTime?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String    @id @default(cuid())
+  userId       String
+  favoriteName String
+  itemType     String
+  itemData     Json
+  orderCount   Int       @default(0)
+  lastOrdered  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("customer_favorites")
 }
 
 model PizzaSize {
-  id                   String                 @id @default(cuid())
-  name                 String                 @unique
-  diameter             String
-  basePrice            Float
-  isActive             Boolean                @default(true)
-  sortOrder            Int                    @default(0)
-  description          String?
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  productType          ProductType            @default(PIZZA)
-  cartItems            CartItem[]
-  orderItems           OrderItem[]
-  specialtyPizzaSizes  SpecialtyPizzaSize[]
+  id                    String                 @id @default(cuid())
+  name                  String                 @unique
+  diameter              String
+  basePrice             Float
+  isActive              Boolean                @default(true)
+  sortOrder             Int                    @default(0)
+  description           String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  productType           ProductType            @default(PIZZA)
+  cartItems             CartItem[]
+  customerProfiles      CustomerProfile[]      @relation("CustomerFavoritePizzaSize")
+  orderItems            OrderItem[]
   specialtyCalzoneSizes SpecialtyCalzoneSize[]
-  customerProfiles     CustomerProfile[]      @relation("CustomerFavoritePizzaSize")
+  specialtyPizzaSizes   SpecialtyPizzaSize[]
 
   @@map("pizza_sizes")
 }
@@ -154,8 +152,8 @@ model PizzaCrust {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   cartItems        CartItem[]
-  orderItems       OrderItem[]
   customerProfiles CustomerProfile[] @relation("CustomerFavoriteCrust")
+  orderItems       OrderItem[]
 
   @@map("pizza_crusts")
 }
@@ -208,8 +206,12 @@ model SpecialtyPizza {
   sortOrder   Int                  @default(0)
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
   sizes       SpecialtyPizzaSize[]
 
+  @@index([isActive, sortOrder])
+  @@index([category])
   @@map("specialty_pizzas")
 }
 
@@ -229,32 +231,36 @@ model SpecialtyPizzaSize {
 }
 
 model SpecialtyCalzone {
-  id               String                 @id @default(cuid())
-  calzoneName      String                 @unique
+  id                 String                 @id @default(cuid())
+  calzoneName        String                 @unique
   calzoneDescription String
-  basePrice        Float
-  category         String
-  imageUrl         String?
-  fillings         String
-  isActive         Boolean                @default(true)
-  sortOrder        Int                    @default(0)
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
-  sizes            SpecialtyCalzoneSize[]
+  basePrice          Float
+  category           String
+  imageUrl           String?
+  fillings           String
+  isActive           Boolean                @default(true)
+  sortOrder          Int                    @default(0)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  cartItems          CartItem[]
+  orderItems         OrderItem[]
+  sizes              SpecialtyCalzoneSize[]
 
+  @@index([isActive, sortOrder])
+  @@index([category])
   @@map("specialty_calzones")
 }
 
 model SpecialtyCalzoneSize {
-  id                String           @id @default(cuid())
+  id                 String           @id @default(cuid())
   specialtyCalzoneId String
-  pizzaSizeId       String
-  price             Float
-  isAvailable       Boolean          @default(true)
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  pizzaSize         PizzaSize        @relation(fields: [pizzaSizeId], references: [id])
-  specialtyCalzone  SpecialtyCalzone @relation(fields: [specialtyCalzoneId], references: [id], onDelete: Cascade)
+  pizzaSizeId        String
+  price              Float
+  isAvailable        Boolean          @default(true)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  pizzaSize          PizzaSize        @relation(fields: [pizzaSizeId], references: [id])
+  specialtyCalzone   SpecialtyCalzone @relation(fields: [specialtyCalzoneId], references: [id], onDelete: Cascade)
 
   @@unique([specialtyCalzoneId, pizzaSizeId])
   @@map("specialty_calzone_sizes")
@@ -290,30 +296,41 @@ model Order {
   user                 User?           @relation(fields: [userId], references: [id])
   priceSnapshots       PriceSnapshot[]
 
+  @@index([userId])
+  @@index([status])
+  @@index([orderType])
+  @@index([createdAt])
+  @@index([status, createdAt])
   @@map("orders")
 }
 
 model OrderItem {
-  id             String                   @id @default(cuid())
-  orderId        String
-  pizzaSizeId    String?
-  pizzaCrustId   String?
-  pizzaSauceId   String?
-  menuItemId     String?
-  quantity       Int                      @default(1)
-  basePrice      Float
-  totalPrice     Float
-  notes          String?
-  createdAt      DateTime                 @default(now())
-  updatedAt      DateTime                 @updatedAt
-  customizations OrderItemCustomization[]
-  toppings       OrderItemTopping[]
-  menuItem       MenuItem?                @relation(fields: [menuItemId], references: [id])
-  order          Order                    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  pizzaCrust     PizzaCrust?              @relation(fields: [pizzaCrustId], references: [id])
-  pizzaSauce     PizzaSauce?              @relation(fields: [pizzaSauceId], references: [id])
-  pizzaSize      PizzaSize?               @relation(fields: [pizzaSizeId], references: [id])
+  id                 String                   @id @default(cuid())
+  orderId            String
+  pizzaSizeId        String?
+  pizzaCrustId       String?
+  pizzaSauceId       String?
+  menuItemId         String?
+  quantity           Int                      @default(1)
+  basePrice          Float
+  totalPrice         Float
+  notes              String?
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  itemType           OrderItemType            @default(PIZZA)
+  specialtyCalzoneId String?
+  specialtyPizzaId   String?
+  customizations     OrderItemCustomization[]
+  toppings           OrderItemTopping[]
+  menuItem           MenuItem?                @relation(fields: [menuItemId], references: [id])
+  order              Order                    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  pizzaCrust         PizzaCrust?              @relation(fields: [pizzaCrustId], references: [id])
+  pizzaSauce         PizzaSauce?              @relation(fields: [pizzaSauceId], references: [id])
+  pizzaSize          PizzaSize?               @relation(fields: [pizzaSizeId], references: [id])
+  specialtyCalzone   SpecialtyCalzone?        @relation(fields: [specialtyCalzoneId], references: [id])
+  specialtyPizza     SpecialtyPizza?          @relation(fields: [specialtyPizzaId], references: [id])
 
+  @@index([orderId])
   @@map("order_items")
 }
 
@@ -557,26 +574,31 @@ model MenuItemCustomization {
 }
 
 model CartItem {
-  id             String                  @id @default(cuid())
-  sessionId      String?
-  userId         String?
-  pizzaSizeId    String?
-  pizzaCrustId   String?
-  pizzaSauceId   String?
-  menuItemId     String?
-  quantity       Int                     @default(1)
-  basePrice      Float
-  totalPrice     Float
-  notes          String?
-  createdAt      DateTime                @default(now())
-  updatedAt      DateTime                @updatedAt
-  customizations CartItemCustomization[]
-  pizzaToppings  CartItemPizzaTopping[]
-  menuItem       MenuItem?               @relation(fields: [menuItemId], references: [id])
-  pizzaCrust     PizzaCrust?             @relation(fields: [pizzaCrustId], references: [id])
-  pizzaSauce     PizzaSauce?             @relation(fields: [pizzaSauceId], references: [id])
-  pizzaSize      PizzaSize?              @relation(fields: [pizzaSizeId], references: [id])
-  user           User?                   @relation(fields: [userId], references: [id])
+  id                 String                  @id @default(cuid())
+  sessionId          String?
+  userId             String?
+  pizzaSizeId        String?
+  pizzaCrustId       String?
+  pizzaSauceId       String?
+  menuItemId         String?
+  quantity           Int                     @default(1)
+  basePrice          Float
+  totalPrice         Float
+  notes              String?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  itemType           CartItemType            @default(PIZZA)
+  specialtyCalzoneId String?
+  specialtyPizzaId   String?
+  customizations     CartItemCustomization[]
+  pizzaToppings      CartItemPizzaTopping[]
+  menuItem           MenuItem?               @relation(fields: [menuItemId], references: [id])
+  pizzaCrust         PizzaCrust?             @relation(fields: [pizzaCrustId], references: [id])
+  pizzaSauce         PizzaSauce?             @relation(fields: [pizzaSauceId], references: [id])
+  pizzaSize          PizzaSize?              @relation(fields: [pizzaSizeId], references: [id])
+  specialtyCalzone   SpecialtyCalzone?       @relation(fields: [specialtyCalzoneId], references: [id])
+  specialtyPizza     SpecialtyPizza?         @relation(fields: [specialtyPizzaId], references: [id])
+  user               User?                   @relation(fields: [userId], references: [id])
 
   @@index([sessionId])
   @@index([userId])
@@ -611,11 +633,100 @@ model CartItemPizzaTopping {
   @@map("cart_item_pizza_toppings")
 }
 
+model Promotion {
+  id                    String        @id @default(cuid())
+  name                  String
+  description           String?
+  type                  PromotionType
+  discountType          DiscountType
+  discountValue         Decimal       @db.Decimal(10, 2)
+  minimumOrderAmount    Decimal?      @db.Decimal(10, 2)
+  maximumDiscountAmount Decimal?      @db.Decimal(10, 2)
+  minimumQuantity       Int?
+  applicableCategories  String[]
+  applicableItems       String[]
+  requiresLogin         Boolean       @default(false)
+  userGroupRestrictions String[]
+  startDate             DateTime?
+  endDate               DateTime?
+  isActive              Boolean       @default(true)
+  usageLimit            Int?
+  usageCount            Int           @default(0)
+  perUserLimit          Int?
+  stackable             Boolean       @default(false)
+  priority              Int           @default(0)
+  terms                 String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  @@index([type])
+  @@index([isActive])
+  @@index([startDate, endDate])
+  @@index([priority])
+  @@map("promotions")
+}
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  templateKey String   @unique
+  name        String
+  subject     String
+  htmlContent String
+  textContent String?
+  variables   String[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("email_templates")
+}
+
+model EmailSettings {
+  id           String   @id @default(cuid())
+  settingKey   String   @unique
+  settingValue String
+  description  String?
+  isEncrypted  Boolean  @default(false)
+  category     String   @default("general")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("email_settings")
+}
+
+model EmailLog {
+  id           String      @id @default(cuid())
+  to           String
+  subject      String
+  templateKey  String?
+  status       EmailStatus @default(PENDING)
+  errorMessage String?
+  sentAt       DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("email_logs")
+}
+
 enum UserRole {
   CUSTOMER
   EMPLOYEE
   ADMIN
   SUPER_ADMIN
+}
+
+enum CartItemType {
+  PIZZA
+  CALZONE
+  MENU_ITEM
+  CUSTOM
+}
+
+enum OrderItemType {
+  PIZZA
+  CALZONE
+  MENU_ITEM
+  CUSTOM
 }
 
 enum ProductType {
@@ -673,100 +784,23 @@ enum PriceType {
   PER_UNIT
 }
 
-// Promotion Management
-model Promotion {
-  id                     String    @id @default(cuid())
-  name                   String
-  description            String?
-  type                   PromotionType
-  discountType           DiscountType
-  discountValue          Decimal   @db.Decimal(10,2)
-  minimumOrderAmount     Decimal?  @db.Decimal(10,2)
-  maximumDiscountAmount  Decimal?  @db.Decimal(10,2)
-  minimumQuantity        Int?
-  applicableCategories   String[]  // Category IDs this promotion applies to
-  applicableItems        String[]  // Specific item IDs this promotion applies to
-  requiresLogin          Boolean   @default(false)
-  userGroupRestrictions  String[]  // User roles/groups that can use this promotion
-  startDate              DateTime?
-  endDate                DateTime?
-  isActive               Boolean   @default(true)
-  usageLimit             Int?      // Total usage limit across all users
-  usageCount             Int       @default(0)
-  perUserLimit           Int?      // Usage limit per user
-  stackable              Boolean   @default(false) // Can be combined with other promotions
-  priority               Int       @default(0) // Higher priority promotions apply first
-  terms                  String?   // Terms and conditions
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
-
-  @@index([type])
-  @@index([isActive])
-  @@index([startDate, endDate])
-  @@index([priority])
-  @@map("promotions")
-}
-
 enum PromotionType {
-  PERCENTAGE_DISCOUNT    // X% off
-  FIXED_AMOUNT_DISCOUNT  // $X off
-  BOGO_HALF_OFF         // Buy one get second half off
-  BOGO_FREE             // Buy one get one free
-  BUY_X_GET_Y_PERCENT   // Buy X items get Y% off
-  BUY_X_GET_Y_FREE      // Buy X items get Y free
-  CATEGORY_DISCOUNT     // Discount on specific categories
-  ITEM_DISCOUNT         // Discount on specific items
-  FREE_DELIVERY         // Free delivery promotion
-  HAPPY_HOUR            // Time-based discount
+  PERCENTAGE_DISCOUNT
+  FIXED_AMOUNT_DISCOUNT
+  BOGO_HALF_OFF
+  BOGO_FREE
+  BUY_X_GET_Y_PERCENT
+  BUY_X_GET_Y_FREE
+  CATEGORY_DISCOUNT
+  ITEM_DISCOUNT
+  FREE_DELIVERY
+  HAPPY_HOUR
 }
 
 enum DiscountType {
-  PERCENTAGE            // Percentage off (5, 10, 20, etc.)
-  FIXED_AMOUNT         // Fixed dollar amount off ($5, $10, etc.)
-  FREE_ITEM            // Free item/service
-}
-
-// Email Configuration Models
-model EmailTemplate {
-  id           String   @id @default(cuid())
-  templateKey  String   @unique // 'password_reset', 'account_confirmation', 'order_confirmation'
-  name         String   // Display name
-  subject      String   // Email subject line
-  htmlContent  String   // HTML email template
-  textContent  String?  // Plain text version
-  variables    String[] // Array of available variables like ['{{name}}', '{{link}}']
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@map("email_templates")
-}
-
-model EmailSettings {
-  id                String   @id @default(cuid())
-  settingKey        String   @unique // 'smtp_host', 'from_email', 'from_name', etc.
-  settingValue      String   // The actual value
-  description       String?  // Description of what this setting does
-  isEncrypted       Boolean  @default(false) // For sensitive values like API keys
-  category          String   @default("general") // 'smtp', 'branding', 'general'
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@map("email_settings")
-}
-
-model EmailLog {
-  id           String      @id @default(cuid())
-  to           String      // Recipient email
-  subject      String      // Email subject
-  templateKey  String?     // Which template was used
-  status       EmailStatus @default(PENDING)
-  errorMessage String?     // Error message if failed
-  sentAt       DateTime?   // When email was actually sent
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-
-  @@map("email_logs")
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_ITEM
 }
 
 enum EmailStatus {

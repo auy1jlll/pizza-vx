@@ -18,15 +18,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() }
+    // Find user by email (case-insensitive)
+    const user = await prisma.user.findFirst({
+      where: { 
+        email: {
+          equals: email,
+          mode: 'insensitive'
+        },
+        role: 'CUSTOMER'
+      }
     });
 
     console.log('User found:', !!user);
     console.log('User role:', user?.role);
 
-    if (!user || user.role !== 'CUSTOMER') {
+    if (!user) {
       console.log('User not found or not a customer');
       return NextResponse.json(
         { error: 'Invalid email or password' },

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import prisma from '@/lib/prisma';
 import { CreateOrderSchema, validateSchema, createApiResponse, createApiError } from '@/lib/schemas';
 import { OrderService } from '@/services';

@@ -68,7 +68,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
         showToast('Order placed successfully!', { type: 'success' });
         clearCart();
         onClose();
-        router.push(`/order/${result.orderId}`);
+        router.push(`/order/${result.data.orderId}`);
       } else {
         const error = await response.json();
         console.error('Checkout error:', error);

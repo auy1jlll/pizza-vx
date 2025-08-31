@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import AdminLayout from '@/components/AdminLayout'
 import AdminPageLayout from '@/components/AdminPageLayout'
 import { 
   FiEdit2, 
@@ -53,14 +52,14 @@ export default function MenuManagerPage() {
       setLoading(true)
       
       // Fetch stats
-      const statsResponse = await fetch('/api/admin/menu/stats')
+      const statsResponse = await fetch('/api/management-portal/menu/stats')
       if (statsResponse.ok) {
         const statsData = await statsResponse.json()
         setStats(statsData)
       }
 
       // Fetch categories
-      const categoriesResponse = await fetch('/api/admin/menu/categories')
+      const categoriesResponse = await fetch('/api/management-portal/menu/categories')
       if (categoriesResponse.ok) {
         const categoriesData = await categoriesResponse.json()
         setCategories(categoriesData.categories || [])
@@ -74,40 +73,37 @@ export default function MenuManagerPage() {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <AdminPageLayout title="Menu Management" description="Loading menu data...">
-          <div className="animate-pulse">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-32 bg-white/10 rounded-2xl"></div>
-              ))}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-48 bg-white/10 rounded-2xl"></div>
-              ))}
-            </div>
+      <AdminPageLayout title="Menu Management" description="Loading menu data...">
+        <div className="animate-pulse">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 bg-white/10 rounded-2xl"></div>
+            ))}
           </div>
-        </AdminPageLayout>
-      </AdminLayout>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-48 bg-white/10 rounded-2xl"></div>
+            ))}
+          </div>
+        </div>
+      </AdminPageLayout>
     )
   }
 
   return (
-    <AdminLayout>
-      <AdminPageLayout
-        title="Menu Management"
-        description="Manage your restaurant's menu categories, items, and customizations"
-        actionButton={
-          <Link
-            href="/management-portal/menu-manager/categories/new"
-            className="group relative bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 flex items-center justify-center font-semibold shadow-lg"
-          >
-            <FiPlus className="mr-2" />
-            Add Category
-          </Link>
-        }
-      >
+    <AdminPageLayout
+      title="Menu Management"
+      description="Manage your restaurant's menu categories, items, and customizations"
+      actionButton={
+        <Link
+          href="/management-portal/menu-manager/categories/new"
+          className="group relative bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 flex items-center justify-center font-semibold shadow-lg"
+        >
+          <FiPlus className="mr-2" />
+          Add Category
+        </Link>
+      }
+    >
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="group relative backdrop-blur-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-white/20 rounded-3xl p-8 shadow-2xl hover:scale-105 transition-all duration-300">
@@ -364,6 +360,5 @@ export default function MenuManagerPage() {
         </div>
       </div>
       </AdminPageLayout>
-    </AdminLayout>
   )
 }

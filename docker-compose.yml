@@ -9,7 +9,7 @@ services:
     environment:
       # This URL must match the credentials in the 'db' service below.
       # The hostname 'db' is the service name defined in this file.
-      DATABASE_URL: "postgresql://pizzabuilder:pizzapassword@db:5432/pizzadb"
+      DATABASE_URL: "postgresql://pizzabuilder:pizzapassword@db:5432/pizzax"
       # The NEXTAUTH_URL is required for authentication to work correctly in production.
       NEXTAUTH_URL: "http://localhost:3000"
       # A secret is required for JWT signing. Generate a strong one for production.
@@ -31,14 +31,14 @@ services:
   db:
     image: postgres:14-alpine
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pizzabuilder -d pizzadb"]
+      test: ["CMD-SHELL", "pg_isready -U pizzabuilder -d pizzax"]
       interval: 5s
       timeout: 5s
       retries: 5
     environment:
       POSTGRES_USER: "pizzabuilder"
       POSTGRES_PASSWORD: "pizzapassword"
-      POSTGRES_DB: "pizzadb"
+      POSTGRES_DB: "pizzax"
     ports:
       - "5432:5432"
     volumes:

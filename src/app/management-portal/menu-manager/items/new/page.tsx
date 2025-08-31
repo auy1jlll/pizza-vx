@@ -43,7 +43,7 @@ export default function NewItemPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/admin/menu/categories');
+      const response = await fetch('/api/management-portal/menu/categories');
       if (response.ok) {
         const data = await response.json();
         setCategories(Array.isArray(data) ? data : []);
@@ -56,7 +56,7 @@ export default function NewItemPage() {
 
   const fetchCustomizationGroups = async () => {
     try {
-      const response = await fetch('/api/admin/menu/customization-groups');
+      const response = await fetch('/api/management-portal/menu/customization-groups');
       if (response.ok) {
         const data = await response.json();
         setCustomizationGroups(data);
@@ -77,7 +77,7 @@ export default function NewItemPage() {
         preparationTime: formData.preparationTime ? parseInt(formData.preparationTime) : null
       };
 
-      const response = await fetch('/api/admin/menu/items', {
+      const response = await fetch('/api/management-portal/menu/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -85,7 +85,7 @@ export default function NewItemPage() {
 
       if (response.ok) {
         toast.showSuccess('Menu item created successfully!');
-        router.push('/admin/menu-manager/items');
+        router.push('/management-portal/menu-manager/items');
       } else {
         const error = await response.json();
         toast.showError('Error creating item: ' + (error.error || 'Unknown error'));

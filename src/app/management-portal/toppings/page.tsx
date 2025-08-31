@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '@/components/AdminLayout';
+import AdminPageLayout from '@/components/AdminPageLayout';
 import Link from 'next/link';
 
 interface PizzaTopping {
@@ -61,7 +61,7 @@ export default function PizzaToppingsAdmin() {
   // Fetch toppings
   const fetchToppings = async () => {
     try {
-      const response = await fetch('/api/admin/toppings');
+      const response = await fetch('/api/management-portal/toppings');
       if (response.status === 401) {
         window.location.href = '/management-portal/login';
         return;
@@ -83,7 +83,7 @@ export default function PizzaToppingsAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const url = editingTopping ? `/api/admin/toppings/${editingTopping.id}` : '/api/admin/toppings';
+      const url = editingTopping ? `/api/management-portal/toppings/${editingTopping.id}` : '/api/management-portal/toppings';
       const method = editingTopping ? 'PUT' : 'POST';
       
       const response = await fetch(url, {
@@ -110,7 +110,7 @@ export default function PizzaToppingsAdmin() {
     if (!confirm('Are you sure you want to delete this topping?')) return;
     
     try {
-      const response = await fetch(`/api/admin/toppings/${id}`, {
+      const response = await fetch(`/api/management-portal/toppings/${id}`, {
         method: 'DELETE',
       });
 
@@ -140,7 +140,7 @@ export default function PizzaToppingsAdmin() {
       const topping = toppings.find(t => t.id === id);
       if (!topping) return;
 
-      const response = await fetch(`/api/admin/toppings/${id}`, {
+      const response = await fetch(`/api/management-portal/toppings/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ export default function PizzaToppingsAdmin() {
   }, {} as Record<string, PizzaTopping[]>);
 
   return (
-    <AdminLayout>
+    <AdminPageLayout title="Pizza Toppings Management">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
@@ -361,6 +361,6 @@ export default function PizzaToppingsAdmin() {
           )}
         </div>
       </div>
-    </AdminLayout>
+    </AdminPageLayout>
   );
 }

@@ -41,7 +41,7 @@ export default function NewCustomizationOptionPage() {
 
   const fetchGroups = async () => {
     try {
-      const response = await fetch('/api/admin/menu/customization-groups');
+      const response = await fetch('/api/management-portal/menu/customization-groups');
       if (response.ok) {
         const data = await response.json();
         setGroups(Array.isArray(data) ? data : []);
@@ -65,7 +65,7 @@ export default function NewCustomizationOptionPage() {
 
       console.log('📤 Submitting data:', submitData);
 
-      const response = await fetch('/api/admin/menu/customization-options', {
+      const response = await fetch('/api/management-portal/menu/customization-options', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

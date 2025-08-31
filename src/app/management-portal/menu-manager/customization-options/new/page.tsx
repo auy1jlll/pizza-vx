@@ -34,7 +34,7 @@ export default function NewCustomizationOptionPage() {
 
   const fetchGroups = async () => {
     try {
-      const response = await fetch('/api/admin/menu/customization-groups');
+      const response = await fetch('/api/management-portal/menu/customization-groups');
       
       if (response.status === 401) {
         console.error('Authentication error - please log in as admin');
@@ -68,7 +68,7 @@ export default function NewCustomizationOptionPage() {
       console.log('🐛 Payload being sent:', payload);
       console.log('🐛 Form data before transformation:', formData);
 
-      const response = await fetch('/api/admin/menu/customization-options', {
+      const response = await fetch('/api/management-portal/menu/customization-options', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -83,7 +83,7 @@ export default function NewCustomizationOptionPage() {
         if (groupId) {
           router.push(`/admin/menu-manager/customization-groups/${groupId}`);
         } else {
-          router.push('/admin/menu-manager/customization-groups');
+          router.push('/management-portal/menu-manager/customization-groups');
         }
       } else {
         const error = await response.json();

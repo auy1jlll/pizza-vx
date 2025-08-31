@@ -80,12 +80,12 @@ export default function EditItemPage() {
         });
       } else {
         toast.showError('Item not found');
-        router.push('/admin/menu-manager/items');
+        router.push('/management-portal/menu-manager/items');
       }
     } catch (error) {
       console.error('Error fetching item:', error);
       toast.showError('Error loading item');
-      router.push('/admin/menu-manager/items');
+      router.push('/management-portal/menu-manager/items');
     } finally {
       setLoading(false);
     }

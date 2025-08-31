@@ -108,7 +108,7 @@ export default function EditCategoryPage() {
       const result = await response.json();
 
       if (result.success) {
-        router.push('/admin/menu-manager/categories');
+        router.push('/management-portal/menu-manager/categories');
       } else {
         setError(result.error || 'Failed to update category');
       }
@@ -174,7 +174,7 @@ export default function EditCategoryPage() {
             <h2 className="text-xl font-bold text-white mb-2">Error Loading Category</h2>
             <p className="text-white/70 mb-6">{error}</p>
             <Link
-              href="/admin/menu-manager/categories"
+              href="/management-portal/menu-manager/categories"
               className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold"
             >
               Back to Categories
@@ -192,7 +192,7 @@ export default function EditCategoryPage() {
         <div className="bg-white/10 backdrop-blur-xl border-b border-white/20 px-6 py-8">
           <div className="flex items-center gap-4">
             <Link 
-              href="/admin/menu-manager/categories"
+              href="/management-portal/menu-manager/categories"
               className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-300"
             >
               <ArrowLeft className="h-6 w-6" />
@@ -360,7 +360,7 @@ export default function EditCategoryPage() {
                       )}
                     </button>
                     <Link
-                      href="/admin/menu-manager/categories"
+                      href="/management-portal/menu-manager/categories"
                       className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl transition-all duration-300 font-semibold text-center"
                     >
                       Cancel

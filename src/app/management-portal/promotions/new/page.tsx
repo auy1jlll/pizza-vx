@@ -176,7 +176,7 @@ export default function NewPromotionPage() {
         endDate: formData.endDate || null
       };
 
-      const response = await fetch('/api/admin/promotions', {
+      const response = await fetch('/api/management-portal/promotions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(submissionData)

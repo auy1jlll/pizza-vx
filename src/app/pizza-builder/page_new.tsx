@@ -136,7 +136,7 @@ export default function PizzaBuilder() {
 
       const result = await response.json();
       if (result.success) {
-        showToast(`Order created successfully! Order #: ${result.orderId || 'N/A'}`, { type: 'success' });
+        showToast(`Order created successfully! Order #: ${result.data?.id || result.orderId || 'N/A'}`, { type: 'success' });
         // Reset selections
         setSelection({
           size: data?.sizes[1] || null,

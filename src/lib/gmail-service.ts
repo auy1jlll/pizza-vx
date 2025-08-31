@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import prisma from '@/lib/prisma';
 
 interface EmailOptions {
   to: string;
@@ -11,28 +12,76 @@ class GmailService {
   private transporter: nodemailer.Transporter | null = null;
   private fromEmail: string;
   private storeName: string;
+  private initialized: boolean = false;
 
   constructor() {
-    this.fromEmail = process.env.GMAIL_USER || '';
     this.storeName = process.env.STORE_NAME || 'Greenland Famous Pizza';
+    this.initializeService();
+  }
 
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-      console.warn('Gmail credentials not found. Email service will not work.');
-      return;
+  private async initializeService() {
+    try {
+      // First try to get credentials from database
+      let gmailUser = '';
+      let gmailAppPassword = '';
+
+      try {
+        const userSetting = await prisma.appSetting.findUnique({
+          where: { key: 'gmailUser' }
+        });
+        const passwordSetting = await prisma.appSetting.findUnique({
+          where: { key: 'gmailAppPassword' }
+        });
+
+        gmailUser = userSetting?.value || '';
+        gmailAppPassword = passwordSetting?.value || '';
+      } catch (dbError) {
+        console.warn('Database not available for Gmail settings, falling back to environment variables');
+      }
+
+      // Fallback to environment variables if database doesn't have settings
+      if (!gmailUser) {
+        gmailUser = process.env.GMAIL_USER || '';
+      }
+      if (!gmailAppPassword) {
+        gmailAppPassword = process.env.GMAIL_APP_PASSWORD || '';
+      }
+
+      this.fromEmail = gmailUser;
+
+      if (!gmailUser || !gmailAppPassword) {
+        console.warn('Gmail credentials not found in database or environment. Email service will not work.');
+        return;
+      }
+
+      this.transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: gmailUser,
+          pass: gmailAppPassword,
+        },
+      });
+
+      this.initialized = true;
+      console.log('Gmail service initialized successfully');
+    } catch (error) {
+      console.error('Error initializing Gmail service:', error);
     }
+  }
 
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD,
-      },
-    });
+  // Method to refresh credentials (useful when settings are updated)
+  async refreshCredentials() {
+    this.initialized = false;
+    this.transporter = null;
+    await this.initializeService();
   }
 
   async sendPasswordResetEmail(to: string, resetToken: string, userType: 'customer' | 'admin' = 'customer'): Promise<boolean> {
     try {
-      if (!this.transporter) return false;
+      if (!this.initialized || !this.transporter) {
+        console.warn('Gmail service not initialized');
+        return false;
+      }
 
       const resetUrl = userType === 'admin' 
         ? `${process.env.NEXTAUTH_URL}/management-portal/reset-password?token=${resetToken}`
@@ -65,7 +114,10 @@ class GmailService {
 
   async sendTestEmail(to: string): Promise<boolean> {
     try {
-      if (!this.transporter) return false;
+      if (!this.initialized || !this.transporter) {
+        console.warn('Gmail service not initialized');
+        return false;
+      }
 
       await this.transporter.sendMail({
         from: `"${this.storeName}" <${this.fromEmail}>`,
@@ -83,7 +135,10 @@ class GmailService {
 
   async sendWelcomeEmail(to: string, userName: string): Promise<boolean> {
     try {
-      if (!this.transporter) return false;
+      if (!this.initialized || !this.transporter) {
+        console.warn('Gmail service not initialized');
+        return false;
+      }
 
       const html = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -117,7 +172,10 @@ class GmailService {
 
   async sendOrderConfirmationEmail(order: any): Promise<boolean> {
     try {
-      if (!this.transporter) return false;
+      if (!this.initialized || !this.transporter) {
+        console.warn('Gmail service not initialized');
+        return false;
+      }
 
       const customerEmail = order.customerEmail;
       if (!customerEmail) {
@@ -173,7 +231,7 @@ class GmailService {
   }
 
   isConfigured(): boolean {
-    return !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD && this.transporter);
+    return this.initialized && !!this.transporter;
   }
 
   getServiceInfo() {

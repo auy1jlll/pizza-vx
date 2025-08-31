@@ -25,11 +25,10 @@ export async function GET(request: NextRequest) {
       process.env.JWT_SECRET || 'fallback-secret'
     ) as any;
 
-    // Get user from database (only admins)
+    // Get user from database (admins and employees)
     const user = await prisma.user.findUnique({
       where: { 
-        id: decoded.userId,
-        role: 'ADMIN' // Ensure only admins can use this endpoint
+        id: decoded.userId
       },
       select: {
         id: true,
@@ -44,6 +43,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
+      );
+    }
+
+    // Check if user has admin or employee role
+    if (user.role !== 'ADMIN' && user.role !== 'EMPLOYEE') {
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
       );
     }
 

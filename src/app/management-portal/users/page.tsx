@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import AdminLayout from '@/components/AdminLayout';
 import AdminPageLayout from '@/components/AdminPageLayout';
 import { FiEdit2, FiTrash2, FiX } from 'react-icons/fi';
 
@@ -77,6 +76,20 @@ export default function UsersPage() {
     emergencyContactPhone: '',
   });
 
+  // Customer creation form
+  const [showCreateCustomer, setShowCreateCustomer] = useState(false);
+  const [newCustomer, setNewCustomer] = useState({
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+  });
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('ALL');
 
@@ -104,14 +117,14 @@ export default function UsersPage() {
     setLoading(true);
     try {
       // Fetch customers
-      const customersResponse = await fetch('/api/admin/customers');
+      const customersResponse = await fetch('/api/management-portal/customers');
       if (customersResponse.ok) {
         const customersData = await customersResponse.json();
         setCustomers(customersData.customers || []);
       }
 
       // Fetch employees
-      const employeesResponse = await fetch('/api/admin/employees');
+      const employeesResponse = await fetch('/api/management-portal/employees');
       if (employeesResponse.ok) {
         const employeesData = await employeesResponse.json();
         setEmployees(employeesData.employees || []);
@@ -126,7 +139,7 @@ export default function UsersPage() {
 
   const handleCreateEmployee = async () => {
     try {
-      const response = await fetch('/api/admin/employees', {
+      const response = await fetch('/api/management-portal/employees', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -163,6 +176,41 @@ export default function UsersPage() {
     } catch (error) {
       console.error('Error creating employee:', error);
       setError('Failed to create employee');
+    }
+  };
+
+  const handleCreateCustomer = async () => {
+    try {
+      const response = await fetch('/api/management-portal/customers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newCustomer),
+      });
+
+      if (response.ok) {
+        setSuccess('Customer created successfully!');
+        setShowCreateCustomer(false);
+        setNewCustomer({
+          email: '',
+          password: '',
+          firstName: '',
+          lastName: '',
+          phone: '',
+          address: '',
+          city: '',
+          state: '',
+          zipCode: '',
+        });
+        fetchUsers();
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to create customer');
+      }
+    } catch (error) {
+      console.error('Error creating customer:', error);
+      setError('Failed to create customer');
     }
   };
 
@@ -216,7 +264,7 @@ export default function UsersPage() {
 
     try {
       const isEmployee = selectedUser.role === 'EMPLOYEE' || selectedUser.role === 'ADMIN';
-      const endpoint = isEmployee ? '/api/admin/employees' : '/api/admin/customers';
+      const endpoint = isEmployee ? '/api/management-portal/employees' : '/api/management-portal/customers';
       
       const response = await fetch(`${endpoint}/${selectedUser.id}`, {
         method: 'PUT',
@@ -252,7 +300,7 @@ export default function UsersPage() {
 
     try {
       const isEmployee = selectedUser.role === 'EMPLOYEE' || selectedUser.role === 'ADMIN';
-      const endpoint = isEmployee ? '/api/admin/employees' : '/api/admin/customers';
+      const endpoint = isEmployee ? '/api/management-portal/employees' : '/api/management-portal/customers';
       
       const response = await fetch(`${endpoint}/${selectedUser.id}`, {
         method: 'DELETE',
@@ -298,58 +346,66 @@ export default function UsersPage() {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <AdminPageLayout title="User Management" description="Loading users...">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+      <AdminPageLayout title="User Management" description="Loading users...">
+        <div className="sm:flex sm:items-center">
+          <div className="sm:flex-auto">
+            <h1 className="text-3xl font-bold text-white">User Management</h1>
+            <p className="mt-2 text-lg text-slate-300">Loading users...</p>
           </div>
-        </AdminPageLayout>
-      </AdminLayout>
+        </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+        </div>
+      </AdminPageLayout>
     );
   }
 
   return (
-    <AdminLayout>
-      <AdminPageLayout
-        title="User Management"
-        description="Manage customers and employees across your restaurant"
-        actionButton={
+    <AdminPageLayout title="User Management" description="Manage customers and employees across your restaurant">
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <h1 className="text-3xl font-bold text-white">User Management</h1>
+          <p className="mt-2 text-lg text-slate-300">
+            Manage customers and employees across your restaurant
+          </p>
+        </div>
+        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           <button
             onClick={() => setShowCreateEmployee(true)}
-            className="group relative bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 flex items-center justify-center font-semibold shadow-lg"
+            className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105"
           >
             <span className="mr-2">👨‍💼</span>
-            Add Employee
+            <span>Add Employee</span>
           </button>
-        }
-      >
+        </div>
+      </div>
         {/* Alerts */}
         {error && (
-          <div className="mb-8 backdrop-blur-xl bg-red-500/20 border border-red-400/30 rounded-2xl p-6 shadow-2xl">
+          <div className="mb-8 bg-red-50 border border-red-200 rounded-lg p-6">
             <div className="flex items-center">
-              <div className="h-8 w-8 bg-red-500 rounded-full flex items-center justify-center mr-4">
-                <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <svg className="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-red-100">Error</h3>
-                <p className="mt-1 text-red-200">{error}</p>
+                <h3 className="text-lg font-semibold text-red-900">Error</h3>
+                <p className="mt-1 text-red-700">{error}</p>
               </div>
             </div>
           </div>
         )}
         {success && (
-          <div className="mb-8 backdrop-blur-xl bg-green-500/20 border border-green-400/30 rounded-2xl p-6 shadow-2xl">
+          <div className="mb-8 bg-green-50 border border-green-200 rounded-lg p-6">
             <div className="flex items-center">
-              <div className="h-8 w-8 bg-green-500 rounded-full flex items-center justify-center mr-4">
-                <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                <svg className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-green-100">Success</h3>
-                <p className="mt-1 text-green-200">{success}</p>
+                <h3 className="text-lg font-semibold text-green-900">Success</h3>
+                <p className="mt-1 text-green-700">{success}</p>
               </div>
             </div>
           </div>
@@ -357,47 +413,38 @@ export default function UsersPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <div className="group relative backdrop-blur-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-white/20 rounded-3xl p-8 shadow-2xl hover:scale-105 transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 to-cyan-600/30 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
-                <div className="h-16 w-16 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg">
-                  <span className="text-2xl">👥</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-white/60 text-sm font-medium uppercase tracking-wider">Total Customers</p>
-                  <p className="text-3xl font-bold text-white">{customers.length}</p>
-                </div>
+          <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-xl p-8 shadow-2xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div className="h-16 w-16 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">👥</span>
+              </div>
+              <div className="text-right">
+                <p className="text-slate-400 text-sm font-medium uppercase tracking-wider">Total Customers</p>
+                <p className="text-3xl font-bold text-white">{customers.length}</p>
               </div>
             </div>
           </div>
           
-          <div className="group relative backdrop-blur-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-white/20 rounded-3xl p-8 shadow-2xl hover:scale-105 transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-600/30 to-emerald-600/30 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
-                <div className="h-16 w-16 bg-gradient-to-br from-green-400 to-emerald-400 rounded-2xl flex items-center justify-center shadow-lg">
-                  <span className="text-2xl">👨‍💼</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-white/60 text-sm font-medium uppercase tracking-wider">Total Employees</p>
-                  <p className="text-3xl font-bold text-white">{employees.length}</p>
-                </div>
+          <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-xl p-8 shadow-2xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div className="h-16 w-16 bg-green-500/20 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">👨‍💼</span>
+              </div>
+              <div className="text-right">
+                <p className="text-slate-400 text-sm font-medium uppercase tracking-wider">Total Employees</p>
+                <p className="text-3xl font-bold text-white">{employees.length}</p>
               </div>
             </div>
           </div>
           
-          <div className="group relative backdrop-blur-xl bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-white/20 rounded-3xl p-8 shadow-2xl hover:scale-105 transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-600/30 to-red-600/30 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
-                <div className="h-16 w-16 bg-gradient-to-br from-orange-400 to-red-400 rounded-2xl flex items-center justify-center shadow-lg">
-                  <span className="text-2xl">🛡️</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-white/60 text-sm font-medium uppercase tracking-wider">Admin Users</p>
-                  <p className="text-3xl font-bold text-white">{employees.filter(emp => emp.role === 'ADMIN').length}</p>
-                </div>
+          <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-xl p-8 shadow-2xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div className="h-16 w-16 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">🛡️</span>
+              </div>
+              <div className="text-right">
+                <p className="text-slate-400 text-sm font-medium uppercase tracking-wider">Admin Users</p>
+                <p className="text-3xl font-bold text-white">{employees.filter(emp => emp.role === 'ADMIN').length}</p>
               </div>
             </div>
           </div>
@@ -425,7 +472,7 @@ export default function UsersPage() {
         </div>
 
         {/* Filters and Actions */}
-        <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 mb-6">
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 mb-6">
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="flex gap-4 flex-1">
               <input
@@ -433,7 +480,7 @@ export default function UsersPage() {
                 placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400"
+                className="flex-1 px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               {activeTab === 'employees' && (
                 <select
@@ -448,6 +495,15 @@ export default function UsersPage() {
               )}
             </div>
             
+            {activeTab === 'customers' && (
+              <button
+                onClick={() => setShowCreateCustomer(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                + Add Customer
+              </button>
+            )}
+            
             {activeTab === 'employees' && (
               <button
                 onClick={() => setShowCreateEmployee(true)}
@@ -460,31 +516,31 @@ export default function UsersPage() {
         </div>
 
         {/* Content */}
-        <div className="bg-black/30 backdrop-blur-sm rounded-lg overflow-hidden">
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg overflow-hidden">
           {activeTab === 'customers' && (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-black/50">
+                <thead className="bg-white/5 backdrop-blur-sm">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Customer
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Contact
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Orders
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Total Spent
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Joined
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -557,27 +613,27 @@ export default function UsersPage() {
           {activeTab === 'employees' && (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-black/50">
+                <thead className="bg-white/5 backdrop-blur-sm">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Employee
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       ID
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Position
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Department
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Role
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -821,6 +877,126 @@ export default function UsersPage() {
           </div>
         )}
 
+        {/* Create Customer Modal */}
+        {showCreateCustomer && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-gray-900 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <h2 className="text-2xl font-bold text-white mb-6">Add New Customer</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">Email *</label>
+                  <input
+                    type="email"
+                    value={newCustomer.email}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">Password *</label>
+                  <input
+                    type="password"
+                    value={newCustomer.password}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, password: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">First Name *</label>
+                  <input
+                    type="text"
+                    value={newCustomer.firstName}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, firstName: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">Last Name *</label>
+                  <input
+                    type="text"
+                    value={newCustomer.lastName}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, lastName: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">Phone</label>
+                  <input
+                    type="tel"
+                    value={newCustomer.phone}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">Address</label>
+                  <input
+                    type="text"
+                    value={newCustomer.address}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, address: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">City</label>
+                  <input
+                    type="text"
+                    value={newCustomer.city}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, city: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">State</label>
+                  <input
+                    type="text"
+                    value={newCustomer.state}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, state: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">ZIP Code</label>
+                  <input
+                    type="text"
+                    value={newCustomer.zipCode}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, zipCode: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-3 mt-8">
+                <button
+                  onClick={() => setShowCreateCustomer(false)}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateCustomer}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+                >
+                  Create Customer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Edit User Modal */}
         {showEditModal && selectedUser && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -1006,6 +1182,5 @@ export default function UsersPage() {
           </div>
         )}
       </AdminPageLayout>
-    </AdminLayout>
-  );
-}
+    );
+  }

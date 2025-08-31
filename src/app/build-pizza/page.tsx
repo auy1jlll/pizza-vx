@@ -1156,7 +1156,7 @@ export default function PizzaBuilder() {
                   <div className="flex justify-between mt-6">
                     <button
                       disabled
-                      className="px-6 py-2 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed"
+                      className="px-6 py-2 bg-gray-200 text-gray-600 rounded-lg cursor-not-allowed"
                     >
                       ← Previous
                     </button>

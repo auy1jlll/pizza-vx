@@ -6,11 +6,11 @@ import { Settings, Users, BarChart, Home, Edit } from 'lucide-react';
 import { designSystem, components } from '../lib/design-system';
 
 const adminNavItems = [
-  { href: '/admin', icon: Home, label: 'Dashboard' },
-  { href: '/admin/content', icon: Edit, label: 'Content CMS' },
-  { href: '/admin/settings', icon: Settings, label: 'Settings' },
-  { href: '/admin/users', icon: Users, label: 'Users' },
-  { href: '/admin/analytics', icon: BarChart, label: 'Analytics' },
+  { href: '/management-portal', icon: Home, label: 'Dashboard' },
+  { href: '/management-portal/content', icon: Edit, label: 'Content CMS' },
+  { href: '/management-portal/global-settings', icon: Settings, label: 'Settings' },
+  { href: '/management-portal/users', icon: Users, label: 'Users' },
+  { href: '/management-portal/analytics', icon: BarChart, label: 'Analytics' },
 ];
 
 export default function AdminNavigation() {

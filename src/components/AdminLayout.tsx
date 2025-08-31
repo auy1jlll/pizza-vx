@@ -14,13 +14,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Don't apply auth checks to login page
+  const isLoginPage = typeof window !== 'undefined' && window.location.pathname === '/management-portal/login';
+
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'ADMIN')) {
+    if (!loading && !isLoginPage && (!user || (user.role !== 'ADMIN' && user.role !== 'EMPLOYEE'))) {
       router.push('/management-portal/login');
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, isLoginPage]);
 
-  if (loading) {
+  if (loading && !isLoginPage) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
@@ -28,20 +31,45 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     );
   }
 
-  if (!user || user.role !== 'ADMIN') {
+  if (!isLoginPage && (!user || (user.role !== 'ADMIN' && user.role !== 'EMPLOYEE'))) {
     return null;
   }
 
-  const navigation = [
-    { name: 'Dashboard', href: '/management-portal', icon: '📊' },
-    { name: 'Orders', href: '/management-portal/orders', icon: '📋' },
-    { name: 'Menu Manager', href: '/management-portal/menu-manager', icon: '🍽️' },
-    { name: 'Pizza Manager', href: '/management-portal/pizza-manager', icon: '🍕' },
-    { name: 'Users', href: '/management-portal/users', icon: '👥' },
-    { name: 'Kitchen Display', href: '/management-portal/kitchen', icon: '🍳' },
-    { name: 'Content', href: '/management-portal/content', icon: '📝' },
-    { name: 'Analytics', href: '/management-portal/analytics', icon: '📈' },
+  // For login page, just render without navigation
+  if (isLoginPage) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        {children}
+      </div>
+    );
+  }
+
+  // At this point, user should be authenticated for admin pages
+  if (!user) {
+    return null;
+  }
+
+  // Define navigation based on user role
+  const allNavigation = [
+    { name: 'Dashboard', href: '/management-portal', icon: '📊', roles: ['ADMIN'] },
+    { name: 'Orders', href: '/management-portal/orders', icon: '📋', roles: ['ADMIN', 'EMPLOYEE'] },
+    { name: 'Kitchen Display', href: '/management-portal/kitchen', icon: '🍳', roles: ['ADMIN', 'EMPLOYEE'] },
+    { name: 'Menu Manager', href: '/management-portal/menu-manager', icon: '🍽️', roles: ['ADMIN'] },
+    { name: 'Pizza Manager', href: '/management-portal/pizza-manager', icon: '🍕', roles: ['ADMIN'] },
+    { name: 'Calzone Manager', href: '/management-portal/calzone-manager', icon: '🥟', roles: ['ADMIN'] },
+    { name: 'Users', href: '/management-portal/users', icon: '👥', roles: ['ADMIN'] },
+    { name: 'Content', href: '/management-portal/content', icon: '📝', roles: ['ADMIN'] },
+    { name: 'Analytics', href: '/management-portal/analytics', icon: '📈', roles: ['ADMIN'] },
   ];
+
+  // Filter navigation based on user role
+  const navigation = allNavigation.filter(item => 
+    item.roles.includes(user.role)
+  );
+
+  // Debug: Log user role and navigation items (temporary)
+  console.log('AdminLayout - User role:', user.role);
+  console.log('AdminLayout - Navigation items:', navigation.map(item => item.name));
 
   const handleLogout = async () => {
     try {
@@ -60,8 +88,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex justify-between h-16">
             {/* Left side - Logo/Title */}
             <div className="flex items-center">
-              <Link href="/management-portal" className="text-2xl font-bold text-white hover:text-orange-300 transition-colors">
-                🏪 <span className="text-orange-300">Admin Portal</span>
+              <Link 
+                href={user.role === 'EMPLOYEE' ? '/management-portal/orders' : '/management-portal'} 
+                className="text-2xl font-bold text-white hover:text-orange-300 transition-colors"
+              >
+                🏪 <span className="text-orange-300">
+                  {user.role === 'EMPLOYEE' ? 'Employee Portal' : 'Admin Portal'}
+                </span>
               </Link>
             </div>
 

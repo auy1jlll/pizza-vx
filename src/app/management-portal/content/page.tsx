@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import AdminLayout from '@/components/AdminLayout';
+import AdminPageLayout from '@/components/AdminPageLayout';
 import { Edit, Eye, Save, X, FileText, Clock, AlertCircle } from 'lucide-react';
 
 interface ContentFile {
@@ -134,21 +134,19 @@ export default function ContentManagementPage() {
   };
 
   return (
-    <AdminLayout>
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Static Content Management</h1>
-            <p className="text-gray-600 mt-2">Manage static page content using simple JSON files</p>
-          </div>
-          <button
-            onClick={() => router.push('/admin')}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center space-x-2"
-          >
-            <X className="w-4 h-4" />
-            <span>Back to Dashboard</span>
-          </button>
-        </div>
+    <AdminPageLayout 
+      title="Static Content Management"
+      description="Manage static page content using simple JSON files"
+      actionButton={
+        <button
+          onClick={() => router.push('/management-portal')}
+          className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/20 px-4 py-2 rounded-lg flex items-center space-x-2 transition-all"
+        >
+          <X className="w-4 h-4" />
+          <span>Back to Dashboard</span>
+        </button>
+      }
+    >
 
         {/* Messages */}
         {success && (
@@ -307,7 +305,6 @@ export default function ContentManagementPage() {
             </div>
           </div>
         </div>
-      </div>
-    </AdminLayout>
+    </AdminPageLayout>
   );
 }

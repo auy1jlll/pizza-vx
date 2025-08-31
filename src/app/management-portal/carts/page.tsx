@@ -40,7 +40,7 @@ export default function AdminCartPage() {
   const fetchActiveCarts = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/carts');
+      const response = await fetch('/api/management-portal/carts');
       if (response.ok) {
         const data = await response.json();
         setCarts(data.carts || []);
@@ -61,7 +61,7 @@ export default function AdminCartPage() {
     }
 
     try {
-      const response = await fetch(`/api/admin/carts/${userId}`, {
+      const response = await fetch(`/api/management-portal/carts/${userId}`, {
         method: 'DELETE',
       });
       

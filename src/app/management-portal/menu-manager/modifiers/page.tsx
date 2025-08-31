@@ -61,7 +61,7 @@ export default function ModifiersPage() {
       
       if (filterType) params.append('type', filterType);
 
-      const response = await fetch(`/api/admin/menu/modifiers?${params}`);
+      const response = await fetch(`/api/management-portal/menu/modifiers?${params}`);
       const data = await response.json();
       
       if (data.success) {
@@ -79,8 +79,8 @@ export default function ModifiersPage() {
     
     try {
       const url = editingModifier 
-        ? `/api/admin/menu/modifiers/${editingModifier.id}`
-        : '/api/admin/menu/modifiers';
+        ? `/api/management-portal/menu/modifiers/${editingModifier.id}`
+        : '/api/management-portal/menu/modifiers';
       
       const method = editingModifier ? 'PUT' : 'POST';
       
@@ -125,7 +125,7 @@ export default function ModifiersPage() {
       type: 'danger',
       onConfirm: async () => {
         try {
-          const response = await fetch(`/api/admin/menu/modifiers/${id}`, {
+          const response = await fetch(`/api/management-portal/menu/modifiers/${id}`, {
             method: 'DELETE'
           });
 

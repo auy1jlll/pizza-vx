@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '@/components/AdminLayout';
 import AdminPageLayout from '@/components/AdminPageLayout';
 import Link from 'next/link';
 import { useToast } from '@/components/ToastProvider';
@@ -75,7 +74,7 @@ export default function PizzaSizesAdmin() {
   // Fetch sizes
   const fetchSizes = async () => {
     try {
-      const response = await fetch('/api/admin/sizes');
+      const response = await fetch('/api/management-portal/sizes');
       if (response.status === 401) {
         // Handle unauthorized access
         window.location.href = '/management-portal/login';
@@ -98,7 +97,7 @@ export default function PizzaSizesAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const url = editingSize ? `/api/admin/sizes/${editingSize.id}` : '/api/admin/sizes';
+      const url = editingSize ? `/api/management-portal/sizes/${editingSize.id}` : '/api/management-portal/sizes';
       const method = editingSize ? 'PUT' : 'POST';
       
       const response = await fetch(url, {
@@ -132,7 +131,7 @@ export default function PizzaSizesAdmin() {
     if (!confirm('Are you sure you want to delete this size?')) return;
     
     try {
-      const response = await fetch(`/api/admin/sizes/${id}`, {
+      const response = await fetch(`/api/management-portal/sizes/${id}`, {
         method: 'DELETE',
       });
 
@@ -156,63 +155,66 @@ export default function PizzaSizesAdmin() {
   };
 
   return (
-    <AdminLayout>
-      <AdminPageLayout
-        title="Pizza Sizes"
-        description="Manage the available pizza sizes for your restaurant"
-        actionButton={
+    <AdminPageLayout title="Pizza Sizes" description="Manage the available pizza sizes for your restaurant.">
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <h1 className="text-3xl font-bold text-white">Pizza Sizes</h1>
+          <p className="mt-2 text-lg text-slate-300">
+            Manage the available pizza sizes for your restaurant.
+          </p>
+        </div>
+        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           <button
-            type="button"
             onClick={() => {
               setShowForm(true);
               setEditingSize(null);
               setFormData({ name: '', diameter: '', basePrice: '' });
             }}
-            className="group relative bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 flex items-center justify-center font-semibold shadow-lg"
+            className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105"
           >
-            <span className="mr-2">📏</span>
-            Add New Size
+            <span className="text-xl">📏</span>
+            <span>Add New Size</span>
           </button>
-        }
-      >
+        </div>
+      </div>
         {/* Form Modal */}
         {showForm && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-xl rounded-xl p-8 w-full max-w-md mx-4 border border-slate-700/50 shadow-2xl">
               <h2 className="text-2xl font-bold text-white mb-6">
                 {editingSize ? 'Edit Size' : 'Add New Size'}
               </h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     Size Name
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="e.g., Small, Medium, Large"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     Diameter
                   </label>
                   <input
                     type="text"
                     value={formData.diameter}
                     onChange={(e) => setFormData(prev => ({ ...prev, diameter: e.target.value }))}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="e.g., 10 inches, 12 inches"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     Base Price ($)
                   </label>
                   <input
@@ -221,7 +223,7 @@ export default function PizzaSizesAdmin() {
                     min="0"
                     value={formData.basePrice}
                     onChange={(e) => setFormData(prev => ({ ...prev, basePrice: e.target.value }))}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm"
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="e.g., 12.99"
                     required
                   />
@@ -237,7 +239,7 @@ export default function PizzaSizesAdmin() {
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="flex-1 bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 px-6 rounded-lg font-medium transition-all duration-200 hover:shadow-lg backdrop-blur-sm"
+                    className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-3 px-6 rounded-lg font-medium transition-all duration-200 hover:shadow-lg"
                   >
                     Cancel
                   </button>
@@ -250,45 +252,61 @@ export default function PizzaSizesAdmin() {
         {/* Sizes List */}
         <div className="mt-8">
           {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto"></div>
+            <div className="text-center py-8 text-slate-300">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              Loading sizes...
             </div>
           ) : sizes.length === 0 ? (
-            <div className="text-center py-8 text-white/70">
-              No pizza sizes found. Add your first size to get started.
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📏</div>
+              <h3 className="text-xl font-semibold text-white mb-2">No sizes yet</h3>
+              <p className="text-slate-300 mb-6">
+                Get started by adding your first pizza size.
+              </p>
+              <button
+                onClick={() => {
+                  setShowForm(true);
+                  setEditingSize(null);
+                  setFormData({ name: '', diameter: '', basePrice: '' });
+                }}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105"
+              >
+                Add Your First Size
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {sizes.map((size) => (
                 <div
                   key={size.id}
-                  className="group relative backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+                  className="group relative bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-xl p-6 hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:border-blue-500/50"
+                  style={{
+                    borderLeftColor: '#3b82f6',
+                    borderLeftWidth: '4px',
+                  }}
                 >
                   {/* Size Header */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div 
-                        className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center transform transition-transform duration-300"
-                        style={{ 
-                          transform: `scale(${getSizeScale(size.name)})`,
-                        }}
+                      <div
+                        className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"
                       >
                         <span className="text-white text-lg">{getSizeIcon(size.name)}</span>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold text-green-400">
-                        ${size.basePrice.toFixed(2)}
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-green-600">
+                          ${size.basePrice.toFixed(2)}
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Size Info */}
                   <div className="mb-4">
-                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">
+                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
                       {size.name}
                     </h3>
-                    <p className="text-white/70 text-sm leading-relaxed">
+                    <p className="text-slate-300 text-sm leading-relaxed">
                       {getSizeDescription(size.name)}
                     </p>
                   </div>
@@ -296,24 +314,24 @@ export default function PizzaSizesAdmin() {
                   {/* Size Details */}
                   <div className="mb-6">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-white/60">Diameter</span>
-                      <span className="text-sm text-white/80">{size.diameter}</span>
+                      <span className="text-sm font-medium text-slate-300">Diameter</span>
+                      <span className="text-sm text-slate-400">{size.diameter}</span>
                     </div>
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-white/60">Category</span>
-                      <span className="text-sm text-white/80">{getSizeCategory(size.name)}</span>
+                      <span className="text-sm font-medium text-slate-300">Category</span>
+                      <span className="text-sm text-slate-400">{getSizeCategory(size.name)}</span>
                     </div>
-                    
+
                     {/* Visual Size Indicator */}
                     <div className="flex items-center justify-center mb-2">
-                      <div 
-                        className="rounded-full border-2 border-blue-400/50 bg-blue-500/20 flex items-center justify-center transition-all duration-300"
+                      <div
+                        className="rounded-full border-2 border-blue-400/50 bg-blue-500/20 flex items-center justify-center"
                         style={{
                           width: `${40 + (getSizeScale(size.name) - 0.7) * 30}px`,
                           height: `${40 + (getSizeScale(size.name) - 0.7) * 30}px`
                         }}
                       >
-                        <span className="text-blue-300 text-xs font-medium">
+                        <span className="text-blue-400 text-xs font-medium">
                           {size.diameter.replace(/[^0-9]/g, '')}″
                         </span>
                       </div>
@@ -321,24 +339,19 @@ export default function PizzaSizesAdmin() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-3">
                     <button
                       onClick={() => handleEdit(size)}
-                      className="flex-1 bg-blue-600/80 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-lg backdrop-blur-sm border border-blue-500/30"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-md font-medium"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(size.id)}
-                      className="flex-1 bg-red-600/80 hover:bg-red-600 text-white py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-lg backdrop-blur-sm border border-red-500/30"
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-all duration-200 hover:shadow-md font-medium"
                     >
                       Delete
                     </button>
-                  </div>
-
-                  {/* Hover Effect Overlay */}
-                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 to-transparent"></div>
                   </div>
                 </div>
               ))}
@@ -346,6 +359,5 @@ export default function PizzaSizesAdmin() {
           )}
         </div>
       </AdminPageLayout>
-    </AdminLayout>
-  );
-}
+    );
+  }

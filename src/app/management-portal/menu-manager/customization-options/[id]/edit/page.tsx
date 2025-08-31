@@ -63,12 +63,12 @@ export default function EditCustomizationOptionPage() {
         });
       } else {
         alert('Customization option not found');
-        router.push('/admin/menu-manager/customization-groups');
+        router.push('/management-portal/menu-manager/customization-groups');
       }
     } catch (error) {
       console.error('Error fetching customization option:', error);
       alert('Error loading customization option');
-      router.push('/admin/menu-manager/customization-groups');
+      router.push('/management-portal/menu-manager/customization-groups');
     } finally {
       setLoading(false);
     }
@@ -106,9 +106,9 @@ export default function EditCustomizationOptionPage() {
       if (response.ok) {
         const groupId = formData.groupId; // Changed from customizationGroupId
         if (groupId) {
-          router.push(`/admin/menu-manager/customization-groups/${groupId}`);
+          router.push(`/management-portal/menu-manager/customization-groups/${groupId}`);
         } else {
-          router.push('/admin/menu-manager/customization-groups');
+          router.push('/management-portal/menu-manager/customization-groups');
         }
       } else {
         const error = await response.json();

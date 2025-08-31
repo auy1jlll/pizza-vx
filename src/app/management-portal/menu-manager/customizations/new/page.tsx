@@ -35,7 +35,7 @@ export default function NewCustomizationGroupPage() {
   const fetchCategories = async () => {
     try {
       console.log('Fetching categories...');
-      const response = await fetch('/api/admin/menu/categories');
+      const response = await fetch('/api/management-portal/menu/categories');
       console.log('Categories response status:', response.status);
       
       if (response.ok) {
@@ -66,7 +66,7 @@ export default function NewCustomizationGroupPage() {
 
       console.log('Submitting data:', submitData);
 
-      const response = await fetch('/api/admin/menu/customization-groups', {
+      const response = await fetch('/api/management-portal/menu/customization-groups', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ export default function NewCustomizationGroupPage() {
 
       if (response.ok) {
         alert('Customization group created successfully!');
-        router.push('/admin/menu-manager/customizations');
+        router.push('/management-portal/menu-manager/customizations');
       } else {
         alert('Error creating customization group: ' + (result.error || result.message || 'Unknown error'));
       }
@@ -110,7 +110,7 @@ export default function NewCustomizationGroupPage() {
         <div className="bg-white/10 backdrop-blur-xl border-b border-white/20 px-6 py-8">
           <div className="flex items-center gap-4">
             <Link 
-              href="/admin/menu-manager/customizations"
+              href="/management-portal/menu-manager/customizations"
               className="bg-white/20 hover:bg-white/30 text-orange-600 p-2 rounded-lg transition-all duration-300"
             >
               <ArrowLeft className="h-6 w-6" />
@@ -295,7 +295,7 @@ export default function NewCustomizationGroupPage() {
               {/* Submit Button */}
               <div className="mt-8 flex justify-end space-x-4">
                 <Link
-                  href="/admin/menu-manager/customizations"
+                  href="/management-portal/menu-manager/customizations"
                   className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   Cancel

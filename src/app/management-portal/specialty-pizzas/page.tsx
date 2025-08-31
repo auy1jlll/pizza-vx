@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '@/components/AdminLayout';
+import AdminPageLayout from '@/components/AdminPageLayout';
 import { useToast } from '@/components/ToastProvider';
 
 interface SpecialtyPizzaSize {
@@ -72,7 +72,7 @@ export default function SpecialtyPizzasAdmin() {
   // Fetch specialty pizzas
   const fetchPizzas = async () => {
     try {
-      const response = await fetch('/api/admin/specialty-pizzas');
+      const response = await fetch('/api/management-portal/specialty-pizzas');
       if (response.status === 401) {
         window.location.href = '/management-portal/login';
         return;
@@ -103,7 +103,7 @@ export default function SpecialtyPizzasAdmin() {
   // Fetch available pizza sizes
   const fetchSizes = async () => {
     try {
-      const response = await fetch('/api/admin/sizes');
+      const response = await fetch('/api/management-portal/sizes');
       if (response.ok) {
         const data = await response.json();
         setAvailableSizes(data);
@@ -123,7 +123,7 @@ export default function SpecialtyPizzasAdmin() {
   // Fetch available toppings
   const fetchToppings = async () => {
     try {
-      const response = await fetch('/api/admin/toppings');
+      const response = await fetch('/api/management-portal/toppings');
       if (response.ok) {
         const data = await response.json();
         setAvailableToppings(data);
@@ -173,7 +173,7 @@ export default function SpecialtyPizzasAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const url = editingPizza ? `/api/admin/specialty-pizzas/${editingPizza.id}` : '/api/admin/specialty-pizzas';
+      const url = editingPizza ? `/api/management-portal/specialty-pizzas/${editingPizza.id}` : '/api/management-portal/specialty-pizzas';
       const method = editingPizza ? 'PUT' : 'POST';
       
       // Prepare submission data with size pricing
@@ -221,7 +221,7 @@ export default function SpecialtyPizzasAdmin() {
     if (!confirm('Are you sure you want to delete this specialty pizza?')) return;
     
     try {
-      const response = await fetch(`/api/admin/specialty-pizzas/${id}`, {
+      const response = await fetch(`/api/management-portal/specialty-pizzas/${id}`, {
         method: 'DELETE',
       });
 
@@ -309,7 +309,7 @@ export default function SpecialtyPizzasAdmin() {
   }, {} as Record<string, SpecialtyPizza[]>);
 
   return (
-    <AdminLayout>
+    <AdminPageLayout title="Specialty Pizzas Management">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
@@ -782,6 +782,6 @@ export default function SpecialtyPizzasAdmin() {
           )}
         </div>
       </div>
-    </AdminLayout>
+    </AdminPageLayout>
   );
 }

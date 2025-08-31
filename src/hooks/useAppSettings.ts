@@ -137,7 +137,7 @@ export function useAppSettings() {
   const fetchSettings = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/settings');
+      const response = await fetch('/api/settings');
       
       if (!response.ok) {
         throw new Error('Failed to fetch settings');

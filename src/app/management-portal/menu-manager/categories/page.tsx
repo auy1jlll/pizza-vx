@@ -47,7 +47,7 @@ export default function CategoriesPage() {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/menu/categories');
+      const response = await fetch('/api/management-portal/menu/categories');
       
       if (response.ok) {
         const result = await response.json();
@@ -74,7 +74,7 @@ export default function CategoriesPage() {
 
   const toggleCategoryStatus = async (categoryId: string, currentStatus: boolean) => {
     try {
-      const response = await fetch(`/api/admin/menu/categories/${categoryId}`, {
+      const response = await fetch(`/api/management-portal/menu/categories/${categoryId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: !currentStatus })
@@ -94,7 +94,7 @@ export default function CategoriesPage() {
     }
 
     try {
-      const response = await fetch(`/api/admin/menu/categories/${categoryId}`, {
+      const response = await fetch(`/api/management-portal/menu/categories/${categoryId}`, {
         method: 'DELETE'
       });
 
@@ -166,7 +166,7 @@ export default function CategoriesPage() {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex items-center gap-4">
               <Link 
-                href="/admin/menu-manager"
+                href="/management-portal/menu-manager"
                 className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-300"
               >
                 <ArrowLeft className="h-6 w-6" />
@@ -182,7 +182,7 @@ export default function CategoriesPage() {
               </div>
             </div>
             <Link
-              href="/admin/menu-manager/categories/new"
+              href="/management-portal/menu-manager/categories/new"
               className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold shadow-xl"
             >
               <Plus className="h-5 w-5 inline mr-2" />
@@ -296,14 +296,14 @@ export default function CategoriesPage() {
 
                   <div className="flex gap-2">
                     <Link
-                      href={`/admin/menu-manager/categories/${category.id}`}
+                      href={`/management-portal/menu-manager/categories/${category.id}`}
                       className="flex-1 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-center transition-all duration-300 text-sm font-medium"
                     >
                       <Eye className="h-4 w-4 inline mr-1" />
                       View
                     </Link>
                     <Link
-                      href={`/admin/menu-manager/categories/${category.id}/edit`}
+                      href={`/management-portal/menu-manager/categories/${category.id}/edit`}
                       className="flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-4 py-2 rounded-lg text-center transition-all duration-300 text-sm font-medium"
                     >
                       <Edit className="h-4 w-4 inline mr-1" />
@@ -338,7 +338,7 @@ export default function CategoriesPage() {
                 }
               </p>
               <Link
-                href="/admin/menu-manager/categories/new"
+                href="/management-portal/menu-manager/categories/new"
                 className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold shadow-xl"
               >
                 <Plus className="h-5 w-5 inline mr-2" />

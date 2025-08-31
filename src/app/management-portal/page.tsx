@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/AdminLayout';
 import Link from 'next/link';
 import { useAppSettingsContext } from '@/contexts/AppSettingsContext';
+import { useUser } from '@/contexts/UserContext';
 
 interface OrderItem {
   id: string;
@@ -112,20 +114,35 @@ const getStatusColor = (status: string) => {
 
 export default function AdminDashboard() {
   const { settings } = useAppSettingsContext();
+  const { user } = useUser();
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Redirect employees to orders page
   useEffect(() => {
-    fetchDashboardStats();
-  }, []);
+    if (user && user.role === 'EMPLOYEE') {
+      router.push('/management-portal/orders');
+      return;
+    }
+  }, [user, router]);
+
+  useEffect(() => {
+    // Only fetch dashboard stats for admins
+    if (user && user.role === 'ADMIN') {
+      fetchDashboardStats();
+    }
+  }, [user]);
 
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('/api/admin/dashboard');
+      const response = await fetch('/api/management-portal/dashboard', {
+        credentials: 'include'
+      });
       const data = await response.json();
       
       if (data.success) {
@@ -210,6 +227,15 @@ export default function AdminDashboard() {
       unit: 'components'
     },
     {
+      title: 'Calzone Manager',
+      description: 'Comprehensive calzone component management hub',
+      href: '/management-portal/calzone-manager',
+      icon: '🥟',
+      gradient: 'from-amber-500 to-orange-600',
+      count: (stats?.componentCounts?.sizes || 0) + (stats?.componentCounts?.crusts || 0) + (stats?.componentCounts?.sauces || 0) + (stats?.componentCounts?.toppings || 0),
+      unit: 'components'
+    },
+    {
       title: 'User Management',
       description: 'Manage customers, employees, and user accounts',
       href: '/management-portal/users',
@@ -253,14 +279,26 @@ export default function AdminDashboard() {
       gradient: 'from-red-500 to-orange-600',
       count: stats?.activeOrders || 0,
       unit: 'active'
+    },
+    {
+      title: 'Settings',
+      description: 'Configure system settings, email, business info, and preferences',
+      href: '/management-portal/global-settings',
+      icon: '⚙️',
+      gradient: 'from-gray-500 to-slate-600',
+      count: 15, // Approximate number of settings
+      unit: 'settings'
     }
   ];
 
-  if (loading) {
+  if (loading || (user && user.role === 'EMPLOYEE')) {
     return (
       <AdminLayout>
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+          {user && user.role === 'EMPLOYEE' && (
+            <p className="ml-4 text-gray-600">Redirecting to orders...</p>
+          )}
         </div>
       </AdminLayout>
     );

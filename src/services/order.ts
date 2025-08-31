@@ -289,10 +289,37 @@ export class OrderService extends BaseService {
           
           if (item.type === 'menu') {
             // Handle menu items (sandwiches, salads, etc.) - NEW UNIFIED APPROACH
+
+            // First, try to find the menu item by ID
+            let menuItem = null;
+            if (item.menuItemId) {
+              menuItem = await tx.menuItem.findUnique({
+                where: { id: item.menuItemId }
+              });
+            }
+
+            // If not found by ID, try to find by name
+            if (!menuItem && item.name) {
+              menuItem = await tx.menuItem.findFirst({
+                where: { 
+                  name: {
+                    contains: item.name,
+                    mode: 'insensitive'
+                  }
+                }
+              });
+            }
+
+            // If still not found, skip this item (log error)
+            if (!menuItem) {
+              console.error(`Menu item not found for checkout: ${item.name || item.menuItemId || 'unknown'}`);
+              continue; // Skip this item instead of failing the entire order
+            }
+
             const createdItem = await tx.orderItem.create({
               data: {
                 orderId: order.id,
-                menuItemId: item.menuItemId,
+                menuItemId: menuItem.id, // Use the found menu item's ID
                 quantity: item.quantity,
                 basePrice: item._serverUnitPrice,
                 totalPrice: item._serverExtended,
@@ -304,14 +331,23 @@ export class OrderService extends BaseService {
             if (Array.isArray(item.customizations) && item.customizations.length) {
               for (const customization of item.customizations) {
                 if (customization.optionId) {
-                  await tx.orderItemCustomization.create({
-                    data: {
-                      orderItemId: createdItem.id,
-                      customizationOptionId: customization.optionId,
-                      quantity: customization.quantity || 1,
-                      price: customization.priceModifier || 0
-                    }
+                  // Check if the customization option exists
+                  const optionExists = await tx.customizationOption.findUnique({
+                    where: { id: customization.optionId }
                   });
+                  
+                  if (optionExists) {
+                    await tx.orderItemCustomization.create({
+                      data: {
+                        orderItemId: createdItem.id,
+                        customizationOptionId: customization.optionId,
+                        quantity: customization.quantity || 1,
+                        price: customization.priceModifier || 0
+                      }
+                    });
+                  } else {
+                    console.warn(`Skipping invalid customization option: ${customization.optionId} for item ${item.name || item.id}`);
+                  }
                 }
               }
             }

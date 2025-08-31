@@ -36,7 +36,7 @@ export default function NewCustomizationGroupPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/admin/menu/categories');
+      const response = await fetch('/api/management-portal/menu/categories');
       if (response.ok) {
         const data = await response.json();
         setCategories(Array.isArray(data) ? data : []);
@@ -57,7 +57,7 @@ export default function NewCustomizationGroupPage() {
         categoryId: formData.categoryId || null
       };
 
-      const response = await fetch('/api/admin/menu/customization-groups', {
+      const response = await fetch('/api/management-portal/menu/customization-groups', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -65,7 +65,7 @@ export default function NewCustomizationGroupPage() {
 
       if (response.ok) {
         toast.showSuccess('Customization group created successfully!');
-        router.push('/admin/menu-manager/customization-groups');
+        router.push('/management-portal/menu-manager/customization-groups');
       } else {
         const error = await response.json();
         toast.showError('Error creating customization group: ' + (error.error || 'Unknown error'));

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '@/components/AdminLayout';
 import AdminPageLayout from '@/components/AdminPageLayout';
 import { useToast } from '@/components/ToastProvider';
 import { useSexyToast } from '@/components/SexyToastProvider';
@@ -183,7 +182,7 @@ export default function AdminOrders() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('/api/admin/orders');
+      const response = await fetch('/api/management-portal/orders');
       const data = await response.json();
       
       if (data.success) {
@@ -203,7 +202,7 @@ export default function AdminOrders() {
     try {
       setUpdateLoading(orderId);
       
-      const response = await fetch('/api/admin/orders', {
+      const response = await fetch('/api/management-portal/orders', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -253,7 +252,7 @@ export default function AdminOrders() {
           setLoading(true);
           setError(null);
           
-          const response = await fetch('/api/admin/orders?clearAll=true', {
+          const response = await fetch('/api/management-portal/orders?clearAll=true', {
             method: 'DELETE'
           });
           
@@ -368,17 +367,17 @@ export default function AdminOrders() {
 
   if (loading) {
     return (
-      <AdminLayout>
+      <AdminPageLayout title="Order Management" description="Loading orders...">
         <div className="flex items-center justify-center min-h-screen">
           <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-orange-500"></div>
         </div>
-      </AdminLayout>
+      </AdminPageLayout>
     );
   }
 
   if (error) {
     return (
-      <AdminLayout>
+      <AdminPageLayout title="Order Management" description="Error loading orders">
         <div className="p-6">
           <div className="bg-red-500/20 border border-red-500/30 text-red-300 p-4 rounded-lg">
             <p className="font-semibold">Error loading orders:</p>
@@ -391,40 +390,44 @@ export default function AdminOrders() {
             </button>
           </div>
         </div>
-      </AdminLayout>
+      </AdminPageLayout>
     );
   }
 
   return (
-    <AdminLayout>
-      <AdminPageLayout
-        title="Order Management"
-        description={`${orders.length} total order${orders.length !== 1 ? 's' : ''}`}
-        actionButton={
+    <AdminPageLayout title="Order Management" description={`${orders.length} total order${orders.length !== 1 ? 's' : ''}`}>
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <h1 className="text-3xl font-bold text-white">Order Management</h1>
+          <p className="mt-2 text-lg text-slate-300">
+            {orders.length} total order{orders.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
           <button
             onClick={fetchOrders}
             disabled={loading}
-            className="group relative bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 flex items-center justify-center font-semibold shadow-lg disabled:opacity-50"
+            className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105 disabled:opacity-50"
           >
-            <svg className="h-5 w-5 mr-2 group-hover:rotate-180 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-5 w-5 group-hover:rotate-180 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Refresh Orders
+            <span>Refresh Orders</span>
           </button>
-        }
-      >
+        </div>
+      </div>
         {/* Error and success messages */}
         {error && (
-          <div className="mb-8 backdrop-blur-xl bg-red-500/20 border border-red-400/30 rounded-2xl p-6 shadow-2xl">
+          <div className="mb-8 bg-red-50 border border-red-200 rounded-lg p-6">
             <div className="flex items-center">
-              <div className="h-8 w-8 bg-red-500 rounded-full flex items-center justify-center mr-4">
-                <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <svg className="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-red-100">Error</h3>
-                <p className="mt-1 text-red-200">{error}</p>
+                <h3 className="text-lg font-semibold text-red-900">Error</h3>
+                <p className="mt-1 text-red-700">{error}</p>
               </div>
             </div>
           </div>
@@ -458,8 +461,8 @@ export default function AdminOrders() {
                 .map((order) => (
                   <div
                     key={order.id}
-                    className={`bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 cursor-pointer transition-all hover:bg-white/10 ${
-                      selectedOrder?.id === order.id ? 'ring-2 ring-orange-500' : ''
+                    className={`bg-white border border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:shadow-md hover:border-blue-300 ${
+                      selectedOrder?.id === order.id ? 'ring-2 ring-blue-500' : ''
                     }`}
                     onClick={() => setSelectedOrder(order)}
                   >
@@ -468,12 +471,12 @@ export default function AdminOrders() {
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{statusIcons[order.status as keyof typeof statusIcons]}</span>
                         <div>
-                          <h3 className="font-semibold text-white">Order #{order.orderNumber}</h3>
-                          <p className="text-sm text-gray-400">{getTimeElapsed(order.createdAt)}</p>
+                          <h3 className="font-semibold text-gray-900">Order #{order.orderNumber}</h3>
+                          <p className="text-sm text-gray-500">{getTimeElapsed(order.createdAt)}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-green-400">{formatCurrency(order.total)}</div>
+                        <div className="font-bold text-green-600">{formatCurrency(order.total)}</div>
                         <div className={`text-xs px-2 py-1 rounded border ${getOrderTypeColor(order.orderType)}`}>
                           {getOrderTypeIcon(order.orderType)} {order.orderType}
                         </div>
@@ -565,11 +568,11 @@ export default function AdminOrders() {
             {/* Order Details */}
             <div className="lg:sticky lg:top-6">
               {selectedOrder ? (
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
                   <div className="flex justify-between items-start mb-6">
                     <div>
-                      <h2 className="text-xl font-bold text-white">Order #{selectedOrder.orderNumber}</h2>
-                      <p className="text-gray-400">{getTimeElapsed(selectedOrder.createdAt)}</p>
+                      <h2 className="text-xl font-bold text-gray-900">Order #{selectedOrder.orderNumber}</h2>
+                      <p className="text-gray-500">{getTimeElapsed(selectedOrder.createdAt)}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className={`px-3 py-1 rounded border text-sm font-medium ${statusColors[selectedOrder.status as keyof typeof statusColors]}`}>
@@ -578,7 +581,7 @@ export default function AdminOrders() {
                       <button
                         onClick={() => printOrderReceipt(selectedOrder)}
                         disabled={printLoading === selectedOrder.id}
-                        className="px-3 py-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded text-sm font-medium transition-colors flex items-center gap-1"
+                        className="px-3 py-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded text-sm font-medium transition-colors flex items-center gap-1"
                       >
                         {printLoading === selectedOrder.id ? '⏳' : '🖨️'} Print
                       </button>
@@ -736,6 +739,5 @@ export default function AdminOrders() {
           </div>
         )}
       </AdminPageLayout>
-    </AdminLayout>
-  );
-}
+    );
+  }

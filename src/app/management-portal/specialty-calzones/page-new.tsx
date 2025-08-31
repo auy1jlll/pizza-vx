@@ -72,7 +72,7 @@ export default function SpecialtyCalzonesAdmin() {
   // Fetch specialty calzones
   const fetchCalzones = async () => {
     try {
-      const response = await fetch('/api/admin/specialty-calzones');
+      const response = await fetch('/api/management-portal/specialty-calzones');
       if (response.status === 401) {
         window.location.href = '/management-portal/login';
         return;
@@ -101,7 +101,7 @@ export default function SpecialtyCalzonesAdmin() {
   // Fetch available calzone sizes
   const fetchSizes = async () => {
     try {
-      const response = await fetch('/api/admin/sizes');
+      const response = await fetch('/api/management-portal/sizes');
       if (response.ok) {
         const data = await response.json();
         setAvailableSizes(data);
@@ -121,7 +121,7 @@ export default function SpecialtyCalzonesAdmin() {
   // Fetch available fillings (toppings)
   const fetchToppings = async () => {
     try {
-      const response = await fetch('/api/admin/toppings');
+      const response = await fetch('/api/management-portal/toppings');
       if (response.ok) {
         const data = await response.json();
         setAvailableToppings(data);
@@ -171,7 +171,7 @@ export default function SpecialtyCalzonesAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const url = '/api/admin/specialty-calzones';
+      const url = '/api/management-portal/specialty-calzones';
       const method = editingCalzone ? 'PUT' : 'POST';
       
       // Prepare submission data with size pricing
@@ -226,7 +226,7 @@ export default function SpecialtyCalzonesAdmin() {
     if (!confirm('Are you sure you want to delete this calzone?')) return;
 
     try {
-      const response = await fetch(`/api/admin/specialty-calzones?id=${id}`, {
+      const response = await fetch(`/api/management-portal/specialty-calzones?id=${id}`, {
         method: 'DELETE',
       });
 

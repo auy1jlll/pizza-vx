@@ -44,7 +44,7 @@ export default function NewCategoryPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/admin/menu/categories', {
+      const response = await fetch('/api/management-portal/menu/categories', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ export default function NewCategoryPage() {
       const result = await response.json();
 
       if (result.success) {
-        router.push('/admin/menu-manager/categories');
+        router.push('/management-portal/menu-manager/categories');
       } else {
         setError(result.error || 'Failed to create category');
       }
@@ -106,7 +106,7 @@ export default function NewCategoryPage() {
         <div className="bg-white/10 backdrop-blur-xl border-b border-white/20 px-6 py-8">
           <div className="flex items-center gap-4">
             <Link 
-              href="/admin/menu-manager/categories"
+              href="/management-portal/menu-manager/categories"
               className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-300"
             >
               <ArrowLeft className="h-6 w-6" />
@@ -265,7 +265,7 @@ export default function NewCategoryPage() {
                       )}
                     </button>
                     <Link
-                      href="/admin/menu-manager/categories"
+                      href="/management-portal/menu-manager/categories"
                       className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl transition-all duration-300 font-semibold text-center"
                     >
                       Cancel

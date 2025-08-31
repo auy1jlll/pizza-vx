@@ -46,6 +46,11 @@ export default function AdminHelpPage() {
       category: 'Pizza Management'
     },
     {
+      question: 'How do I add a new calzone size?',
+      answer: 'Go to Calzone Manager → Sizes → Click "+ Add Size" → Enter name and base price → Save',
+      category: 'Calzone Management'
+    },
+    {
       question: 'How do I update an order status?',
       answer: 'Go to Orders → Find the order → Click status dropdown → Select new status',
       category: 'Order Management'
@@ -213,6 +218,13 @@ export default function AdminHelpPage() {
             >
               <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-300">🍕</div>
               <p className="text-white font-medium text-sm">Pizza Manager</p>
+            </a>
+            <a
+              href="/management-portal/calzone-manager"
+              className="bg-black/20 backdrop-blur-sm rounded-xl border border-white/10 p-4 text-center hover:bg-black/30 transition-all duration-300 group"
+            >
+              <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-300">🥟</div>
+              <p className="text-white font-medium text-sm">Calzone Manager</p>
             </a>
           </div>
         </div>

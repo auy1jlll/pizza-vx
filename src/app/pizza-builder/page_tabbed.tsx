@@ -145,7 +145,7 @@ export default function PizzaBuilder() {
 
       const result = await response.json();
       if (result.success) {
-        showToast(`Order created successfully! Order #: ${result.orderId || 'N/A'}`, { type: 'success' });
+        showToast(`Order created successfully! Order #: ${result.data?.id || result.orderId || 'N/A'}`, { type: 'success' });
         // Reset selections
         setSelection({
           size: data?.sizes[1] || null,
@@ -326,7 +326,7 @@ export default function PizzaBuilder() {
                   <div className="flex justify-between mt-6">
                     <button
                       disabled
-                      className="px-6 py-2 bg-gray-200 text-gray-400 rounded-lg cursor-not-allowed"
+                      className="px-6 py-2 bg-gray-200 text-gray-600 rounded-lg cursor-not-allowed"
                     >
                       ← Previous
                     </button>

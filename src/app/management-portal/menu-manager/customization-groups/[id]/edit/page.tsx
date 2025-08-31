@@ -56,7 +56,7 @@ export default function EditCustomizationGroupPage() {
       
       if (response.status === 401) {
         alert('Please log in as administrator');
-        router.push('/admin/login');
+        router.push('/management-portal/login');
         return;
       }
       
@@ -75,12 +75,12 @@ export default function EditCustomizationGroupPage() {
         });
       } else {
         alert('Customization group not found');
-        router.push('/admin/menu-manager/customization-groups');
+        router.push('/management-portal/menu-manager/customization-groups');
       }
     } catch (error) {
       console.error('Error fetching customization group:', error);
       alert('Error loading customization group');
-      router.push('/admin/menu-manager/customization-groups');
+      router.push('/management-portal/menu-manager/customization-groups');
     } finally {
       setLoading(false);
     }

@@ -58,7 +58,7 @@ export default function ViewCustomizationGroupPage() {
       
       if (response.status === 401) {
         toast.showError('Please log in as administrator');
-        router.push('/admin/login');
+        router.push('/management-portal/login');
         return;
       }
       
@@ -67,12 +67,12 @@ export default function ViewCustomizationGroupPage() {
         setGroup(data);
       } else {
         toast.showError('Customization group not found');
-        router.push('/admin/menu-manager/customization-groups');
+        router.push('/management-portal/menu-manager/customization-groups');
       }
     } catch (error) {
       console.error('Error fetching customization group:', error);
       toast.showError('Error loading customization group');
-      router.push('/admin/menu-manager/customization-groups');
+      router.push('/management-portal/menu-manager/customization-groups');
     } finally {
       setLoading(false);
     }
@@ -95,13 +95,13 @@ export default function ViewCustomizationGroupPage() {
 
           if (response.status === 401) {
             toast.showError('Please log in as administrator');
-            router.push('/admin/login');
+            router.push('/management-portal/login');
             return;
           }
 
           if (response.ok) {
             toast.showSuccess('Customization group deleted successfully!');
-            router.push('/admin/menu-manager/customization-groups');
+            router.push('/management-portal/menu-manager/customization-groups');
           } else {
             const error = await response.json();
             toast.showError(error.error || 'Failed to delete customization group');
@@ -129,7 +129,7 @@ export default function ViewCustomizationGroupPage() {
 
           if (response.status === 401) {
             toast.showError('Please log in as administrator');
-            router.push('/admin/login');
+            router.push('/management-portal/login');
             return;
           }
 

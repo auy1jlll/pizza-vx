@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '@/components/AdminLayout';
+import AdminPageLayout from '@/components/AdminPageLayout';
 import Link from 'next/link';
 import { useToast } from '@/components/ToastProvider';
 
@@ -60,9 +60,9 @@ export default function PizzaCrustsAdmin() {
   // Fetch crusts
   const fetchCrusts = async () => {
     try {
-      const response = await fetch('/api/admin/crusts');
+      const response = await fetch('/api/management-portal/crusts');
       if (response.status === 401) {
-        window.location.href = '/admin/login';
+        window.location.href = '/management-portal/login';
         return;
       }
       const data = await response.json();
@@ -82,7 +82,7 @@ export default function PizzaCrustsAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const url = editingCrust ? `/api/admin/crusts/${editingCrust.id}` : '/api/admin/crusts';
+      const url = editingCrust ? `/api/management-portal/crusts/${editingCrust.id}` : '/api/management-portal/crusts';
       const method = editingCrust ? 'PUT' : 'POST';
       
       const response = await fetch(url, {
@@ -115,7 +115,7 @@ export default function PizzaCrustsAdmin() {
     if (!confirm('Are you sure you want to delete this crust?')) return;
     
     try {
-      const response = await fetch(`/api/admin/crusts/${id}`, {
+      const response = await fetch(`/api/management-portal/crusts/${id}`, {
         method: 'DELETE',
       });
 
@@ -139,30 +139,29 @@ export default function PizzaCrustsAdmin() {
   };
 
   return (
-    <AdminLayout>
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="sm:flex sm:items-center">
-          <div className="sm:flex-auto">
-            <h1 className="text-3xl font-bold text-white">Pizza Crusts</h1>
-            <p className="mt-2 text-lg text-gray-300">
-              Manage available pizza crust types and their pricing.
-            </p>
-          </div>
-          <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <button
-              type="button"
-              onClick={() => {
-                setShowForm(true);
-                setEditingCrust(null);
-                setFormData({ name: '', description: '', priceModifier: 0 });
-              }}
-              className="flex items-center space-x-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105"
-            >
-              <span className="text-xl">🍕</span>
-              <span>Add New Crust</span>
-            </button>
-          </div>
+    <AdminPageLayout title="Pizza Crusts" description="Manage available pizza crust types and their pricing.">
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <h1 className="text-3xl font-bold text-white">Pizza Crusts</h1>
+          <p className="mt-2 text-lg text-slate-300">
+            Manage available pizza crust types and their pricing.
+          </p>
         </div>
+        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+          <button
+            type="button"
+            onClick={() => {
+              setShowForm(true);
+              setEditingCrust(null);
+              setFormData({ name: '', description: '', priceModifier: 0 });
+            }}
+            className="flex items-center space-x-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105"
+          >
+            <span className="text-xl">🍕</span>
+            <span>Add New Crust</span>
+          </button>
+        </div>
+      </div>
         {/* Form Modal */}
         {showForm && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -321,7 +320,6 @@ export default function PizzaCrustsAdmin() {
             </div>
           )}
         </div>
-      </div>
-    </AdminLayout>
-  );
-}
+      </AdminPageLayout>
+    );
+  }

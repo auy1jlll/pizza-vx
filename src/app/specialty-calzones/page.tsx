@@ -127,8 +127,7 @@ export default function SpecialtyCalzonesPage() {
     const defaultCrust = pizzaData.crusts?.find((c: any) => c.isActive) || pizzaData.crusts?.[0];
     const defaultSauce = pizzaData.sauces?.find((s: any) => s.isActive) || pizzaData.sauces?.[0];
     
-    // Parse ingredients and match with toppings
-    const ingredientNames = parseIngredients(pizza.ingredients);
+    // Use the same approach as specialty pizzas - empty toppings array with ingredients string
     const matchedToppings: Array<{
       id: string;
       name: string;
@@ -136,23 +135,7 @@ export default function SpecialtyCalzonesPage() {
       price: number;
       quantity: number;
       section: 'WHOLE' | 'LEFT' | 'RIGHT';
-    }> = ingredientNames
-      .map(ingredient => {
-        // Try to find a matching topping by name (case-insensitive)
-        const topping = pizzaData.toppings?.find((t: any) => 
-          t.name.toLowerCase().includes(ingredient.toLowerCase()) ||
-          ingredient.toLowerCase().includes(t.name.toLowerCase())
-        );
-        return topping ? {
-          id: topping.id,
-          name: topping.name,
-          category: topping.category,
-          price: topping.price || 0,
-          quantity: 1,
-          section: 'WHOLE' as const
-        } : null;
-      })
-      .filter((topping): topping is NonNullable<typeof topping> => topping !== null);
+    }> = []; // Empty array like specialty pizzas
     
     // Use the new CartItem format with real database data
     addDetailedPizza({
@@ -205,23 +188,16 @@ export default function SpecialtyCalzonesPage() {
         isActive: true,
         sortOrder: 1
       },
-      toppings: matchedToppings, // Matched toppings from ingredients
+      toppings: matchedToppings, // Empty array like specialty pizzas
       quantity: 1,
-      notes: `Specialty Calzone: ${pizza.name}`,
+      notes: `Specialty Calzone: ${pizza.name} | Ingredients: ${pizza.ingredients}`,
       basePrice: pizza.basePrice || 12.99,
       totalPrice: price,
     });
     showToast(`${pizza.name} (${selectedSize?.pizzaSize.name || 'Medium'}) added to cart! 🥟`, { type: 'success' });
   };
 
-  // Parse ingredients from JSON string
-  const parseIngredients = (ingredientsStr: string): string[] => {
-    try {
-      return JSON.parse(ingredientsStr);
-    } catch {
-      return [];
-    }
-  };
+
 
   if (loading) {
     return (

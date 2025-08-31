@@ -65,7 +65,7 @@ export default function CustomizationGroupsPage() {
         params.append('search', searchTerm);
       }
 
-      const response = await fetch(`/api/admin/menu/customization-groups?${params}`);
+      const response = await fetch(`/api/management-portal/menu/customization-groups?${params}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -99,7 +99,7 @@ export default function CustomizationGroupsPage() {
       type: 'danger',
       onConfirm: async () => {
         try {
-          const response = await fetch(`/api/admin/menu/customization-groups/${id}`, {
+          const response = await fetch(`/api/management-portal/menu/customization-groups/${id}`, {
             method: 'DELETE'
           });
 
@@ -120,7 +120,7 @@ export default function CustomizationGroupsPage() {
 
   const handleCloneGroup = async (id: string, name: string) => {
     try {
-      const response = await fetch(`/api/admin/menu/customization-groups/${id}/clone`, {
+      const response = await fetch(`/api/management-portal/menu/customization-groups/${id}/clone`, {
         method: 'POST'
       });
 
@@ -167,7 +167,7 @@ export default function CustomizationGroupsPage() {
               Refresh
             </button>
             <button
-              onClick={() => router.push('/admin/menu-manager/customization-groups/new')}
+              onClick={() => router.push('/management-portal/menu-manager/customization-groups/new')}
               className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <FiPlus className="w-4 h-4" />

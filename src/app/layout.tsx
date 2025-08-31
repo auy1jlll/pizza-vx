@@ -36,23 +36,23 @@ export default function RootLayout({
         <Analytics />
       </head>
       <body className="antialiased">
-        <UserProvider>
-          <SettingsProvider>
-            <AppSettingsProvider>
-              <CartProvider>
-                <ToastProvider>
-                  <SexyToastProvider>
+        <SexyToastProvider>
+          <ToastProvider>
+            <SettingsProvider>
+              <UserProvider>
+                <CartProvider>
+                  <AppSettingsProvider>
                     <ConditionalTopNavigation />
                     <main>
                       {children}
                     </main>
                     <ConditionalBottomElements />
-                  </SexyToastProvider>
-                </ToastProvider>
-              </CartProvider>
-            </AppSettingsProvider>
-          </SettingsProvider>
-        </UserProvider>
+                  </AppSettingsProvider>
+                </CartProvider>
+              </UserProvider>
+            </SettingsProvider>
+          </ToastProvider>
+        </SexyToastProvider>
       </body>
     </html>
   );

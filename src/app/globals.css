@@ -101,7 +101,7 @@
 }
 
 .content-area p {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(31, 41, 55, 0.9);
   line-height: 1.75;
   margin-bottom: 1.5rem;
   font-size: 1.125rem;
@@ -123,7 +123,7 @@
 }
 
 .content-area div[class*="bg-white/5"] span:last-child {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(31, 41, 55, 0.9);
   font-weight: 500;
 }
 
@@ -133,7 +133,7 @@
 }
 
 .content-area li {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(31, 41, 55, 0.9);
   margin-bottom: 0.75rem;
   position: relative;
   padding-left: 1.5rem;
@@ -153,10 +153,10 @@
   padding-top: 1rem;
   padding-bottom: 1rem;
   margin: 1.5rem 0;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(249, 115, 22, 0.05);
   border-radius: 0 0.5rem 0.5rem 0;
   font-style: italic;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(31, 41, 55, 0.8);
   backdrop-filter: blur(4px);
 }
 
@@ -172,7 +172,7 @@
 .content-area blockquote p {
   margin-bottom: 0.5rem;
   font-style: italic;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(31, 41, 55, 0.9);
 }
 
 .content-area strong {

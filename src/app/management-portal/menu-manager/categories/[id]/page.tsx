@@ -107,7 +107,7 @@ export default function ViewCategoryPage() {
             <h2 className="text-xl font-bold text-white mb-2">Category Not Found</h2>
             <p className="text-white/70 mb-6">{error || 'The requested category could not be found.'}</p>
             <Link
-              href="/admin/menu-manager/categories"
+              href="/management-portal/menu-manager/categories"
               className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold"
             >
               Back to Categories
@@ -126,7 +126,7 @@ export default function ViewCategoryPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link 
-                href="/admin/menu-manager/categories"
+                href="/management-portal/menu-manager/categories"
                 className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-300"
               >
                 <ArrowLeft className="h-6 w-6" />
@@ -144,7 +144,7 @@ export default function ViewCategoryPage() {
             
             <div className="flex gap-3">
               <Link
-                href={`/admin/menu-manager/categories/${category.id}/edit`}
+                href={`/management-portal/menu-manager/categories/${category.id}/edit`}
                 className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-4 py-2 rounded-lg transition-all duration-300 font-medium"
               >
                 <Edit className="h-4 w-4 inline mr-2" />
@@ -200,7 +200,7 @@ export default function ViewCategoryPage() {
                         <p className="text-white/70">Menu Items</p>
                         <div className="mt-3">
                           <Link
-                            href={`/admin/menu-manager/items?category=${category.id}`}
+                            href={`/management-portal/menu-manager/items?category=${category.id}`}
                             className="text-emerald-400 hover:text-emerald-300 text-sm font-medium"
                           >
                             View Items →
@@ -214,7 +214,7 @@ export default function ViewCategoryPage() {
                         <p className="text-white/70">Customization Groups</p>
                         <div className="mt-3">
                           <Link
-                            href={`/admin/menu-manager/customizations?category=${category.id}`}
+                            href={`/management-portal/menu-manager/customizations?category=${category.id}`}
                             className="text-purple-400 hover:text-purple-300 text-sm font-medium"
                           >
                             View Customizations →
@@ -230,7 +230,7 @@ export default function ViewCategoryPage() {
                   <h3 className="text-xl font-bold text-white mb-6">Quick Actions</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Link
-                      href={`/admin/menu-manager/items/new?category=${category.id}`}
+                      href={`/management-portal/menu-manager/items/new?category=${category.id}`}
                       className="bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 rounded-xl p-4 transition-all duration-300 group"
                     >
                       <div className="flex items-center">
@@ -243,7 +243,7 @@ export default function ViewCategoryPage() {
                     </Link>
 
                     <Link
-                      href={`/admin/menu-manager/customizations/new?category=${category.id}`}
+                      href={`/management-portal/menu-manager/customizations/new?category=${category.id}`}
                       className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 rounded-xl p-4 transition-all duration-300 group"
                     >
                       <div className="flex items-center">
@@ -270,7 +270,7 @@ export default function ViewCategoryPage() {
                     </Link>
 
                     <Link
-                      href={`/admin/analytics?category=${category.id}`}
+                      href={`/management-portal/analytics?category=${category.id}`}
                       className="bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/30 rounded-xl p-4 transition-all duration-300 group"
                     >
                       <div className="flex items-center">
@@ -335,7 +335,7 @@ export default function ViewCategoryPage() {
                   <h3 className="text-lg font-bold text-white mb-4">Management</h3>
                   <div className="space-y-3">
                     <Link
-                      href={`/admin/menu-manager/categories/${category.id}/edit`}
+                      href={`/management-portal/menu-manager/categories/${category.id}/edit`}
                       className="block w-full bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-4 py-3 rounded-xl text-center transition-all duration-300 font-medium"
                     >
                       <Edit className="h-4 w-4 inline mr-2" />

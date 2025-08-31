@@ -334,6 +334,10 @@ export default function HybridNavigation() {
               >
                 Contact
               </Link>
+
+              <div className="px-3 py-2">
+                <AuthNav isMobile={true} onNavigate={() => setMobileMenuOpen(false)} />
+              </div>
             </div>
           </div>
         )}

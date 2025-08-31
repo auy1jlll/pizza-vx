@@ -21,7 +21,7 @@ export default function TestOptionsPage() {
 
   const fetchGroups = async () => {
     try {
-      const response = await fetch('/api/admin/menu/customization-groups');
+      const response = await fetch('/api/management-portal/menu/customization-groups');
       if (response.ok) {
         const data = await response.json();
         const groupsData = Array.isArray(data) ? data : data.groups || [];
@@ -49,7 +49,7 @@ export default function TestOptionsPage() {
     addResult(`📤 Payload: ${JSON.stringify(optionData, null, 2)}`);
 
     try {
-      const response = await fetch('/api/admin/menu/customization-options', {
+      const response = await fetch('/api/management-portal/menu/customization-options', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -160,7 +160,7 @@ export default function TestOptionsPage() {
         isActive: true
       };
 
-      const response = await fetch('/api/admin/menu/customization-groups', {
+      const response = await fetch('/api/management-portal/menu/customization-groups', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

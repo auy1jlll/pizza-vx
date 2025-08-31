@@ -88,9 +88,9 @@ export default function CustomizationsPage() {
       setLoading(true);
       
       const [groupsResponse, optionsResponse, categoriesResponse] = await Promise.all([
-        fetch('/api/admin/menu/customization-groups'),
-        fetch('/api/admin/menu/customization-options'),
-        fetch('/api/admin/menu/categories')
+        fetch('/api/management-portal/menu/customization-groups'),
+        fetch('/api/management-portal/menu/customization-options'),
+        fetch('/api/management-portal/menu/categories')
       ]);
 
       // Check for authentication errors
@@ -149,7 +149,7 @@ export default function CustomizationsPage() {
       type: 'danger',
       onConfirm: async () => {
         try {
-          const response = await fetch(`/api/admin/menu/customization-groups/${groupId}`, {
+          const response = await fetch(`/api/management-portal/menu/customization-groups/${groupId}`, {
             method: 'DELETE',
           });
 
@@ -176,7 +176,7 @@ export default function CustomizationsPage() {
       type: 'danger',
       onConfirm: async () => {
         try {
-          const response = await fetch(`/api/admin/menu/customization-options/${optionId}`, {
+          const response = await fetch(`/api/management-portal/menu/customization-options/${optionId}`, {
             method: 'DELETE',
           });
 

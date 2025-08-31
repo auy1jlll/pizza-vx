@@ -169,7 +169,7 @@ const KitchenDisplay = () => {
   // Fetch orders from API
   const fetchOrders = async () => {
     try {
-      const response = await fetch('/api/admin/kitchen/orders', {
+      const response = await fetch('/api/management-portal/kitchen/orders', {
         credentials: 'include' // Include cookies for authentication
       });
       
@@ -178,7 +178,7 @@ const KitchenDisplay = () => {
           setError('Authentication required - please login as admin');
           // Redirect to login page after a short delay
           setTimeout(() => {
-            window.location.href = '/admin/login';
+            window.location.href = '/management-portal/login';
           }, 2000);
           setOrders([]);
           return;
@@ -198,7 +198,7 @@ const KitchenDisplay = () => {
           if (errorText.includes('Unauthorized') || errorText.includes('Admin access required')) {
             setError('Admin authentication required - redirecting to login...');
             setTimeout(() => {
-              window.location.href = '/admin/login';
+              window.location.href = '/management-portal/login';
             }, 2000);
           } else {
             setError('Server error - please try again');
@@ -249,7 +249,7 @@ const KitchenDisplay = () => {
         if (!authResponse.ok) {
           setError('Admin authentication required - redirecting to login...');
           setTimeout(() => {
-            window.location.href = '/admin/login';
+            window.location.href = '/management-portal/login';
           }, 2000);
           return;
         }
@@ -258,7 +258,7 @@ const KitchenDisplay = () => {
         if (authData.role !== 'ADMIN') {
           setError('Admin access required - redirecting to login...');
           setTimeout(() => {
-            window.location.href = '/admin/login';
+            window.location.href = '/management-portal/login';
           }, 2000);
           return;
         }
@@ -318,7 +318,7 @@ const KitchenDisplay = () => {
   // Update order status
   const updateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
     try {
-      const response = await fetch(`/api/admin/kitchen/orders/${orderId}`, {
+      const response = await fetch(`/api/management-portal/kitchen/orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus.toUpperCase() }),
@@ -497,20 +497,31 @@ Status: ${order.status.toUpperCase()}
   const statusCounts = getStatusCounts();
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-x-hidden text-white p-6">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse delay-2000"></div>
+      </div>
+
       {/* Header */}
-      <div className="mb-8">
+      <div className="relative z-10 mb-8">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-4xl font-bold text-white">Kitchen Display System</h1>
+          <h1 className="text-4xl font-bold">
+            <span className="bg-gradient-to-r from-orange-400 to-pink-400 bg-clip-text text-transparent">
+              Kitchen Display System
+            </span>
+          </h1>
           <div className="flex items-center gap-4">
             <button
               onClick={toggleFullscreen}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition-colors"
+              className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-4 py-2 rounded transition-colors shadow-lg"
             >
               {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
               {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
             </button>
-            <div className="flex items-center gap-2 text-3xl font-mono bg-gray-800 px-6 py-3 rounded-lg">
+            <div className="flex items-center gap-2 text-3xl font-mono bg-gray-800/90 backdrop-blur-sm px-6 py-3 rounded-lg shadow-xl">
               <Clock size={32} />
               {currentTime.toLocaleTimeString()}
             </div>
@@ -519,19 +530,19 @@ Status: ${order.status.toUpperCase()}
         
         {/* Status Overview */}
         <div className="grid grid-cols-5 gap-4 mb-6">
-          <div className="bg-blue-800 p-4 rounded-lg text-center">
+          <div className="bg-blue-800/90 backdrop-blur-sm p-4 rounded-lg text-center shadow-xl">
             <div className="text-2xl font-bold">{statusCounts.pending}</div>
             <div className="text-blue-200">Pending</div>
           </div>
-          <div className="bg-yellow-800 p-4 rounded-lg text-center">
+          <div className="bg-yellow-800/90 backdrop-blur-sm p-4 rounded-lg text-center shadow-xl">
             <div className="text-2xl font-bold">{statusCounts.confirmed}</div>
             <div className="text-yellow-200">Confirmed</div>
           </div>
-          <div className="bg-orange-800 p-4 rounded-lg text-center">
+          <div className="bg-orange-800/90 backdrop-blur-sm p-4 rounded-lg text-center shadow-xl">
             <div className="text-2xl font-bold">{statusCounts.preparing}</div>
             <div className="text-orange-200">Preparing</div>
           </div>
-          <div className="bg-green-800 p-4 rounded-lg text-center">
+          <div className="bg-green-800/90 backdrop-blur-sm p-4 rounded-lg text-center shadow-xl">
             <div className="text-2xl font-bold">{statusCounts.ready}</div>
             <div className="text-green-200">Ready</div>
           </div>
@@ -543,12 +554,12 @@ Status: ${order.status.toUpperCase()}
       </div>
 
       {/* Orders Grid - Full Width */}
-      <div className="w-full">
+      <div className="relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {Array.isArray(orders) && orders.map(order => (
             <div
               key={order.id}
-              className={`bg-gray-800 rounded-lg p-6 transition-all duration-200 border-l-4 border-gray-600`}
+              className={`bg-gray-800/90 backdrop-blur-sm rounded-lg p-6 transition-all duration-200 border-l-4 border-gray-600 shadow-xl`}
             >
                 {/* Order Header */}
                 <div className="flex justify-between items-start mb-4">
