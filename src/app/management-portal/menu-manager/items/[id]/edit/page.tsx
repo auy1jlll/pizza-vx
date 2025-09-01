@@ -64,7 +64,7 @@ export default function EditItemPage() {
 
   const fetchItem = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/menu/items/${id}`);
+      const response = await fetch(`/api/management-portal/menu/items/${id}`);
       if (response.ok) {
         const item: MenuItem = await response.json();
         setFormData({
@@ -93,7 +93,7 @@ export default function EditItemPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/admin/menu/categories');
+      const response = await fetch('/api/management-portal/menu/categories');
       if (response.ok) {
         const data = await response.json();
         setCategories(Array.isArray(data) ? data : []);
@@ -109,7 +109,7 @@ export default function EditItemPage() {
 
   const fetchCustomizationGroups = async () => {
     try {
-      const response = await fetch('/api/admin/menu/customization-groups');
+      const response = await fetch('/api/management-portal/menu/customization-groups');
       if (response.ok) {
         const data = await response.json();
         setCustomizationGroups(Array.isArray(data) ? data : []);
@@ -134,7 +134,7 @@ export default function EditItemPage() {
         preparationTime: formData.preparationTime ? parseInt(formData.preparationTime) : null
       };
 
-      const response = await fetch(`/api/admin/menu/items/${params.id}`, {
+      const response = await fetch(`/api/management-portal/menu/items/${params.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -142,7 +142,7 @@ export default function EditItemPage() {
 
       if (response.ok) {
         toast.showSuccess('Menu item updated successfully!');
-        router.push(`/admin/menu-manager/items/${params.id}`);
+        router.push(`/management-portal/menu-manager/items/${params.id}`);
       } else {
         const error = await response.json();
         toast.showError('Error updating item: ' + (error.error || 'Unknown error'));

@@ -14,10 +14,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const category = await prisma.menuCategory.findUnique({
       where: { id },
       include: {
+        parentCategory: {
+          select: { id: true, name: true, slug: true }
+        },
+        subcategories: {
+          select: { id: true, name: true, slug: true }
+        },
         _count: {
           select: {
             menuItems: true,
-            customizationGroups: true
+            customizationGroups: true,
+            subcategories: true
           }
         }
       }
@@ -49,10 +56,46 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const resolvedParams = await params;
     const { id } = resolvedParams;
     const body = await request.json();
+    const { parentCategoryId, ...updateData } = body;
+
+    // Validate parent category if provided
+    if (parentCategoryId) {
+      // Check if parent category exists
+      const parentCategory = await prisma.menuCategory.findUnique({
+        where: { id: parentCategoryId }
+      });
+
+      if (!parentCategory) {
+        return NextResponse.json(
+          { success: false, error: 'Selected parent category does not exist' },
+          { status: 400 }
+        );
+      }
+
+      // Prevent circular reference (category cannot be its own parent or descendant)
+      if (parentCategoryId === id) {
+        return NextResponse.json(
+          { success: false, error: 'Category cannot be its own parent' },
+          { status: 400 }
+        );
+      }
+
+      // Check if the parent is currently a descendant of this category
+      const isDescendant = await checkIfDescendant(parentCategoryId, id);
+      if (isDescendant) {
+        return NextResponse.json(
+          { success: false, error: 'Cannot set a descendant category as parent (would create circular reference)' },
+          { status: 400 }
+        );
+      }
+    }
 
     const category = await prisma.menuCategory.update({
       where: { id },
-      data: body,
+      data: {
+        ...updateData,
+        parentCategoryId: parentCategoryId || null
+      },
       include: {
         _count: {
           select: {
@@ -74,6 +117,24 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
+}
+
+// Helper function to check if a category is a descendant of another
+async function checkIfDescendant(categoryId: string, potentialAncestorId: string): Promise<boolean> {
+  const category = await prisma.menuCategory.findUnique({
+    where: { id: categoryId },
+    select: { parentCategoryId: true }
+  });
+
+  if (!category || !category.parentCategoryId) {
+    return false;
+  }
+
+  if (category.parentCategoryId === potentialAncestorId) {
+    return true;
+  }
+
+  return checkIfDescendant(category.parentCategoryId, potentialAncestorId);
 }
 
 // DELETE /api/admin/menu/categories/[id] - Delete category

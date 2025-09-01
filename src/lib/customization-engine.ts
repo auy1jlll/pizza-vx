@@ -115,6 +115,15 @@ export class CustomizationEngine {
           },
           orderBy: { sortOrder: 'asc' }
         },
+        subcategories: {
+          where: { isActive: true },
+          include: {
+            _count: {
+              select: { menuItems: true }
+            }
+          },
+          orderBy: { sortOrder: 'asc' }
+        },
         _count: {
           select: { menuItems: true }
         }

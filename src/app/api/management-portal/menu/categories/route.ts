@@ -35,16 +35,24 @@ export async function GET(request: NextRequest) {
   try {
     const categories = await prisma.menuCategory.findMany({
       include: {
+        parentCategory: {
+          select: { id: true, name: true, slug: true }
+        },
+        subcategories: {
+          select: { id: true, name: true, slug: true }
+        },
         _count: {
           select: {
             menuItems: true,
-            customizationGroups: true
+            customizationGroups: true,
+            subcategories: true
           }
         }
       },
-      orderBy: {
-        sortOrder: 'asc'
-      }
+      orderBy: [
+        { parentCategoryId: 'asc' }, // Top-level categories first
+        { sortOrder: 'asc' }
+      ]
     });
 
     return NextResponse.json(categories);
@@ -61,7 +69,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, slug, description, imageUrl, isActive = true, sortOrder = 0 } = body;
+    const { name, slug, description, imageUrl, parentCategoryId, isActive = true, sortOrder = 0 } = body;
 
     // Basic validation
     const validation = validateCategoryData({
@@ -96,12 +104,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate parent category if provided
+    if (parentCategoryId) {
+      const parentCategory = await prisma.menuCategory.findUnique({
+        where: { id: parentCategoryId }
+      });
+
+      if (!parentCategory) {
+        return NextResponse.json(
+          { success: false, error: 'Selected parent category does not exist' },
+          { status: 400 }
+        );
+      }
+    }
+
     const category = await prisma.menuCategory.create({
       data: {
         name,
         slug,
         description,
         imageUrl,
+        parentCategoryId: parentCategoryId || null,
         isActive,
         sortOrder
       }

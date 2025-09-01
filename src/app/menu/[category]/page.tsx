@@ -633,7 +633,7 @@ export default function MenuCategoryPage({ params }: MenuCategoryPageProps) {
 
             {/* Modal Footer */}
             <div className="p-4 border-t border-white/20">
-              <div className="flex space-x-3">
+              <div className="relative z-20 flex space-x-3">
                 <button
                   onClick={() => setSelectedItem(null)}
                   className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors"

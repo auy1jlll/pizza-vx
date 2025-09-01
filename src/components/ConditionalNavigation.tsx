@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import HybridNavigation from '@/components/HybridNavigation';
+import DynamicNavigation from '@/components/DynamicNavigation';
 import FloatingCartButton from '@/components/FloatingCartButton';
 import DynamicFooter from '@/components/DynamicFooter';
 import Link from 'next/link';
@@ -50,7 +50,7 @@ export function ConditionalTopNavigation() {
     return <AdminLoginNav />;
   }
   
-  return <HybridNavigation />;
+  return <DynamicNavigation />;
 }
 
 // Component for bottom elements (renders after main content)

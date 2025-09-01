@@ -1,10 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/AdminLayout';
 import Link from 'next/link';
 import { ArrowLeft, Save, X, Upload } from 'lucide-react';
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export default function NewCategoryPage() {
   const router = useRouter();
@@ -13,11 +19,29 @@ export default function NewCategoryPage() {
     slug: '',
     description: '',
     imageUrl: '',
+    parentCategoryId: '',
     isActive: true,
     sortOrder: 0
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/management-portal/menu/categories');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -186,6 +210,31 @@ export default function NewCategoryPage() {
                       rows={3}
                       className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
                     />
+                  </div>
+
+                  {/* Parent Category */}
+                  <div>
+                    <label className="block text-white/70 text-sm font-medium mb-2">
+                      Parent Category
+                    </label>
+                    <select
+                      name="parentCategoryId"
+                      value={formData.parentCategoryId}
+                      onChange={handleInputChange}
+                      className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="" className="bg-gray-800 text-white">
+                        None (Top-level category)
+                      </option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id} className="bg-gray-800 text-white">
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-white/50 text-xs mt-1">
+                      Select a parent category to create a subcategory, or leave empty for a top-level category
+                    </p>
                   </div>
 
                   {/* Image URL */}

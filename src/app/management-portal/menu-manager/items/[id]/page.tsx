@@ -39,7 +39,7 @@ export default function ViewItemPage() {
 
   const fetchItem = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/menu/items/${id}`);
+      const response = await fetch(`/api/management-portal/menu/items/${id}`);
       if (response.ok) {
         const data = await response.json();
         setItem(data);
@@ -67,7 +67,7 @@ export default function ViewItemPage() {
       type: 'danger',
       onConfirm: async () => {
         try {
-          const response = await fetch(`/api/admin/menu/items/${item.id}`, {
+          const response = await fetch(`/api/management-portal/menu/items/${item.id}`, {
             method: 'DELETE'
           });
 
@@ -125,7 +125,7 @@ export default function ViewItemPage() {
           
           <div className="flex items-center gap-2">
             <button
-              onClick={() => router.push(`/admin/menu-manager/items/${item.id}/edit`)}
+              onClick={() => router.push(`/management-portal/menu-manager/items/${item.id}/edit`)}
               className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <FiEdit className="w-4 h-4" />

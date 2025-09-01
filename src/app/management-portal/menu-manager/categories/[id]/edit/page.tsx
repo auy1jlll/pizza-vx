@@ -12,12 +12,19 @@ interface MenuCategory {
   slug: string;
   description?: string;
   imageUrl?: string;
+  parentCategoryId?: string;
   isActive: boolean;
   sortOrder: number;
   _count: {
     menuItems: number;
     customizationGroups: number;
   };
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 export default function EditCategoryPage() {
@@ -30,18 +37,35 @@ export default function EditCategoryPage() {
     slug: '',
     description: '',
     imageUrl: '',
+    parentCategoryId: '',
     isActive: true,
     sortOrder: 0
   });
   const [originalSlug, setOriginalSlug] = useState('');
   const [category, setCategory] = useState<MenuCategory | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCategory();
+    fetchCategories();
   }, [categoryId]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/management-portal/menu/categories');
+      if (response.ok) {
+        const data = await response.json();
+        // Filter out current category and its descendants to prevent circular references
+        const filteredCategories = Array.isArray(data) ? data.filter((cat: Category) => cat.id !== categoryId) : [];
+        setCategories(filteredCategories);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const fetchCategory = async () => {
     try {
@@ -57,6 +81,7 @@ export default function EditCategoryPage() {
           slug: cat.slug,
           description: cat.description || '',
           imageUrl: cat.imageUrl || '',
+          parentCategoryId: cat.parentCategoryId || '',
           isActive: cat.isActive,
           sortOrder: cat.sortOrder
         });
@@ -276,6 +301,31 @@ export default function EditCategoryPage() {
                       rows={3}
                       className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
                     />
+                  </div>
+
+                  {/* Parent Category */}
+                  <div>
+                    <label className="block text-white/70 text-sm font-medium mb-2">
+                      Parent Category
+                    </label>
+                    <select
+                      name="parentCategoryId"
+                      value={formData.parentCategoryId}
+                      onChange={handleInputChange}
+                      className="w-full bg-white/20 border border-white/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="" className="bg-gray-800 text-white">
+                        None (Top-level category)
+                      </option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id} className="bg-gray-800 text-white">
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-white/50 text-xs mt-1">
+                      Select a parent category to make this a subcategory, or leave empty for a top-level category
+                    </p>
                   </div>
 
                   {/* Image URL */}
