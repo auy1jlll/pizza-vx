@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { adminLimiter } from '@/lib/simple-rate-limit';
+import { verifyAdminToken } from '@/lib/auth';
 
 // Get all promotions
 export async function GET(request: NextRequest) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Admin access required' },
+        { status: 401 }
+      );
+    }
+
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
     const limit = adminLimiter.check('admin-promotions-get', ip);
     if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
@@ -51,6 +61,15 @@ export async function GET(request: NextRequest) {
 // Create new promotion
 export async function POST(request: NextRequest) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Admin access required' },
+        { status: 401 }
+      );
+    }
+
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
     const limit = adminLimiter.check('admin-promotions-post', ip);
     if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });

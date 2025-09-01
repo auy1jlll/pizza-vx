@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { adminLimiter } from '@/lib/simple-rate-limit';
+import { verifyAdminToken } from '@/lib/auth';
 
 // Get single promotion
 export async function GET(
@@ -8,6 +9,15 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Admin access required' },
+        { status: 401 }
+      );
+    }
+
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
     const limit = adminLimiter.check('admin-promotions-get-single', ip);
     if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
@@ -41,6 +51,15 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Admin access required' },
+        { status: 401 }
+      );
+    }
+
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
     const limit = adminLimiter.check('admin-promotions-put', ip);
     if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
@@ -129,6 +148,15 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verify admin authentication
+    const user = verifyAdminToken(request);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Admin access required' },
+        { status: 401 }
+      );
+    }
+
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
     const limit = adminLimiter.check('admin-promotions-delete', ip);
     if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });

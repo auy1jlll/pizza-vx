@@ -57,6 +57,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: 'Menu Manager', href: '/management-portal/menu-manager', icon: '🍽️', roles: ['ADMIN'] },
     { name: 'Pizza Manager', href: '/management-portal/pizza-manager', icon: '🍕', roles: ['ADMIN'] },
     { name: 'Calzone Manager', href: '/management-portal/calzone-manager', icon: '🥟', roles: ['ADMIN'] },
+    { name: 'Promotions', href: '/management-portal/promotions', icon: '🎁', roles: ['ADMIN'] },
     { name: 'Users', href: '/management-portal/users', icon: '👥', roles: ['ADMIN'] },
     { name: 'Content', href: '/management-portal/content', icon: '📝', roles: ['ADMIN'] },
     { name: 'Analytics', href: '/management-portal/analytics', icon: '📈', roles: ['ADMIN'] },
