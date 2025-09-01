@@ -87,7 +87,9 @@ export default function PromotionsPage() {
       if (filterActive !== null) params.append('active', String(filterActive));
       if (filterType) params.append('type', filterType);
 
-      const response = await fetch(`/api/admin/promotions?${params}`);
+      const response = await fetch(`/api/admin/promotions?${params}`, {
+        credentials: 'include'
+      });
       const data = await response.json();
 
       if (response.ok) {
@@ -111,6 +113,7 @@ export default function PromotionsPage() {
       const response = await fetch(`/api/admin/promotions/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           ...promotion,
           isActive: !isActive
@@ -140,7 +143,8 @@ export default function PromotionsPage() {
 
     try {
       const response = await fetch(`/api/admin/promotions/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
       });
 
       const data = await response.json();

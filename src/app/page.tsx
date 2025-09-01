@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { generateMetadata as generateDynamicMetadata } from '@/lib/dynamic-metadata';
 import { Star, Clock, Award, MapPin, Phone, Users, ChefHat } from 'lucide-react';
+import PizzaImage from '@/components/PizzaImage';
 
 // Generate metadata for this page
 export const generateMetadata = generateDynamicMetadata;
@@ -109,19 +110,26 @@ export default function Home() {
 
             {/* Right Side - Visual Appeal */}
             <div className="relative">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 shadow-2xl">
-                <div className="text-center space-y-6">
-                  <div className="text-8xl">🍕</div>
-                  <h3 className="text-2xl font-bold text-yellow-300">Fresh From Our Oven</h3>
-                  <p className="text-gray-200">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-2xl">
+                <div className="text-center space-y-4">
+                  {/* Pizza Image */}
+                  <div className="relative w-64 h-64 mx-auto">
+                    <PizzaImage 
+                      src="/images/fresh-pizza.jpg" 
+                      alt="Fresh pizza from our oven"
+                      className="w-full h-full object-cover rounded-full border-4 border-yellow-400 shadow-xl transform scale-125"
+                    />
+                  </div>
+                  <h3 className="text-xl font-bold text-yellow-300">Fresh From Our Oven</h3>
+                  <p className="text-gray-200 text-sm">
                     Made with love using traditional Italian recipes and the finest local ingredients
                   </p>
 
                   {/* Special Offer */}
-                  <div className="bg-yellow-400 text-red-700 px-8 py-6 rounded-lg font-bold">
-                    <div className="text-3xl">🎉 SPECIAL OFFER</div>
-                    <div className="text-xl">Buy One Pizza, Get Second 50% OFF</div>
-                    <div className="text-base mt-2">*Limited time offer</div>
+                  <div className="bg-yellow-400 text-red-700 px-6 py-4 rounded-lg font-bold">
+                    <div className="text-2xl">🎉 SPECIAL OFFER</div>
+                    <div className="text-lg">Buy One Pizza, Get Second 50% OFF</div>
+                    <div className="text-sm mt-1">*Limited time offer</div>
                   </div>
                 </div>
               </div>

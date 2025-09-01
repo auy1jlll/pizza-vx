@@ -11,12 +11,27 @@ function getAllWeekHours(operatingHours: any) {
   const todayName = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][today];
   
   return days.map(day => {
-    const dayHours = operatingHours[day];
+    const dayHoursString = operatingHours[day];
+    let hours = null;
+    let isOpen = false;
+    
+    if (dayHoursString && dayHoursString !== 'closed' && typeof dayHoursString === 'string') {
+      // Parse "11:00-22:00" format
+      const parts = dayHoursString.split('-');
+      if (parts.length === 2) {
+        hours = {
+          open: parts[0].trim(),
+          close: parts[1].trim()
+        };
+        isOpen = true;
+      }
+    }
+    
     return {
       day: day.charAt(0).toUpperCase() + day.slice(1),
       dayShort: day.slice(0, 3).toUpperCase(),
-      hours: dayHours,
-      isOpen: dayHours && !dayHours.closed,
+      hours: hours,
+      isOpen: isOpen,
       isToday: day === todayName
     };
   });
@@ -223,7 +238,7 @@ export default function DynamicFooter() {
                       </div>
                       <div className="flex items-center space-x-1">
                         <span className="text-gray-300">
-                          {dayInfo.isOpen 
+                          {dayInfo.isOpen && dayInfo.hours
                             ? `${dayInfo.hours.open} - ${dayInfo.hours.close}`
                             : 'Closed'
                           }

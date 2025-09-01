@@ -322,8 +322,23 @@ export default function ContactPage() {
 
                 <div className="space-y-3">
                   {daysOfWeek.map((day) => {
-                    const dayHours = operatingHours[day];
+                    const dayHoursString = operatingHours[day];
                     const isToday = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() === day;
+                    
+                    // Parse the time string format "10:30-20:00"
+                    let dayHours = null;
+                    if (dayHoursString && typeof dayHoursString === 'string' && dayHoursString !== 'closed') {
+                      const parts = (dayHoursString as string).split('-');
+                      if (parts.length === 2) {
+                        dayHours = {
+                          open: parts[0].trim(),
+                          close: parts[1].trim(),
+                          closed: false
+                        };
+                      }
+                    } else if (typeof dayHoursString === 'string' && dayHoursString === 'closed') {
+                      dayHours = { closed: true };
+                    }
 
                     return (
                       <div

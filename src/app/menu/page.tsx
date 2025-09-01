@@ -8,8 +8,8 @@ interface MenuCategory {
   id: string;
   name: string;
   slug: string;
-  description: string;
-  imageUrl?: string;
+  description: string | null;
+  imageUrl?: string | null;
   isActive: boolean;
   sortOrder: number;
   menuItems?: any[];
@@ -97,14 +97,47 @@ async function getMenuCategories(): Promise<MenuCategory[]> {
 
 const getCategoryIcon = (slug: string) => {
   switch (slug) {
+    case 'pizza':
+    case 'pizzas':
+    case 'gourmet-pizzas':
+    case 'specialty-pizzas':
+      return '🍕';
+    case 'calzones':
+    case 'specialty-calzones':
+      return '🥟';
     case 'sandwiches':
+    case 'hot-subs':
+    case 'cold-subs':
       return '🥪';
     case 'salads':
       return '🥗';
     case 'seafood':
       return '🦞';
     case 'dinner-plates':
+    case 'dinners':
       return '🍽️';
+    case 'appetizers':
+    case 'starters':
+      return '🍤';
+    case 'pasta':
+    case 'spaghetti':
+      return '🍝';
+    case 'beverages':
+    case 'drinks':
+      return '🥤';
+    case 'desserts':
+    case 'sweets':
+      return '🍰';
+    case 'wraps':
+      return '🌯';
+    case 'soups':
+      return '🍜';
+    case 'burgers':
+      return '🍔';
+    case 'chicken':
+      return '🍗';
+    case 'wings':
+      return '🔥';
     default:
       return '🍴';
   }
@@ -112,16 +145,49 @@ const getCategoryIcon = (slug: string) => {
 
 const getCategoryGradient = (slug: string) => {
   switch (slug) {
+    case 'pizza':
+    case 'pizzas':
+    case 'gourmet-pizzas':
+    case 'specialty-pizzas':
+      return 'from-red-600 to-orange-600';
+    case 'calzones':
+    case 'specialty-calzones':
+      return 'from-orange-600 to-yellow-600';
     case 'sandwiches':
-      return 'from-yellow-600 to-orange-600';
+    case 'hot-subs':
+    case 'cold-subs':
+      return 'from-yellow-600 to-amber-600';
     case 'salads':
       return 'from-green-600 to-emerald-600';
     case 'seafood':
       return 'from-blue-600 to-cyan-600';
     case 'dinner-plates':
+    case 'dinners':
       return 'from-purple-600 to-pink-600';
+    case 'appetizers':
+    case 'starters':
+      return 'from-indigo-600 to-purple-600';
+    case 'pasta':
+    case 'spaghetti':
+      return 'from-pink-600 to-rose-600';
+    case 'beverages':
+    case 'drinks':
+      return 'from-cyan-600 to-blue-600';
+    case 'desserts':
+    case 'sweets':
+      return 'from-rose-600 to-pink-600';
+    case 'wraps':
+      return 'from-teal-600 to-green-600';
+    case 'soups':
+      return 'from-amber-600 to-orange-600';
+    case 'burgers':
+      return 'from-red-700 to-red-600';
+    case 'chicken':
+      return 'from-yellow-700 to-yellow-600';
+    case 'wings':
+      return 'from-orange-700 to-red-700';
     default:
-      return 'from-gray-600 to-gray-700';
+      return 'from-slate-600 to-gray-600';
   }
 };
 
@@ -237,7 +303,7 @@ export default async function MenuPage() {
                           {category.name}
                         </h3>
                         <p className="text-gray-200 text-sm mb-4 line-clamp-2">
-                          {category.description}
+                          {category.description || 'Delicious menu items await!'}
                         </p>
                         <div className="flex items-center text-yellow-300 font-medium group-hover:text-yellow-200 transition-colors">
                           <span>Explore Menu</span>

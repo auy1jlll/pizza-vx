@@ -15,22 +15,22 @@ export default function DynamicNavigation() {
   }, []);
 
   // During SSR and before hydration, show a consistent placeholder
-  // After hydration, show the real data
+  // After hydration, show the real data from database
   const appName = isHydrated && !loading
-    ? (settings.app_name || settings.business_name || 'Local Pizza House')
-    : 'Local Pizza House'; // Consistent placeholder that matches expected content
+    ? (settings.business_name || 'Restaurant')
+    : 'Restaurant'; // Generic placeholder until database loads
 
   return (
     <>
       <nav className="bg-gradient-to-r from-emerald-800 to-green-700 shadow-lg border-b border-green-600">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex flex-col">
-              <Link href="/" className="text-2xl font-bold text-white hover:text-orange-300 transition-colors">
+        <div className="pr-4">
+          <div className="flex justify-between items-center py-3">
+            <div className="flex flex-col items-start pl-4">
+              <Link href="/" className="text-4xl font-bold text-white hover:text-orange-300 transition-colors">
                 🍕 <span className="text-orange-300">{appName}</span>
               </Link>
               {isHydrated && settings.app_tagline && (
-                <p className="text-sm text-green-200 italic ml-8">
+                <p className="text-base text-green-200 italic ml-8">
                   {settings.app_tagline}
                 </p>
               )}
@@ -39,7 +39,7 @@ export default function DynamicNavigation() {
             <div className="flex items-center space-x-6">
               <Link 
                 href="/" 
-                className="text-white hover:text-orange-300 transition-colors font-medium"
+                className="text-white hover:text-orange-300 transition-colors font-medium text-lg"
               >
                 Home
               </Link>
@@ -47,7 +47,7 @@ export default function DynamicNavigation() {
               {(isHydrated ? settings.enable_menu_ordering : true) && (
                 <Link 
                   href="/menu" 
-                  className="text-white hover:text-orange-300 transition-colors font-medium"
+                  className="text-white hover:text-orange-300 transition-colors font-medium text-lg"
                 >
                   Menu
                 </Link>
@@ -56,7 +56,7 @@ export default function DynamicNavigation() {
               {(isHydrated ? settings.enable_pizza_builder : true) && (
                 <Link 
                   href="/build-pizza" 
-                  className="text-white hover:text-orange-300 transition-colors font-medium"
+                  className="text-white hover:text-orange-300 transition-colors font-medium text-lg"
                 >
                   Pizza Builder
                 </Link>
@@ -64,21 +64,21 @@ export default function DynamicNavigation() {
               
               <Link 
                 href="/cart" 
-                className="text-white hover:text-orange-300 transition-colors font-medium"
+                className="text-white hover:text-orange-300 transition-colors font-medium text-lg"
               >
                 Cart
               </Link>
 
               <Link 
                 href="/contact" 
-                className="text-white hover:text-orange-300 transition-colors font-medium"
+                className="text-white hover:text-orange-300 transition-colors font-medium text-lg"
               >
                 Contact
               </Link>
 
               <Link 
-                href="/settings-demo" 
-                className="text-white hover:text-orange-300 transition-colors font-medium"
+                href="/management-portal/global-settings" 
+                className="text-white hover:text-orange-300 transition-colors font-medium text-lg"
               >
                 Settings
               </Link>
@@ -91,7 +91,7 @@ export default function DynamicNavigation() {
       
       {/* Dynamic Menu Categories Navbar */}
       <div className="bg-gradient-to-r from-green-700 to-emerald-600 shadow-md border-b border-green-600">
-        <div className="container mx-auto px-4 py-3">
+        <div className="px-4 py-2">
           <DynamicMenuNavbar 
             className="navbar-menu"
             hideEmptyCategories={true}

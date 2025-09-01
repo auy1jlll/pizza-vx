@@ -213,16 +213,16 @@ export default function SpecialtyCalzonesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-amber-600 text-white py-6">
+      <div className="bg-green-600 text-white py-6">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold mb-2">🥟 Specialty Calzones</h1>
-              <p className="text-amber-100">Folded pizza perfection with our signature recipes</p>
+              <p className="text-green-100">Folded pizza perfection with our signature recipes</p>
             </div>
             <Link 
               href="/build-calzone"
-              className="bg-white text-amber-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              className="bg-white text-green-600 px-6 py-3 rounded-lg font-semibold hover:bg-green-50 transition-colors shadow-lg"
             >
               Build Custom Calzone
             </Link>
@@ -239,7 +239,7 @@ export default function SpecialtyCalzonesPage() {
             <p className="text-gray-600 mb-6">Check back soon for our delicious calzone specialties!</p>
             <Link 
               href="/build-calzone"
-              className="bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors"
+              className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-lg"
             >
               Build Your Own Calzone
             </Link>
@@ -247,9 +247,9 @@ export default function SpecialtyCalzonesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {pizzas.map((pizza) => (
-              <div key={pizza.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+              <div key={pizza.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
                 {/* Image */}
-                <div className="relative h-48 bg-gradient-to-br from-amber-200 to-orange-200">
+                <div className="relative h-48 bg-green-200">
                   {pizza.imageUrl ? (
                     <img 
                       src={pizza.imageUrl} 
@@ -258,10 +258,10 @@ export default function SpecialtyCalzonesPage() {
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
-                      <div className="text-6xl text-amber-600 opacity-70">🥟</div>
+                      <div className="text-6xl text-green-700 opacity-70">🥟</div>
                     </div>
                   )}
-                  <div className="absolute top-2 right-2 bg-amber-600 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                  <div className="absolute top-2 right-2 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
                     Calzone
                   </div>
                 </div>
@@ -288,8 +288,8 @@ export default function SpecialtyCalzonesPage() {
                             onClick={() => handleSizeSelect(pizza.id, size.id)}
                             className={`p-2 rounded-lg border text-sm font-medium transition-colors ${
                               selectedSizes[pizza.id] === size.id
-                                ? 'border-amber-500 bg-amber-50 text-amber-700'
-                                : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                                ? 'border-green-500 bg-green-50 text-green-700 shadow-md'
+                                : 'border-gray-200 hover:border-green-300 hover:bg-green-25 text-gray-700'
                             }`}
                           >
                             <div>{size.pizzaSize.name}</div>
@@ -303,7 +303,7 @@ export default function SpecialtyCalzonesPage() {
                   {/* Price and Actions */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-2xl font-bold text-amber-600">
+                      <span className="text-2xl font-bold text-green-600">
                         ${getPizzaPrice(pizza).toFixed(2)}
                       </span>
                       <span className="text-sm text-gray-500 ml-1">starting</span>
@@ -311,13 +311,13 @@ export default function SpecialtyCalzonesPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => addToCart(pizza)}
-                        className="bg-amber-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-amber-700 transition-colors text-sm"
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors text-sm shadow-lg hover:shadow-xl"
                       >
                         Quick Add
                       </button>
                       <Link
                         href={`/build-calzone?specialty=${pizza.id}`}
-                        className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors text-sm"
+                        className="bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-colors text-sm shadow-md"
                       >
                         Customize
                       </Link>
