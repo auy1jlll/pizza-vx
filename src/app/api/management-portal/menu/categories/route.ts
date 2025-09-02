@@ -30,7 +30,7 @@ function validateCategoryData(data: any) {
   };
 }
 
-// GET /api/admin/menu/categories - Get all categories with counts
+// GET /api/management-portal/menu/categories - Get all categories with counts
 export async function GET(request: NextRequest) {
   try {
     const categories = await prisma.menuCategory.findMany({
@@ -55,7 +55,13 @@ export async function GET(request: NextRequest) {
       ]
     });
 
-    return NextResponse.json(categories);
+    return NextResponse.json(categories, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   } catch (error) {
     console.error('Error fetching categories:', error);
     return NextResponse.json(
@@ -65,7 +71,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/admin/menu/categories - Create new category
+// POST /api/management-portal/menu/categories - Create new category
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

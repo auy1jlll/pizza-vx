@@ -156,8 +156,8 @@ export default function DynamicMenuNavbar({ className = '', hideEmptyCategories 
 
   return (
     <nav className={`${className} relative z-20`} style={{ pointerEvents: 'auto' }}>
-      {/* Enhanced debug info - FORCE VISIBLE */}
-      <div style={{ background: 'cyan', color: 'black', padding: '8px 16px', fontSize: '16px', marginBottom: '12px', border: '4px solid red', textAlign: 'center', fontWeight: 'bold' }}>
+      {/* Enhanced debug info - FORCE VISIBLE - NO MARGIN */}
+      <div style={{ background: 'cyan', color: 'black', padding: '8px 16px', fontSize: '16px', marginBottom: '0px', border: '4px solid red', textAlign: 'center', fontWeight: 'bold' }}>
         🔥 ENHANCED NAVBAR DEFINITELY LOADED: {categories.length} categories | First: {categories[0]?.name || 'None'}
       </div>
       

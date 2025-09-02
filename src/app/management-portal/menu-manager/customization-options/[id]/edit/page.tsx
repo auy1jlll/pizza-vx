@@ -48,7 +48,7 @@ export default function EditCustomizationOptionPage() {
 
   const fetchOption = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/menu/customization-options/${id}`);
+      const response = await fetch(`/api/management-portal/menu/customization-options/${id}`);
       if (response.ok) {
         const result = await response.json();
         const option: CustomizationOption = result.data || result; // Handle wrapped response
@@ -76,7 +76,7 @@ export default function EditCustomizationOptionPage() {
 
   const fetchGroups = async () => {
     try {
-      const response = await fetch('/api/admin/menu/customization-groups');
+      const response = await fetch('/api/management-portal/menu/customization-groups');
       if (response.ok) {
         const data = await response.json();
         setGroups(Array.isArray(data) ? data : data.groups || []);
@@ -97,7 +97,7 @@ export default function EditCustomizationOptionPage() {
         priceModifier: parseFloat(formData.priceModifier) || 0
       };
 
-      const response = await fetch(`/api/admin/menu/customization-options/${params.id}`, {
+      const response = await fetch(`/api/management-portal/menu/customization-options/${params.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

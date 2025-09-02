@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronDown, ShoppingCart, MapPin, Clock, Phone, Star, Menu, X } from 'lucide-react';
+import { ChevronDown, MapPin, Clock, Phone, Star, Menu, X } from 'lucide-react';
 
 interface MenuCategory {
   id: string;
@@ -21,7 +21,6 @@ export default function ProfessionalNavbar() {
   const [error, setError] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [cartCount] = useState(2); // Mock cart count - replace with real data
 
   useEffect(() => {
     fetchCategories();
@@ -32,12 +31,12 @@ export default function ProfessionalNavbar() {
       setLoading(true);
       setError(null); // Clear any previous errors
       
-      const response = await fetch('/api/menu/categories', {
+      const response = await fetch(`/api/menu/categories`, {
         headers: {
           'Content-Type': 'application/json',
         },
         // Add timeout for better error handling
-        signal: AbortSignal.timeout(10000) // 10 second timeout
+        signal: AbortSignal.timeout(8000) // 8 second timeout (reduced from 10)
       });
       
       if (!response.ok) {
@@ -51,15 +50,17 @@ export default function ProfessionalNavbar() {
         const filteredCategories = filterCategoriesWithItems(data.data);
         setCategories(filteredCategories);
         
-        console.log('🔍 Professional Navbar - Raw API response:', data);
-        console.log('🔍 Professional Navbar - Categories loaded:', {
-          total: filteredCategories.length,
-          categories: filteredCategories.map(c => ({
-            name: c.name,
-            itemCount: c._count?.menuItems || 0,
-            subcategoryCount: c.subcategories?.length || 0
-          }))
-        });
+        // Only log in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 Professional Navbar - Categories loaded:', {
+            total: filteredCategories.length,
+            categories: filteredCategories.map(c => ({
+              name: c.name,
+              itemCount: c._count?.menuItems || 0,
+              subcategoryCount: c.subcategories?.length || 0
+            }))
+          });
+        }
       } else {
         throw new Error(data.error || 'Failed to load categories');
       }
@@ -97,6 +98,12 @@ export default function ProfessionalNavbar() {
     setOpenDropdown(openDropdown === categoryId ? null : categoryId);
   };
 
+  // Add refresh function for testing
+  const refreshCategories = () => {
+    console.log('🔄 Manual refresh triggered');
+    fetchCategories();
+  };
+
   if (loading) {
     return (
       <div className="bg-white shadow-xl rounded-3xl border border-orange-100 overflow-hidden">
@@ -118,17 +125,8 @@ export default function ProfessionalNavbar() {
   }
 
   return (
-    <div className="bg-white shadow-xl rounded-3xl border border-orange-100 overflow-visible relative z-50">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-center py-2 text-sm font-medium">
-        <div className="flex items-center justify-center space-x-2">
-          <Star className="w-4 h-4 fill-current" />
-          <span>Fresh ingredients delivered daily!</span>
-          <Star className="w-4 h-4 fill-current" />
-        </div>
-      </div>
-
-      <nav className="px-6 py-4 relative z-50">
+    <div className="bg-green-800 shadow-xl border-0 border-t-0 overflow-visible relative z-50 mt-0">
+      <nav className="px-6 py-2 relative z-50">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-3">
@@ -136,8 +134,8 @@ export default function ProfessionalNavbar() {
               <span className="text-white font-black text-xl">🍕</span>
             </div>
             <div>
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight">Pizza VX</h1>
-              <p className="text-xs text-orange-600 font-semibold">Fresh • Fast • Delicious</p>
+              <h1 className="text-2xl font-black text-white tracking-tight">Pizza VX</h1>
+              <p className="text-xs text-orange-200 font-semibold">Fresh • Fast • Delicious</p>
             </div>
           </div>
 
@@ -146,10 +144,10 @@ export default function ProfessionalNavbar() {
             {/* Full Menu Link */}
             <Link
               href="/menu"
-              className="relative font-semibold text-gray-700 hover:text-orange-600 transition-all duration-300 hover:scale-105"
+              className="relative font-semibold text-white hover:text-orange-300 transition-all duration-300 hover:scale-105"
             >
               Full Menu
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-orange-500 to-red-500 group-hover:w-full transition-all duration-300"></span>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-orange-300 to-yellow-300 group-hover:w-full transition-all duration-300"></span>
             </Link>
 
             {/* Dynamic Categories */}
@@ -158,32 +156,49 @@ export default function ProfessionalNavbar() {
               const isDropdownOpen = openDropdown === category.id;
 
               return (
-                <div key={category.id} className="relative group">
+                <div key={category.id} className="relative group"
+                     onMouseEnter={() => hasSubcategories && setOpenDropdown(category.id)}
+                     onMouseLeave={(e) => {
+                       if (hasSubcategories) {
+                         // Only close if mouse is not moving to the dropdown
+                         const rect = e.currentTarget.getBoundingClientRect();
+                         const mouseX = e.clientX;
+                         const mouseY = e.clientY;
+                         
+                         // Add a small delay to allow mouse to reach dropdown
+                         setTimeout(() => {
+                           if (openDropdown === category.id) {
+                             const dropdown = document.querySelector(`[data-dropdown="${category.id}"]`);
+                             if (dropdown && !dropdown.matches(':hover')) {
+                               setOpenDropdown(null);
+                             }
+                           }
+                         }, 150);
+                       }
+                     }}>
                   {hasSubcategories ? (
                     <div>
                       {/* Category with dropdown */}
                       <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          console.log('🔍 Dropdown button clicked for:', category.name);
-                          toggleDropdown(category.id);
-                        }}
-                        className="flex items-center space-x-1 font-semibold text-gray-700 hover:text-orange-600 transition-all duration-300 hover:scale-105 cursor-pointer relative z-50"
+                        onMouseEnter={() => setOpenDropdown(category.id)}
+                        className="flex items-center space-x-1 font-semibold text-white hover:text-orange-300 transition-all duration-300 hover:scale-105 cursor-pointer relative z-50"
                         style={{ pointerEvents: 'auto' }}
                       >
                         <span>{category.name}</span>
                         <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                        {category._count?.menuItems && (
-                          <span className="ml-1 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
-                            {category._count.menuItems}
-                          </span>
-                        )}
                       </button>
 
                       {/* Professional Dropdown */}
                       {isDropdownOpen && (
-                        <div className="absolute top-full left-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[99999] min-w-[280px] overflow-visible pointer-events-auto" style={{ zIndex: 99999 }}>
+                        <div 
+                          className="absolute top-full left-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[99999] min-w-[280px] overflow-visible pointer-events-auto" 
+                          style={{ zIndex: 99999 }}
+                          data-dropdown={category.id}
+                          onMouseEnter={() => setOpenDropdown(category.id)}
+                          onMouseLeave={() => {
+                            setTimeout(() => setOpenDropdown(null), 100);
+                          }}
+                        >
                           <div className="py-2 pointer-events-auto">
                             {/* Parent category link */}
                             <Link
@@ -196,11 +211,6 @@ export default function ProfessionalNavbar() {
                                   <span className="text-lg">🍽️</span>
                                   <span>All {category.name}</span>
                                 </div>
-                                {category._count?.menuItems && (
-                                  <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                                    {category._count.menuItems}
-                                  </span>
-                                )}
                               </div>
                             </Link>
                             
@@ -233,7 +243,7 @@ export default function ProfessionalNavbar() {
                     // Simple category link
                     <Link
                       href={`/menu/${category.slug}`}
-                      className="relative font-semibold text-gray-700 hover:text-orange-600 transition-all duration-300 hover:scale-105"
+                      className="relative font-semibold text-white hover:text-orange-300 transition-all duration-300 hover:scale-105"
                     >
                       {category.name}
                       {category._count?.menuItems && (
@@ -253,13 +263,9 @@ export default function ProfessionalNavbar() {
           <div className="flex items-center space-x-4">
             {/* Store Info - Desktop Only */}
             <div className="hidden xl:flex items-center space-x-4 text-sm">
-              <div className="flex items-center space-x-1 text-gray-600">
-                <MapPin className="w-4 h-4 text-orange-500" />
-                <span>Brooklyn, NY</span>
-              </div>
-              <div className="flex items-center space-x-1 text-gray-600">
-                <Clock className="w-4 h-4 text-green-500" />
-                <span className="text-green-600 font-semibold">Open</span>
+              <div className="flex items-center space-x-1 text-white">
+                <Clock className="w-4 h-4 text-green-300" />
+                <span className="text-green-200 font-semibold">Open</span>
               </div>
             </div>
 
@@ -269,7 +275,19 @@ export default function ProfessionalNavbar() {
               <span>Call Now</span>
             </button>
 
-            {/* Cart */}
+            {/* Temporary Debug Refresh Button */}
+            {process.env.NODE_ENV === 'development' && (
+              <button
+                onClick={refreshCategories}
+                className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-sm"
+                title="Refresh Categories"
+              >
+                🔄
+              </button>
+            )}
+
+            {/* Cart - Hidden, using FloatingCartButton instead */}
+            {/* 
             <Link
               href="/cart"
               className="relative p-3 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-2xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
@@ -281,11 +299,12 @@ export default function ProfessionalNavbar() {
                 </span>
               )}
             </Link>
+            */}
 
             {/* Mobile Menu Toggle */}
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-gray-700 hover:text-orange-600 transition-colors duration-200"
+              className="lg:hidden p-2 text-white hover:text-orange-300 transition-colors duration-200"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -311,7 +330,7 @@ export default function ProfessionalNavbar() {
                 <div key={category.id} className="space-y-2">
                   <Link
                     href={`/menu/${category.slug}`}
-                    className="block text-lg font-semibold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors duration-200 py-3 px-4 rounded-xl"
+                    className="block text-lg font-semibold text-white hover:bg-green-500 hover:text-white transition-colors duration-200 py-3 px-4 rounded-xl"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {category.name}

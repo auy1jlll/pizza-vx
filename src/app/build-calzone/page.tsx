@@ -236,6 +236,7 @@ export default function CalzoneBuilder() {
   const searchParams = useSearchParams();
   const specialtyId = searchParams.get('specialty');
   const selectedSizeId = searchParams.get('size'); // Get the selected size from URL
+  const isFreshMode = searchParams.get('fresh') === 'true'; // Force fresh mode
   const { cartItems, addPizza, addDetailedPizza, calculateSubtotal } = useCart();
   const { show: showToast } = useToast();
   
@@ -301,6 +302,30 @@ export default function CalzoneBuilder() {
       });
       
       console.log('[CalzoneBuilder] Calzone data response status:', response.status);
+      
+      // Check if the response is actually JSON
+      const contentType = response.headers.get('content-type');
+      console.log('[CalzoneBuilder] Response content-type:', contentType);
+      
+      if (!response.ok) {
+        const responseText = await response.text();
+        console.error('[CalzoneBuilder] Non-OK response:', {
+          status: response.status,
+          statusText: response.statusText,
+          text: responseText.substring(0, 200) + '...'
+        });
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+      
+      if (!contentType || !contentType.includes('application/json')) {
+        const responseText = await response.text();
+        console.error('[CalzoneBuilder] Response is not JSON:', {
+          contentType,
+          text: responseText.substring(0, 200) + '...'
+        });
+        throw new Error(`Expected JSON response but got: ${contentType}`);
+      }
+      
       const data = await response.json();
       console.log('[CalzoneBuilder] Calzone data received:', {
         sizes: data.sizes?.length,
@@ -428,14 +453,16 @@ export default function CalzoneBuilder() {
     setActiveTab('SIZE');
   };
 
-  // Load specialty selection when both data and specialty are available
+  // Load specialty selection when both data and specialty are available (unless in fresh mode)
   useEffect(() => {
-    console.log('[CalzoneBuilder] useEffect triggered - data:', !!data, 'specialtyPizza:', !!specialtyPizza);
-    if (data && specialtyPizza) {
+    console.log('[CalzoneBuilder] useEffect triggered - data:', !!data, 'specialtyPizza:', !!specialtyPizza, 'isFreshMode:', isFreshMode);
+    if (data && specialtyPizza && !isFreshMode) {
       console.log('[CalzoneBuilder] Both data and specialty available, loading selection...');
       loadSpecialtyPizzaSelection(specialtyPizza);
+    } else if (isFreshMode) {
+      console.log('[CalzoneBuilder] Fresh mode detected - skipping specialty loading');
     }
-  }, [data, specialtyPizza]);
+  }, [data, specialtyPizza, isFreshMode]);
 
   // Calculate specialty pizza changes
   const getSpecialtyPizzaChanges = () => {
@@ -572,9 +599,9 @@ export default function CalzoneBuilder() {
   const calculateTotal = () => {
     if (!selection.size || !data) return 0;
     
-    // Use specialty pizza size-specific price if available, otherwise use size base price
+    // Use specialty pizza size-specific price if available and not in fresh mode, otherwise use size base price
     let total: number;
-    if (specialtyPizza) {
+    if (specialtyPizza && !isFreshMode) {
       // Find the size-specific price for this specialty pizza
       const sizeOption = specialtyPizza.availableSizes?.find(s => s.id === selection.size!.id);
       total = sizeOption ? sizeOption.price : specialtyPizza.basePrice;
@@ -582,14 +609,14 @@ export default function CalzoneBuilder() {
       total = selection.size.basePrice;
     }
     
-    // Only add modifiers if not using specialty base price
-    if (!specialtyPizza) {
+    // Only add modifiers if not using specialty base price (or in fresh mode)
+    if (!specialtyPizza || isFreshMode) {
       if (selection.crust) total += selection.crust.priceModifier;
       if (selection.sauce) total += selection.sauce.priceModifier;
     }
     
-    // Calculate topping modifications from the original specialty configuration
-    if (specialtyPizza && originalSpecialtyToppings.length > 0) {
+    // Calculate topping modifications from the original specialty configuration (unless in fresh mode)
+    if (specialtyPizza && originalSpecialtyToppings.length > 0 && !isFreshMode) {
       // For specialty pizzas, calculate the difference from the original configuration
       const changes = getSpecialtyPizzaChanges();
       
@@ -646,9 +673,9 @@ export default function CalzoneBuilder() {
   const getPricingBreakdown = () => {
     if (!selection.size || !data) return null;
     
-    // Calculate correct base price for specialty pizzas based on selected size
+    // Calculate correct base price for specialty pizzas based on selected size (unless in fresh mode)
     let basePrice: number;
-    if (specialtyPizza) {
+    if (specialtyPizza && !isFreshMode) {
       const sizeOption = specialtyPizza.availableSizes?.find(s => s.id === selection.size!.id);
       basePrice = sizeOption ? sizeOption.price : specialtyPizza.basePrice;
     } else {
@@ -657,16 +684,16 @@ export default function CalzoneBuilder() {
     
     const breakdown = {
       basePrice,
-      baseName: specialtyPizza ? specialtyPizza.name : `${selection.size.name} Calzone`,
-      crustModifier: !specialtyPizza && selection.crust ? selection.crust.priceModifier : 0,
-      sauceModifier: !specialtyPizza && selection.sauce ? selection.sauce.priceModifier : 0,
+      baseName: (specialtyPizza && !isFreshMode) ? specialtyPizza.name : `${selection.size.name} Calzone`,
+      crustModifier: (!specialtyPizza || isFreshMode) && selection.crust ? selection.crust.priceModifier : 0,
+      sauceModifier: (!specialtyPizza || isFreshMode) && selection.sauce ? selection.sauce.priceModifier : 0,
       addedToppingsPrice: 0,
       removedToppingsCredit: 0,
       intensityAdjustments: 0,
       total: 0
     };
     
-    if (specialtyPizza && originalSpecialtyToppings.length > 0) {
+    if (specialtyPizza && originalSpecialtyToppings.length > 0 && !isFreshMode) {
       const changes = getSpecialtyPizzaChanges();
       
       // Calculate added toppings price
@@ -842,7 +869,7 @@ export default function CalzoneBuilder() {
             <h1 className="text-xl font-semibold">
               {specialtyPizza ? 
                 `🥟 Customize ${specialtyPizza.name} Calzone` : 
-                '🥟 Build Your Perfect Calzone'
+                '🥟 Craft Your Perfect Calzone'
               }
             </h1>
             {specialtyPizza ? (
@@ -972,8 +999,8 @@ export default function CalzoneBuilder() {
               </div>
             </div>
 
-            {/* Specialty Calzone Info */}
-            {specialtyPizza && (
+            {/* Specialty Calzone Info - only show if not in fresh mode */}
+            {specialtyPizza && !isFreshMode && (
               <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 mb-6">
                 <div className="text-center">
                   <h3 className="font-semibold text-lg text-amber-800 mb-2">Customizing Specialty Calzone</h3>
@@ -1657,7 +1684,7 @@ export default function CalzoneBuilder() {
                               )}
                               
                               {/* Regular pizza toppings */}
-                              {!specialtyPizza && breakdown.addedToppingsPrice > 0 && (
+                              {(!specialtyPizza || isFreshMode) && breakdown.addedToppingsPrice > 0 && (
                                 <div className="flex justify-between">
                                   <span>Toppings</span>
                                   <span>+${breakdown.addedToppingsPrice.toFixed(2)}</span>

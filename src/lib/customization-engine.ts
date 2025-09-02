@@ -64,18 +64,42 @@ export class CustomizationEngine {
    * Get all available menu items with their customization options
    */
   async getMenuData(categorySlug?: string) {
-    const where = categorySlug ? { 
-      category: { 
-        slug: categorySlug,
-        isActive: true 
-      } 
-    } : {};
+    if (!categorySlug) {
+      // Return all items if no category specified
+      return await this.prisma.menuItem.findMany({
+        where: {
+          isActive: true,
+          isAvailable: true,
+        },
+        include: {
+          category: true,
+          customizationGroups: {
+            include: {
+              customizationGroup: {
+                include: {
+                  options: {
+                    where: { isActive: true },
+                    orderBy: { sortOrder: 'asc' }
+                  }
+                }
+              }
+            },
+            orderBy: { sortOrder: 'asc' }
+          }
+        },
+        orderBy: { sortOrder: 'asc' }
+      });
+    }
 
-    const menuItems = await this.prisma.menuItem.findMany({
+    // First, try to get items directly from the category
+    const directItems = await this.prisma.menuItem.findMany({
       where: {
         isActive: true,
         isAvailable: true,
-        ...where
+        category: { 
+          slug: categorySlug,
+          isActive: true 
+        }
       },
       include: {
         category: true,
@@ -96,7 +120,61 @@ export class CustomizationEngine {
       orderBy: { sortOrder: 'asc' }
     });
 
-    return menuItems;
+    // If we found direct items, return them
+    if (directItems.length > 0) {
+      return directItems;
+    }
+
+    // If no direct items, check if this is a parent category with subcategories
+    const parentCategory = await this.prisma.menuCategory.findUnique({
+      where: { 
+        slug: categorySlug,
+        isActive: true 
+      },
+      include: {
+        subcategories: {
+          where: { isActive: true }
+        }
+      }
+    });
+
+    // If it's a parent category with subcategories, get all items from subcategories
+    if (parentCategory && parentCategory.subcategories.length > 0) {
+      const subcategoryIds = parentCategory.subcategories.map(sub => sub.id);
+      
+      return await this.prisma.menuItem.findMany({
+        where: {
+          isActive: true,
+          isAvailable: true,
+          categoryId: {
+            in: subcategoryIds
+          }
+        },
+        include: {
+          category: true,
+          customizationGroups: {
+            include: {
+              customizationGroup: {
+                include: {
+                  options: {
+                    where: { isActive: true },
+                    orderBy: { sortOrder: 'asc' }
+                  }
+                }
+              }
+            },
+            orderBy: { sortOrder: 'asc' }
+          }
+        },
+        orderBy: [
+          { category: { sortOrder: 'asc' } },
+          { sortOrder: 'asc' }
+        ]
+      });
+    }
+
+    // If neither direct items nor subcategories found, return empty array
+    return [];
   }
 
   /**
@@ -104,7 +182,10 @@ export class CustomizationEngine {
    */
   async getCategories() {
     return await this.prisma.menuCategory.findMany({
-      where: { isActive: true },
+      where: { 
+        isActive: true,
+        parentCategoryId: null // Only get root categories
+      },
       include: {
         customizationGroups: {
           include: {
@@ -118,6 +199,36 @@ export class CustomizationEngine {
         subcategories: {
           where: { isActive: true },
           include: {
+            _count: {
+              select: { menuItems: true }
+            }
+          },
+          orderBy: { sortOrder: 'asc' }
+        },
+        _count: {
+          select: { menuItems: true }
+        }
+      },
+      orderBy: { sortOrder: 'asc' }
+    });
+  }
+
+  /**
+   * Get categories optimized for navbar (lightweight)
+   */
+  async getCategoriesForNavbar() {
+    return await this.prisma.menuCategory.findMany({
+      where: { 
+        isActive: true,
+        parentCategoryId: null // Only get root categories
+      },
+      include: {
+        subcategories: {
+          where: { isActive: true },
+          select: {
+            id: true,
+            name: true,
+            slug: true,
             _count: {
               select: { menuItems: true }
             }

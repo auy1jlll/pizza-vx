@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// GET /api/admin/menu/modifiers - List modifiers
+// GET /api/management-portal/menu/modifiers - List modifiers
 async function getModifiersHandler(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -68,7 +68,7 @@ async function getModifiersHandler(request: NextRequest) {
   }
 }
 
-// POST /api/admin/menu/modifiers - Create modifier
+// POST /api/management-portal/menu/modifiers - Create modifier
 async function createModifierHandler(request: NextRequest) {
   try {
     const data = await request.json();

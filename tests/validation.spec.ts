@@ -17,7 +17,7 @@ test.describe('Menu Validation System', () => {
         sortOrder: 1
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/categories`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/categories`, {
         data: validCategory,
         headers: {
           'Content-Type': 'application/json'
@@ -37,7 +37,7 @@ test.describe('Menu Validation System', () => {
         description: 'This should fail validation'
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/categories`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/categories`, {
         data: invalidCategory,
         headers: {
           'Content-Type': 'application/json'
@@ -58,7 +58,7 @@ test.describe('Menu Validation System', () => {
         description: 'This should fail validation'
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/categories`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/categories`, {
         data: invalidCategory,
         headers: {
           'Content-Type': 'application/json'
@@ -81,7 +81,7 @@ test.describe('Menu Validation System', () => {
         description: 'First category'
       };
 
-      await request.post(`${BASE_URL}/api/admin/menu/categories`, {
+      await request.post(`${BASE_URL}/api/management-portal/menu/categories`, {
         data: firstCategory,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -93,7 +93,7 @@ test.describe('Menu Validation System', () => {
         description: 'Duplicate slug category'
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/categories`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/categories`, {
         data: duplicateCategory,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -115,7 +115,7 @@ test.describe('Menu Validation System', () => {
         description: 'Category for testing menu items'
       };
 
-      const categoryResponse = await request.post(`${BASE_URL}/api/admin/menu/categories`, {
+      const categoryResponse = await request.post(`${BASE_URL}/api/management-portal/menu/categories`, {
         data: testCategory,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -134,7 +134,7 @@ test.describe('Menu Validation System', () => {
         isAvailable: true
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/items`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/items`, {
         data: validMenuItem,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -154,7 +154,7 @@ test.describe('Menu Validation System', () => {
         description: 'Invalid item with empty name'
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/items`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/items`, {
         data: invalidMenuItem,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -173,7 +173,7 @@ test.describe('Menu Validation System', () => {
         description: 'Invalid item with negative price'
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/items`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/items`, {
         data: invalidMenuItem,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -191,7 +191,7 @@ test.describe('Menu Validation System', () => {
         description: 'Invalid item without category'
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/items`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/items`, {
         data: invalidMenuItem,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -210,7 +210,7 @@ test.describe('Menu Validation System', () => {
         description: 'Invalid item with bad category ID'
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/items`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/items`, {
         data: invalidMenuItem,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -232,7 +232,7 @@ test.describe('Menu Validation System', () => {
         maxSelections: 1
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/customization-groups`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/customization-groups`, {
         data: validGroup,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -251,7 +251,7 @@ test.describe('Menu Validation System', () => {
         description: 'Invalid group with empty name'
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/customization-groups`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/customization-groups`, {
         data: invalidGroup,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -269,7 +269,7 @@ test.describe('Menu Validation System', () => {
         description: 'Invalid group with bad type'
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/customization-groups`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/customization-groups`, {
         data: invalidGroup,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -288,7 +288,7 @@ test.describe('Menu Validation System', () => {
         maxSelections: 2  // min > max should fail
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/customization-groups`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/customization-groups`, {
         data: invalidGroup,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -311,7 +311,7 @@ test.describe('Menu Validation System', () => {
         description: 'Group for testing options'
       };
 
-      const groupResponse = await request.post(`${BASE_URL}/api/admin/menu/customization-groups`, {
+      const groupResponse = await request.post(`${BASE_URL}/api/management-portal/menu/customization-groups`, {
         data: testGroup,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -331,7 +331,7 @@ test.describe('Menu Validation System', () => {
         isActive: true
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/customization-options`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/customization-options`, {
         data: validOption,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -350,7 +350,7 @@ test.describe('Menu Validation System', () => {
         description: 'Invalid option with empty name'
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/customization-options`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/customization-options`, {
         data: invalidOption,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -368,7 +368,7 @@ test.describe('Menu Validation System', () => {
         description: 'Invalid option with bad group ID'
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/customization-options`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/customization-options`, {
         data: invalidOption,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -385,7 +385,7 @@ test.describe('Menu Validation System', () => {
         priceModifier: 150.00  // Should trigger warning/validation
       };
 
-      const response = await request.post(`${BASE_URL}/api/admin/menu/customization-options`, {
+      const response = await request.post(`${BASE_URL}/api/management-portal/menu/customization-options`, {
         data: invalidOption,
         headers: { 'Content-Type': 'application/json' }
       });

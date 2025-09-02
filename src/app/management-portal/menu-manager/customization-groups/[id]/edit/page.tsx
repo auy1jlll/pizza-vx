@@ -52,7 +52,7 @@ export default function EditCustomizationGroupPage() {
 
   const fetchGroup = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/menu/customization-groups/${id}`);
+      const response = await fetch(`/api/management-portal/menu/customization-groups/${id}`);
       
       if (response.status === 401) {
         alert('Please log in as administrator');
@@ -88,7 +88,7 @@ export default function EditCustomizationGroupPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/admin/menu/categories');
+      const response = await fetch('/api/management-portal/menu/categories');
       if (response.ok) {
         const data = await response.json();
         setCategories(Array.isArray(data) ? data : []);
@@ -110,7 +110,7 @@ export default function EditCustomizationGroupPage() {
         categoryId: formData.categoryId || null
       };
 
-      const response = await fetch(`/api/admin/menu/customization-groups/${params.id}`, {
+      const response = await fetch(`/api/management-portal/menu/customization-groups/${params.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

@@ -37,7 +37,7 @@ export default function ViewCategoryPage() {
   const fetchCategory = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/menu/categories/${categoryId}`);
+      const response = await fetch(`/api/management-portal/menu/categories/${categoryId}`);
       const result = await response.json();
 
       if (result.success) {

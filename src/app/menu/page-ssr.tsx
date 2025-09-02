@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { ChevronRight, Clock, Star, Utensils, ShoppingCart } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { Metadata } from 'next';
-import MenuClientWrapper from '@/components/MenuClientWrapper';
 
 interface MenuCategory {
   id: string;
@@ -141,7 +140,6 @@ export default async function MenuPage() {
       <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '4s'}}></div>
 
       {/* Client-side functionality wrapper */}
-      <MenuClientWrapper>
         {/* Hero Section */}
         <div className="relative z-10">
           <div className="container mx-auto px-4">
@@ -265,7 +263,6 @@ export default async function MenuPage() {
             </div>
           </div>
         </div>
-      </MenuClientWrapper>
     </div>
   );
 }

@@ -54,7 +54,7 @@ export default function ViewCustomizationGroupPage() {
 
   const fetchGroup = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/menu/customization-groups/${id}`);
+      const response = await fetch(`/api/management-portal/menu/customization-groups/${id}`);
       
       if (response.status === 401) {
         toast.showError('Please log in as administrator');
@@ -89,7 +89,7 @@ export default function ViewCustomizationGroupPage() {
       type: 'danger',
       onConfirm: async () => {
         try {
-          const response = await fetch(`/api/admin/menu/customization-groups/${group.id}`, {
+          const response = await fetch(`/api/management-portal/menu/customization-groups/${group.id}`, {
             method: 'DELETE'
           });
 
@@ -123,7 +123,7 @@ export default function ViewCustomizationGroupPage() {
       type: 'danger',
       onConfirm: async () => {
         try {
-          const response = await fetch(`/api/admin/menu/customization-options/${optionId}`, {
+          const response = await fetch(`/api/management-portal/menu/customization-options/${optionId}`, {
             method: 'DELETE'
           });
 

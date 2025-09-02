@@ -110,7 +110,7 @@ export function createRateLimitMiddleware(req: any, res: any, next: any) {
     return authRateLimit(req, res, next);
   }
   
-  if (path.includes('/api/upload') || path.includes('/api/admin/upload')) {
+  if (path.includes('/api/upload') || path.includes('/api/management-portal/upload')) {
     return uploadRateLimit(req, res, next);
   }
   

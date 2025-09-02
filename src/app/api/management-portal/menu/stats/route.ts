@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-// GET /api/admin/menu/stats - Get menu statistics
+// GET /api/management-portal/menu/stats - Get menu statistics
 export async function GET(request: NextRequest) {
   try {
     const [

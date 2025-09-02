@@ -137,36 +137,32 @@ async function checkIfDescendant(categoryId: string, potentialAncestorId: string
   return checkIfDescendant(category.parentCategoryId, potentialAncestorId);
 }
 
-// DELETE /api/admin/menu/categories/[id] - Delete category
+// DELETE /api/admin/menu/categories/[id] - Delete category (DEPRECATED - proxies to management-portal)
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const resolvedParams = await params;
     const { id } = resolvedParams;
-
-    // Check if category has menu items
-    const itemCount = await prisma.menuItem.count({
-      where: { categoryId: id }
+    
+    console.log('DEPRECATED: Using old admin API - please update to /api/management-portal/menu/categories');
+    
+    // Proxy to the new management portal API
+    const newUrl = new URL(request.url);
+    newUrl.pathname = `/api/management-portal/menu/categories/${id}`;
+    
+    const response = await fetch(newUrl.toString(), {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      }
     });
-
-    if (itemCount > 0) {
-      return NextResponse.json(
-        { success: false, error: 'Cannot delete category with existing menu items' },
-        { status: 400 }
-      );
-    }
-
-    await prisma.menuCategory.delete({
-      where: { id }
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: 'Category deleted successfully'
-    });
+    
+    const result = await response.json();
+    
+    return NextResponse.json(result, { status: response.status });
   } catch (error) {
-    console.error('Error deleting category:', error);
+    console.error('Error in deprecated admin route:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to delete category' },
+      { success: false, error: 'Failed to proxy to new API endpoint' },
       { status: 500 }
     );
   }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { MenuValidator } from '@/lib/validation/menu-validation';
 
-// GET /api/admin/menu/items - Get all menu items with pagination and modifiers
+// GET /api/management-portal/menu/items - Get all menu items with pagination and modifiers
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/admin/menu/items - Create new menu item with modifiers
+// POST /api/management-portal/menu/items - Create new menu item with modifiers
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

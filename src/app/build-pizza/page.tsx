@@ -237,7 +237,18 @@ export default function PizzaBuilder() {
   const specialtyId = searchParams.get('specialty');
   const selectedSizeId = searchParams.get('size'); // Get the selected size from URL
   const productType = searchParams.get('productType') || 'pizza'; // 'pizza' or 'calzone'
+  const isFreshMode = searchParams.get('fresh') === 'true'; // Force fresh mode
   const isCalzoneMode = productType === 'calzone';
+  
+  // DEBUG: Log all URL parameters
+  console.log('🔍 [DEBUG] All URL parameters:');
+  for (const [key, value] of searchParams.entries()) {
+    console.log(`  ${key}: ${value}`);
+  }
+  console.log('🔍 [DEBUG] specialtyId extracted:', specialtyId);
+  console.log('🔍 [DEBUG] isFreshMode:', isFreshMode);
+  console.log('🔍 [DEBUG] Current URL would be:', typeof window !== 'undefined' ? window.location.href : 'SSR');
+  
   const { cartItems, addPizza, addDetailedPizza, calculateSubtotal } = useCart();
   const { show: showToast } = useToast();
   
@@ -277,18 +288,22 @@ export default function PizzaBuilder() {
   ];
 
   useEffect(() => {
-    console.log('[PizzaBuilder] Component mounting with specialtyId:', specialtyId, 'selectedSizeId:', selectedSizeId);
+    console.log('[PizzaBuilder] Component mounting with specialtyId:', specialtyId, 'selectedSizeId:', selectedSizeId, 'isFreshMode:', isFreshMode);
     console.log('[PizzaBuilder] About to fetch pizza data...');
     fetchPizzaData();
     
-    // Load specialty pizza if specified
-    if (specialtyId) {
+    // Load specialty pizza if specified AND not in fresh mode
+    if (specialtyId && !isFreshMode) {
       console.log('[PizzaBuilder] SpecialtyId found, fetching specialty pizza...');
       fetchSpecialtyPizza(specialtyId);
     } else {
-      console.log('[PizzaBuilder] No specialtyId, this is fresh pizza building');
+      if (isFreshMode) {
+        console.log('[PizzaBuilder] Fresh mode - forcing basic pizza building, ignoring any specialty');
+      } else {
+        console.log('[PizzaBuilder] No specialtyId, this is fresh pizza building');
+      }
     }
-  }, [specialtyId]);
+  }, [specialtyId, isFreshMode]);
 
   const fetchPizzaData = async () => {
     console.log('[PizzaBuilder] fetchPizzaData started for:', isCalzoneMode ? 'CALZONE' : 'PIZZA');
@@ -304,6 +319,30 @@ export default function PizzaBuilder() {
       });
       
       console.log('[PizzaBuilder] Pizza data response status:', response.status);
+      
+      // Check if the response is actually JSON
+      const contentType = response.headers.get('content-type');
+      console.log('[PizzaBuilder] Response content-type:', contentType);
+      
+      if (!response.ok) {
+        const responseText = await response.text();
+        console.error('[PizzaBuilder] Non-OK response:', {
+          status: response.status,
+          statusText: response.statusText,
+          text: responseText.substring(0, 200) + '...'
+        });
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+      
+      if (!contentType || !contentType.includes('application/json')) {
+        const responseText = await response.text();
+        console.error('[PizzaBuilder] Response is not JSON:', {
+          contentType,
+          text: responseText.substring(0, 200) + '...'
+        });
+        throw new Error(`Expected JSON response but got: ${contentType}`);
+      }
+      
       const data = await response.json();
       console.log('[PizzaBuilder] Pizza data received:', {
         sizes: data.sizes?.length,
@@ -323,8 +362,8 @@ export default function PizzaBuilder() {
         }
         
         // Set default selections ONLY for fresh pizza building
-        if (!specialtyId) {
-          console.log('[PizzaBuilder] Fresh pizza - setting defaults');
+        if (!specialtyId || isFreshMode) {
+          console.log('[PizzaBuilder] Fresh pizza - setting defaults (specialty ignored due to fresh mode)');
           // Fresh pizza building - use proper defaults
           const defaultSize = data.sizes.find((s: PizzaSize) => s.sortOrder === 2) || data.sizes[1] || data.sizes[0];
           const defaultCrust = data.crusts.find((c: PizzaCrust) => c.sortOrder === 1) || data.crusts[0];
@@ -575,9 +614,9 @@ export default function PizzaBuilder() {
   const calculateTotal = () => {
     if (!selection.size || !data) return 0;
     
-    // Use specialty pizza size-specific price if available, otherwise use size base price
+    // Use specialty pizza size-specific price if available and not in fresh mode, otherwise use size base price
     let total: number;
-    if (specialtyPizza) {
+    if (specialtyPizza && !isFreshMode) {
       // Find the size-specific price for this specialty pizza
       const sizeOption = specialtyPizza.availableSizes?.find(s => s.id === selection.size!.id);
       total = sizeOption ? sizeOption.price : specialtyPizza.basePrice;
@@ -585,14 +624,14 @@ export default function PizzaBuilder() {
       total = selection.size.basePrice;
     }
     
-    // Only add modifiers if not using specialty base price
-    if (!specialtyPizza) {
+    // Only add modifiers if not using specialty base price (or in fresh mode)
+    if (!specialtyPizza || isFreshMode) {
       if (selection.crust) total += selection.crust.priceModifier;
       if (selection.sauce) total += selection.sauce.priceModifier;
     }
     
-    // Calculate topping modifications from the original specialty configuration
-    if (specialtyPizza && originalSpecialtyToppings.length > 0) {
+    // Calculate topping modifications from the original specialty configuration (unless in fresh mode)
+    if (specialtyPizza && originalSpecialtyToppings.length > 0 && !isFreshMode) {
       // For specialty pizzas, calculate the difference from the original configuration
       const changes = getSpecialtyPizzaChanges();
       
@@ -649,9 +688,9 @@ export default function PizzaBuilder() {
   const getPricingBreakdown = () => {
     if (!selection.size || !data) return null;
     
-    // Calculate correct base price for specialty pizzas based on selected size
+    // Calculate correct base price for specialty pizzas based on selected size (unless in fresh mode)
     let basePrice: number;
-    if (specialtyPizza) {
+    if (specialtyPizza && !isFreshMode) {
       const sizeOption = specialtyPizza.availableSizes?.find(s => s.id === selection.size!.id);
       basePrice = sizeOption ? sizeOption.price : specialtyPizza.basePrice;
     } else {
@@ -660,16 +699,16 @@ export default function PizzaBuilder() {
     
     const breakdown = {
       basePrice,
-      baseName: specialtyPizza ? specialtyPizza.name : `${selection.size.name} ${isCalzoneMode ? 'Calzone' : 'Pizza'}`,
-      crustModifier: !specialtyPizza && selection.crust ? selection.crust.priceModifier : 0,
-      sauceModifier: !specialtyPizza && selection.sauce ? selection.sauce.priceModifier : 0,
+      baseName: (specialtyPizza && !isFreshMode) ? specialtyPizza.name : `${selection.size.name} ${isCalzoneMode ? 'Calzone' : 'Pizza'}`,
+      crustModifier: (!specialtyPizza || isFreshMode) && selection.crust ? selection.crust.priceModifier : 0,
+      sauceModifier: (!specialtyPizza || isFreshMode) && selection.sauce ? selection.sauce.priceModifier : 0,
       addedToppingsPrice: 0,
       removedToppingsCredit: 0,
       intensityAdjustments: 0,
       total: 0
     };
     
-    if (specialtyPizza && originalSpecialtyToppings.length > 0) {
+    if (specialtyPizza && originalSpecialtyToppings.length > 0 && !isFreshMode) {
       const changes = getSpecialtyPizzaChanges();
       
       // Calculate added toppings price
@@ -795,7 +834,7 @@ export default function PizzaBuilder() {
         <div className="text-center">
           <div className="loading-spinner mx-auto mb-4"></div>
           <p className="text-lg text-gray-600">
-            Loading {isCalzoneMode ? 'Calzone' : 'Pizza'} Builder...
+            Loading {isCalzoneMode ? 'Calzone' : 'Pizza'} Maker...
           </p>
         </div>
       </div>
@@ -843,7 +882,7 @@ export default function PizzaBuilder() {
             <h1 className="text-xl font-semibold">
               {specialtyPizza ? 
                 `🥟 Customize ${specialtyPizza.name}${isCalzoneMode ? ' Calzone' : ''}` : 
-                isCalzoneMode ? '🥟 Build Your Perfect Calzone' : '🍕 Build Your Perfect Pizza'
+                isCalzoneMode ? '🥟 Craft Your Perfect Calzone' : '🍕 Craft Your Perfect Pizza'
               }
             </h1>
             {specialtyPizza ? (
@@ -1009,8 +1048,8 @@ export default function PizzaBuilder() {
               </div>
             </div>
 
-            {/* Specialty Pizza Info */}
-            {specialtyPizza && (
+            {/* Specialty Pizza Info - only show if not in fresh mode */}
+            {specialtyPizza && !isFreshMode && (
               <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-4 mb-6">
                 <div className="text-center">
                   <h3 className="font-semibold text-lg text-red-800 mb-2">Customizing Specialty Pizza</h3>
@@ -1694,7 +1733,7 @@ export default function PizzaBuilder() {
                               )}
                               
                               {/* Regular pizza toppings */}
-                              {!specialtyPizza && breakdown.addedToppingsPrice > 0 && (
+                              {(!specialtyPizza || isFreshMode) && breakdown.addedToppingsPrice > 0 && (
                                 <div className="flex justify-between">
                                   <span>Toppings</span>
                                   <span>+${breakdown.addedToppingsPrice.toFixed(2)}</span>

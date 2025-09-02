@@ -22,17 +22,18 @@ export default function DynamicNavigation() {
 
   return (
     <>
-      {/* Professional QSR-Style Navigation */}
-      <div className="bg-gradient-to-br from-orange-50 to-red-50 p-4 relative z-40 overflow-visible">
-        <ProfessionalNavbar />
-      </div>
-
-      {/* Secondary Actions Bar (if needed) */}
-      <div className="bg-gradient-to-r from-gray-700 to-gray-800 px-4 py-2 shadow-sm">
+      {/* Secondary Actions Bar - Top Static Bar */}
+      <div className="bg-gradient-to-r from-gray-700 to-gray-800 px-4 py-2 shadow-sm relative z-[100000]">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-4 text-sm text-gray-300">
-            <Link href="/build-pizza" className="hover:text-white transition-colors">
-              Pizza Builder
+            <Link href="/" className="hover:text-white transition-colors">
+              Home
+            </Link>
+            <Link href="/build-pizza?fresh=true" className="hover:text-white transition-colors">
+              Pizza Maker
+            </Link>
+            <Link href="/build-calzone?fresh=true" className="hover:text-white transition-colors">
+              Calzone Maker
             </Link>
             <Link href="/locations" className="hover:text-white transition-colors">
               Locations
@@ -44,6 +45,11 @@ export default function DynamicNavigation() {
           
           <AuthNav />
         </div>
+      </div>
+
+      {/* Professional QSR-Style Navigation - TRUE 0PX HEIGHT WITH NEGATIVE MARGIN */}
+      <div className="bg-gradient-to-br from-orange-50 to-red-50 relative z-30 overflow-visible -mt-0 border-t-0">
+        <ProfessionalNavbar />
       </div>
     </>
   );

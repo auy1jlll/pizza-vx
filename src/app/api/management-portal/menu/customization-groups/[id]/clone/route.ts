@@ -4,7 +4,7 @@ import { verifyAdminToken } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
-// POST /api/admin/menu/customization-groups/[id]/clone - Clone a customization group with all its options
+// POST /api/management-portal/menu/customization-groups/[id]/clone - Clone a customization group with all its options
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

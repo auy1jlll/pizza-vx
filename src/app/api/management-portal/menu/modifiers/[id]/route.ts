@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// GET /api/admin/menu/modifiers/[id] - Get single modifier
+// GET /api/management-portal/menu/modifiers/[id] - Get single modifier
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -43,7 +43,7 @@ export async function GET(
   }
 }
 
-// PUT /api/admin/menu/modifiers/[id] - Update modifier
+// PUT /api/management-portal/menu/modifiers/[id] - Update modifier
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -115,7 +115,7 @@ export async function PUT(
   }
 }
 
-// DELETE /api/admin/menu/modifiers/[id] - Delete modifier
+// DELETE /api/management-portal/menu/modifiers/[id] - Delete modifier
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }

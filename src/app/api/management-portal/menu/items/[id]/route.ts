@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// GET /api/admin/menu/items/[id] - Get single menu item
+// GET /api/management-portal/menu/items/[id] - Get single menu item
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -49,7 +49,7 @@ export async function GET(
   }
 }
 
-// PATCH /api/admin/menu/items/[id] - Update menu item
+// PATCH /api/management-portal/menu/items/[id] - Update menu item
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -162,7 +162,7 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/admin/menu/items/[id] - Delete menu item
+// DELETE /api/management-portal/menu/items/[id] - Delete menu item
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

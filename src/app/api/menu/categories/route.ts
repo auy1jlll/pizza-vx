@@ -58,8 +58,8 @@ export async function GET(request: NextRequest) {
         }
       });
     } else {
-      // Get all categories
-      const categories = await engine.getCategories();
+      // Get all categories (optimized for navbar)
+      const categories = await engine.getCategoriesForNavbar();
       return NextResponse.json({
         success: true,
         data: categories

@@ -5,7 +5,7 @@ import { verifyAdminToken } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
-// GET /api/admin/menu/customization-groups - Get all customization groups
+// GET /api/management-portal/menu/customization-groups - Get all customization groups
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/admin/menu/customization-groups - Create new customization group
+// POST /api/management-portal/menu/customization-groups - Create new customization group
 export async function POST(request: NextRequest) {
   try {
     // Verify admin authentication

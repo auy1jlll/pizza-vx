@@ -4,7 +4,7 @@ import { verifyAdminToken } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
-// GET /api/admin/menu/customization-groups/[id] - Get single customization group
+// GET /api/management-portal/menu/customization-groups/[id] - Get single customization group
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -59,7 +59,7 @@ export async function GET(
   }
 }
 
-// PATCH /api/admin/menu/customization-groups/[id] - Update customization group
+// PATCH /api/management-portal/menu/customization-groups/[id] - Update customization group
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -197,7 +197,7 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/admin/menu/customization-groups/[id] - Delete customization group
+// DELETE /api/management-portal/menu/customization-groups/[id] - Delete customization group
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

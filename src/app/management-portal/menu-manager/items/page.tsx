@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FiPlus, FiEdit, FiTrash2, FiEye, FiSearch, FiFilter } from 'react-icons/fi';
+import { FiPlus, FiEdit, FiTrash2, FiEye, FiSearch, FiFilter, FiCopy } from 'react-icons/fi';
 import AdminPageLayout from '@/components/AdminPageLayout';
 import { useSexyToast } from '@/components/SexyToastProvider';
 
@@ -101,6 +101,35 @@ export default function ItemsPage() {
         } catch (error) {
           console.error('Error deleting item:', error);
           toast.showError('Failed to delete item');
+        }
+      }
+    });
+  };
+
+  const handleCloneItem = async (id: string, name: string) => {
+    toast.showConfirm({
+      title: 'Clone Menu Item',
+      message: `Are you sure you want to clone "${name}"? This will create a copy with all customization groups and modifiers.`,
+      confirmText: 'Clone',
+      cancelText: 'Cancel',
+      type: 'info',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/management-portal/menu/items/${id}/clone`, {
+            method: 'POST'
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            toast.showSuccess(result.message || `Successfully cloned "${name}"`);
+            fetchItems(); // Refresh the items list
+          } else {
+            const error = await response.json();
+            toast.showError(error.error || 'Failed to clone item');
+          }
+        } catch (error) {
+          console.error('Error cloning item:', error);
+          toast.showError('Failed to clone item');
         }
       }
     });
@@ -244,6 +273,13 @@ export default function ItemsPage() {
                     >
                       <FiEdit className="w-4 h-4" />
                       Edit
+                    </button>
+                    <button
+                      onClick={() => handleCloneItem(item.id, item.name)}
+                      className="px-3 py-2 text-sm text-green-300 bg-green-500/20 border border-green-400/30 rounded-lg hover:bg-green-500/30 transition-all"
+                      title="Clone item with all customizations"
+                    >
+                      <FiCopy className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteItem(item.id)}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useUser } from '@/contexts/UserContext';
 
@@ -12,10 +12,11 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { user, loading } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Don't apply auth checks to login page
-  const isLoginPage = typeof window !== 'undefined' && window.location.pathname === '/management-portal/login';
+  const isLoginPage = pathname === '/management-portal/login';
 
   useEffect(() => {
     if (!loading && !isLoginPage && (!user || (user.role !== 'ADMIN' && user.role !== 'EMPLOYEE'))) {

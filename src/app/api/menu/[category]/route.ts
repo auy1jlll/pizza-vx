@@ -32,11 +32,26 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
       );
     }
 
+    // Get the category info - either from the first item or find the parent category
+    let categoryInfo = menuItems[0]?.category;
+    
+    // If items are from subcategories, get the parent category info
+    if (menuItems.length > 0) {
+      const firstItemCategory = menuItems[0].category;
+      if (firstItemCategory.parentCategoryId) {
+        // These are items from subcategories, get the parent category
+        const parentCategory = await engine.getCategoryBySlug(category);
+        if (parentCategory) {
+          categoryInfo = parentCategory;
+        }
+      }
+    }
+
     console.log('✅ Returning menu items for category:', category);
     return NextResponse.json({
       success: true,
       data: {
-        category: menuItems[0]?.category,
+        category: categoryInfo,
         items: menuItems
       }
     });

@@ -13,7 +13,8 @@ import {
   ChevronDown,
   CheckCircle,
   XCircle,
-  ArrowLeft
+  ArrowLeft,
+  Copy
 } from 'lucide-react';
 
 interface MenuCategory {
@@ -47,7 +48,11 @@ export default function CategoriesPage() {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/management-portal/menu/categories');
+      // Add cache-busting timestamp to prevent browser caching
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/api/management-portal/menu/categories?t=${timestamp}`, {
+        cache: 'no-store'
+      });
       
       if (response.ok) {
         const result = await response.json();
@@ -98,11 +103,52 @@ export default function CategoriesPage() {
         method: 'DELETE'
       });
 
-      if (response.ok) {
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // Immediately remove from state for instant UI feedback
+        setCategories(prev => prev.filter(cat => cat.id !== categoryId));
+        
+        // Then refresh from server to ensure consistency
         await fetchCategories();
+        
+        console.log('Category deleted successfully');
+        alert('Category deleted successfully!');
+      } else {
+        // Show error message to user - this is expected behavior for validation failures
+        const errorMessage = result.error || 'Failed to delete category';
+        alert(`Cannot delete category: ${errorMessage}`);
+        // Don't use console.error for expected validation messages as it breaks the page
+        console.log('Delete prevented due to validation:', errorMessage);
       }
     } catch (err) {
       console.error('Error deleting category:', err);
+      alert('Network error: Unable to delete category. Please try again.');
+    }
+  };
+
+  const cloneCategory = async (categoryId: string, categoryName: string) => {
+    if (!confirm(`Are you sure you want to clone "${categoryName}"? This will create a copy with all menu items and customization groups.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/management-portal/menu/categories/${categoryId}/clone`, {
+        method: 'POST'
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // Refresh the categories list to show the new cloned category
+        await fetchCategories();
+        alert(result.message || `Successfully cloned "${categoryName}"`);
+      } else {
+        alert(result.error || 'Failed to clone category');
+      }
+    } catch (err) {
+      console.error('Error cloning category:', err);
+      alert('Network error: Unable to clone category. Please try again.');
     }
   };
 
@@ -309,6 +355,13 @@ export default function CategoriesPage() {
                       <Edit className="h-4 w-4 inline mr-1" />
                       Edit
                     </Link>
+                    <button
+                      onClick={() => cloneCategory(category.id, category.name)}
+                      className="bg-green-500/20 hover:bg-green-500/30 text-green-300 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium"
+                      title="Clone category with all items"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
                     <button
                       onClick={() => deleteCategory(category.id)}
                       className="bg-red-500/20 hover:bg-red-500/30 text-red-300 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium"
