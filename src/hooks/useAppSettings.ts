@@ -69,6 +69,9 @@ interface AppSettings {
   terms_url: string;
   privacy_url: string;
   refund_policy_url: string;
+  
+  // Logo
+  appLogoUrl: string;
 }
 
 // SSR-safe initial settings - matches expected content to prevent hydration issues
@@ -122,7 +125,8 @@ const ssrSafeSettings: AppSettings = {
   footer_description: 'Experience the art of pizza making.',
   terms_url: '/terms',
   privacy_url: '/privacy',
-  refund_policy_url: '/refund-policy'
+  refund_policy_url: '/refund-policy',
+  appLogoUrl: ''
 };
 
 export function useAppSettings() {

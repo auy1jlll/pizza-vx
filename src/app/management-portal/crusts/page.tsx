@@ -60,7 +60,7 @@ export default function PizzaCrustsAdmin() {
   // Fetch crusts
   const fetchCrusts = async () => {
     try {
-      const response = await fetch('/api/management-portal/crusts');
+      const response = await fetch('/api/admin/crusts');
       if (response.status === 401) {
         window.location.href = '/management-portal/login';
         return;
@@ -82,7 +82,7 @@ export default function PizzaCrustsAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const url = editingCrust ? `/api/management-portal/crusts/${editingCrust.id}` : '/api/management-portal/crusts';
+      const url = editingCrust ? `/api/admin/crusts/${editingCrust.id}` : '/api/admin/crusts';
       const method = editingCrust ? 'PUT' : 'POST';
       
       const response = await fetch(url, {
@@ -115,7 +115,7 @@ export default function PizzaCrustsAdmin() {
     if (!confirm('Are you sure you want to delete this crust?')) return;
     
     try {
-      const response = await fetch(`/api/management-portal/crusts/${id}`, {
+      const response = await fetch(`/api/admin/crusts/${id}`, {
         method: 'DELETE',
       });
 

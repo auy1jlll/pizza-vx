@@ -110,15 +110,28 @@ export default function Home() {
 
             {/* Right Side - Visual Appeal */}
             <div className="relative">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-2xl">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-2xl overflow-visible">
                 <div className="text-center space-y-4">
-                  {/* Pizza Image */}
-                  <div className="relative w-64 h-64 mx-auto">
-                    <PizzaImage 
-                      src="/images/fresh-pizza.jpg" 
-                      alt="Fresh pizza from our oven"
-                      className="w-full h-full object-cover rounded-full border-4 border-yellow-400 shadow-xl transform scale-125"
-                    />
+                  {/* Pizza Image - BREAKOUT CIRCLE DESIGN */}
+                  <div className="relative w-64 h-64 mx-auto overflow-visible">
+                    {/* Invisible spacer to maintain layout flow */}
+                    <div className="w-full h-full"></div>
+                    
+                    {/* Floating Pizza Circle - Breaks out of container */}
+                    <div className="absolute inset-0 -m-16 flex items-center justify-center">
+                      <div className="relative w-80 h-80 animate-pulse">
+                        <PizzaImage 
+                          src="/images/fresh-pizza.jpg" 
+                          alt="Fresh pizza from our oven"
+                          className="w-full h-full object-cover rounded-full border-6 border-yellow-400 shadow-2xl transform hover:scale-110 transition-all duration-700 ease-out ring-4 ring-yellow-400/30 hover:ring-yellow-400/60"
+                        />
+                        {/* Glow effect behind the pizza */}
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400/20 to-orange-500/20 blur-xl -z-10 animate-pulse"></div>
+                        {/* Floating sparkles */}
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full opacity-80 animate-ping"></div>
+                        <div className="absolute -bottom-3 -left-3 w-4 h-4 bg-orange-400 rounded-full opacity-60 animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                      </div>
+                    </div>
                   </div>
                   <h3 className="text-xl font-bold text-yellow-300">Fresh From Our Oven</h3>
                   <p className="text-gray-200 text-sm">

@@ -206,38 +206,35 @@ export default function CategoriesPage() {
 
   return (
     <AdminLayout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        {/* Header */}
-        <div className="bg-white/10 backdrop-blur-xl border-b border-white/20 px-6 py-8">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-            <div className="flex items-center gap-4">
-              <Link 
-                href="/management-portal/menu-manager"
-                className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-300"
-              >
-                <ArrowLeft className="h-6 w-6" />
-              </Link>
-              <div>
-                <h1 className="text-3xl font-bold text-white flex items-center">
-                  <span className="text-4xl mr-3">📂</span>
-                  Menu Categories
-                </h1>
-                <p className="text-white/70 mt-2">
-                  Manage menu categories and their settings
-                </p>
-              </div>
-            </div>
-            <Link
-              href="/management-portal/menu-manager/categories/new"
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold shadow-xl"
+      {/* Header */}
+      <div className="bg-white/10 backdrop-blur-xl border-b border-white/20 px-6 py-8 -m-6 mb-6">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div className="flex items-center gap-4">
+            <Link 
+              href="/management-portal/menu-manager"
+              className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-all duration-300"
             >
-              <Plus className="h-5 w-5 inline mr-2" />
-              Add Category
+              <ArrowLeft className="h-6 w-6" />
             </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-white flex items-center">
+                <span className="text-4xl mr-3">📂</span>
+                Menu Categories
+              </h1>
+              <p className="text-white/70 mt-2">
+                Manage menu categories and their settings
+              </p>
+            </div>
           </div>
+          <Link
+            href="/management-portal/menu-manager/categories/new"
+            className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 font-semibold shadow-xl"
+          >
+            <Plus className="h-5 w-5 inline mr-2" />
+            Add Category
+          </Link>
         </div>
-
-        <div className="p-6">
+      </div>        <div className="p-6">
           {/* Filters */}
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 mb-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -400,7 +397,6 @@ export default function CategoriesPage() {
             </div>
           )}
         </div>
-      </div>
     </AdminLayout>
   );
 }

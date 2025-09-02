@@ -92,14 +92,7 @@ export default function AdminPageLayout({
           <div className="flex justify-between h-16">
             {/* Left side - Logo/Title */}
             <div className="flex items-center">
-              <Link 
-                href={user.role === 'EMPLOYEE' ? '/management-portal/orders' : '/management-portal'} 
-                className="text-2xl font-bold text-white hover:text-orange-300 transition-colors"
-              >
-                🏪 <span className="text-orange-300">
-                  {user.role === 'EMPLOYEE' ? 'Employee Portal' : 'Admin Portal'}
-                </span>
-              </Link>
+              {/* Admin Portal link removed per user request */}
             </div>
 
             {/* Center - Navigation Links */}

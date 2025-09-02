@@ -81,7 +81,7 @@ export default function NewCustomizationOptionPage() {
         console.log('✅ Success!');
         const groupId = formData.groupId; // Changed from customizationGroupId
         if (groupId) {
-          router.push(`/admin/menu-manager/customization-groups/${groupId}`);
+          router.push(`/management-portal/menu-manager/customization-groups/${groupId}`);
         } else {
           router.push('/management-portal/menu-manager/customization-groups');
         }

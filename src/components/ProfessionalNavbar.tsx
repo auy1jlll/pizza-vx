@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronDown, MapPin, Clock, Phone, Star, Menu, X } from 'lucide-react';
+import { useAppSettingsContext } from '@/contexts/AppSettingsContext';
 
 interface MenuCategory {
   id: string;
@@ -18,6 +19,7 @@ interface MenuCategory {
 export default function ProfessionalNavbar() {
   const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const { settings } = useAppSettingsContext();
   const [error, setError] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -130,12 +132,26 @@ export default function ProfessionalNavbar() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-black text-xl">🍕</span>
-            </div>
+            {settings.appLogoUrl ? (
+              <div className="w-24 h-24 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden">
+                <img 
+                  src={settings.appLogoUrl} 
+                  alt="Logo" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            ) : (
+              <div className="w-24 h-24 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <span className="text-white font-black text-4xl">🍕</span>
+              </div>
+            )}
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight">Pizza VX</h1>
-              <p className="text-xs text-orange-200 font-semibold">Fresh • Fast • Delicious</p>
+              <h1 className="text-2xl font-black text-white tracking-tight">
+                {(settings?.app_name || 'Restaurant Name').replace(/[^\w\s-]/g, ' ')}
+              </h1>
+              <p className="text-xs text-orange-200 font-semibold">
+                {(settings?.app_tagline || 'Delicious Food').replace(/[^\w\s-]/g, ' ')}
+              </p>
             </div>
           </div>
 
@@ -261,20 +277,6 @@ export default function ProfessionalNavbar() {
 
           {/* Right Actions */}
           <div className="flex items-center space-x-4">
-            {/* Store Info - Desktop Only */}
-            <div className="hidden xl:flex items-center space-x-4 text-sm">
-              <div className="flex items-center space-x-1 text-white">
-                <Clock className="w-4 h-4 text-green-300" />
-                <span className="text-green-200 font-semibold">Open</span>
-              </div>
-            </div>
-
-            {/* Call Now Button */}
-            <button className="hidden md:flex items-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-semibold">
-              <Phone className="w-4 h-4" />
-              <span>Call Now</span>
-            </button>
-
             {/* Temporary Debug Refresh Button */}
             {process.env.NODE_ENV === 'development' && (
               <button
@@ -287,19 +289,6 @@ export default function ProfessionalNavbar() {
             )}
 
             {/* Cart - Hidden, using FloatingCartButton instead */}
-            {/* 
-            <Link
-              href="/cart"
-              className="relative p-3 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-2xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 text-red-900 rounded-full text-xs font-bold flex items-center justify-center animate-bounce">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-            */}
 
             {/* Mobile Menu Toggle */}
             <button 
@@ -366,13 +355,6 @@ export default function ProfessionalNavbar() {
                   <MapPin className="w-5 h-5 text-orange-500" />
                   <span className="font-medium">Find Location</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5 text-green-500" />
-                  <span className="text-green-600 font-semibold">Open Until 11 PM</span>
-                </div>
-                <button className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-200">
-                  Call to Order
-                </button>
               </div>
             </div>
           </div>

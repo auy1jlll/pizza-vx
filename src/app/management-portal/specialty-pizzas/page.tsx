@@ -72,7 +72,7 @@ export default function SpecialtyPizzasAdmin() {
   // Fetch specialty pizzas
   const fetchPizzas = async () => {
     try {
-      const response = await fetch('/api/management-portal/specialty-pizzas');
+      const response = await fetch('/api/admin/specialty-pizzas');
       if (response.status === 401) {
         window.location.href = '/management-portal/login';
         return;
@@ -173,7 +173,7 @@ export default function SpecialtyPizzasAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const url = editingPizza ? `/api/management-portal/specialty-pizzas/${editingPizza.id}` : '/api/management-portal/specialty-pizzas';
+      const url = editingPizza ? `/api/admin/specialty-pizzas/${editingPizza.id}` : '/api/admin/specialty-pizzas';
       const method = editingPizza ? 'PUT' : 'POST';
       
       // Prepare submission data with size pricing
@@ -221,7 +221,7 @@ export default function SpecialtyPizzasAdmin() {
     if (!confirm('Are you sure you want to delete this specialty pizza?')) return;
     
     try {
-      const response = await fetch(`/api/management-portal/specialty-pizzas/${id}`, {
+      const response = await fetch(`/api/admin/specialty-pizzas/${id}`, {
         method: 'DELETE',
       });
 

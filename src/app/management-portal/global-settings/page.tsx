@@ -105,7 +105,7 @@ export default function GlobalSettingsPage() {
       icon: Building,
       color: 'from-blue-500 to-blue-600',
       settings: allSettings.filter(s => 
-        ['businessName', 'businessPhone', 'businessEmail', 'businessAddress', 'businessDescription'].includes(s.key)
+        ['app_name', 'app_tagline', 'businessName', 'businessPhone', 'businessEmail', 'businessAddress', 'businessDescription'].includes(s.key)
       )
     },
     {
@@ -155,7 +155,7 @@ export default function GlobalSettingsPage() {
       icon: Palette,
       color: 'from-pink-500 to-pink-600',
       settings: allSettings.filter(s => 
-        ['primaryColor', 'secondaryColor', 'logoUrl', 'faviconUrl', 'themeMode', 'brandFont', 'headerBackgroundColor', 'accentColor', 'customCSS', 'brand_colors'].includes(s.key)
+        ['primaryColor', 'secondaryColor', 'logoUrl', 'faviconUrl', 'appLogoUrl', 'themeMode', 'brandFont', 'headerBackgroundColor', 'accentColor', 'customCSS', 'brand_colors'].includes(s.key)
       )
     },
     {
@@ -338,6 +338,8 @@ export default function GlobalSettingsPage() {
   const getSettingInfo = (key: string) => {
     const settingLabels: {[key: string]: {label: string, description: string}} = {
       // Business Information
+      app_name: { label: 'Restaurant Name', description: 'The name displayed in your website header and branding' },
+      app_tagline: { label: 'Tagline', description: 'Short tagline or slogan displayed under your restaurant name' },
       businessName: { label: 'Business Name', description: 'The name of your restaurant' },
       businessPhone: { label: 'Phone Number', description: 'Main contact phone number' },
       businessEmail: { label: 'Email Address', description: 'Main contact email address' },
@@ -399,6 +401,7 @@ export default function GlobalSettingsPage() {
       accentColor: { label: 'Accent Color', description: 'Accent color for highlights and buttons' },
       headerBackgroundColor: { label: 'Header Background', description: 'Background color for page headers' },
       logoUrl: { label: 'Logo URL', description: 'URL to your restaurant logo image' },
+      appLogoUrl: { label: 'Restaurant Logo', description: 'Logo displayed in the navigation bar and branding' },
       faviconUrl: { label: 'Favicon URL', description: 'URL to your website favicon' },
       themeMode: { label: 'Theme Mode', description: 'Light or dark theme preference' },
       brandFont: { label: 'Brand Font', description: 'Font family for your brand' },

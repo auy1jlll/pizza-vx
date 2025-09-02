@@ -31,7 +31,7 @@ export default function PizzaSaucesAdmin() {
   // Fetch sauces
   const fetchSauces = async () => {
     try {
-      const response = await fetch('/api/management-portal/sauces');
+      const response = await fetch('/api/admin/sauces');
       if (response.status === 401) {
         window.location.href = '/management-portal/login';
         return;
@@ -53,7 +53,7 @@ export default function PizzaSaucesAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const url = editingSauce ? `/api/management-portal/sauces/${editingSauce.id}` : '/api/management-portal/sauces';
+      const url = editingSauce ? `/api/admin/sauces/${editingSauce.id}` : '/api/admin/sauces';
       const method = editingSauce ? 'PUT' : 'POST';
       
       const response = await fetch(url, {
@@ -80,7 +80,7 @@ export default function PizzaSaucesAdmin() {
     if (!confirm('Are you sure you want to delete this sauce?')) return;
     
     try {
-      const response = await fetch(`/api/management-portal/sauces/${id}`, {
+      const response = await fetch(`/api/admin/sauces/${id}`, {
         method: 'DELETE',
       });
 

@@ -41,13 +41,16 @@ function AdminLoginNav() {
 export function ConditionalTopNavigation() {
   const pathname = usePathname();
   
-  // Hide public navigation on admin pages UNLESS user is not authenticated
+  // For admin routes, only show navigation on login page
   const isAdminRoute = pathname?.startsWith('/management-portal');
+  const isLoginPage = pathname === '/management-portal/login';
   
-  // For admin routes, only hide navigation if user is authenticated
-  // This allows unauthenticated users to see login links on admin pages
-  if (isAdminRoute) {
-    return <AdminLoginNav />;
+  if (isAdminRoute && !isLoginPage) {
+    return null; // Let AdminLayout/AdminPageLayout handle navigation for authenticated pages
+  }
+  
+  if (isLoginPage) {
+    return <AdminLoginNav />; // Show login navigation for login page
   }
   
   return <DynamicNavigation />;

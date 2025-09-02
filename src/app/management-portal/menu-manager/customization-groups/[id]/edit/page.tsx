@@ -117,7 +117,7 @@ export default function EditCustomizationGroupPage() {
       });
 
       if (response.ok) {
-        router.push(`/admin/menu-manager/customization-groups/${params.id}`);
+        router.push(`/management-portal/menu-manager/customization-groups/${params.id}`);
       } else {
         const error = await response.json();
         alert('Error updating customization group: ' + (error.error || 'Unknown error'));

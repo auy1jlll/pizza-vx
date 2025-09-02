@@ -52,7 +52,8 @@ const defaultSettings = {
   footer_description: 'Experience the art of pizza making.',
   terms_url: '/terms',
   privacy_url: '/privacy',
-  refund_policy_url: '/refund-policy'
+  refund_policy_url: '/refund-policy',
+  appLogoUrl: ''
 };
 
 // Get settings (public endpoint)

@@ -189,7 +189,7 @@ export default function ViewCustomizationGroupPage() {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => router.push(`/admin/menu-manager/customization-groups/${group.id}/edit`)}
+              onClick={() => router.push(`/management-portal/menu-manager/customization-groups/${group.id}/edit`)}
               className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <FiEdit className="w-4 h-4" />
@@ -283,7 +283,7 @@ export default function ViewCustomizationGroupPage() {
                 <p className="text-gray-600">{group.options.length} option(s) available</p>
               </div>
               <button
-                onClick={() => router.push(`/admin/menu-manager/customization-options/new?groupId=${group.id}`)}
+                onClick={() => router.push(`/management-portal/menu-manager/customization-options/new?groupId=${group.id}`)}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <FiPlus className="w-4 h-4" />
@@ -299,7 +299,7 @@ export default function ViewCustomizationGroupPage() {
                 <h4 className="mt-2 text-lg font-medium text-gray-900">No options yet</h4>
                 <p className="mt-1 text-gray-500">Add some options to this customization group</p>
                 <button
-                  onClick={() => router.push(`/admin/menu-manager/customization-options/new?groupId=${group.id}`)}
+                  onClick={() => router.push(`/management-portal/menu-manager/customization-options/new?groupId=${group.id}`)}
                   className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <FiPlus className="w-4 h-4" />
@@ -336,7 +336,7 @@ export default function ViewCustomizationGroupPage() {
 
                       <div className="flex gap-2 mt-3">
                         <button
-                          onClick={() => router.push(`/admin/menu-manager/customization-options/${option.id}/edit`)}
+                          onClick={() => router.push(`/management-portal/menu-manager/customization-options/${option.id}/edit`)}
                           className="flex-1 text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50"
                         >
                           Edit

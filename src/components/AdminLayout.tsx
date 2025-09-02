@@ -83,21 +83,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob" style={{animationDelay: '4s'}}></div>
+      </div>
+
       {/* Top Navigation Bar */}
-      <nav className="bg-gradient-to-r from-emerald-800 to-green-700 shadow-lg border-b border-green-600">
+      <nav className="relative z-10 bg-gradient-to-r from-emerald-800 to-green-700 shadow-lg border-b border-green-600 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             {/* Left side - Logo/Title */}
             <div className="flex items-center">
-              <Link 
-                href={user.role === 'EMPLOYEE' ? '/management-portal/orders' : '/management-portal'} 
-                className="text-2xl font-bold text-white hover:text-orange-300 transition-colors"
-              >
-                🏪 <span className="text-orange-300">
-                  {user.role === 'EMPLOYEE' ? 'Employee Portal' : 'Admin Portal'}
-                </span>
-              </Link>
+              {/* Admin Portal link removed per user request */}
             </div>
 
             {/* Center - Navigation Links */}
@@ -173,8 +173,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </nav>
 
       {/* Main content */}
-      <main className="flex-1">
-        {children}
+      <main className="relative z-10 flex-1 backdrop-blur-sm bg-white/5 m-4 rounded-xl shadow-xl border border-white/10">
+        <div className="p-6">
+          {children}
+        </div>
       </main>
     </div>
   );

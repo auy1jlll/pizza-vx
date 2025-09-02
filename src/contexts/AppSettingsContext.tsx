@@ -51,6 +51,7 @@ interface AppSettings {
   terms_url: string;
   privacy_url: string;
   refund_policy_url: string;
+  appLogoUrl: string;
 }
 
 interface AppSettingsContextType {

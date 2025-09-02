@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const nextConfig: NextConfig = {
   // Docker build optimization
   output: 'standalone',
@@ -14,11 +16,11 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   
-  // Image optimization
+  // Image optimization - disable caching in dev
   images: {
     domains: ['localhost'],
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: isDev ? 0 : 60, // No caching in dev
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
@@ -46,6 +48,11 @@ const nextConfig: NextConfig = {
             key: 'X-XSS-Protection',
             value: '1; mode=block',
           },
+          // Disable caching in development
+          ...(isDev ? [{
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate, max-age=0',
+          }] : []),
         ],
       },
       {
@@ -53,7 +60,10 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=300, stale-while-revalidate=600',
+            // No caching in dev, normal caching in prod
+            value: isDev 
+              ? 'no-cache, no-store, must-revalidate, max-age=0'
+              : 'public, max-age=300, stale-while-revalidate=600',
           },
         ],
       },

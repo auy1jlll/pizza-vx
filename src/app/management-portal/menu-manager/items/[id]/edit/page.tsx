@@ -51,7 +51,8 @@ export default function EditItemPage() {
     isAvailable: true,
     sortOrder: 0,
     preparationTime: '',
-    customizationGroups: [] as string[]
+    customizationGroups: [] as string[],
+    applyToCategory: false
   });
 
   useEffect(() => {
@@ -76,7 +77,8 @@ export default function EditItemPage() {
           isAvailable: item.isAvailable,
           sortOrder: item.sortOrder,
           preparationTime: item.preparationTime?.toString() || '',
-          customizationGroups: item.customizationGroups.map(cg => cg.customizationGroupId)
+          customizationGroups: item.customizationGroups.map(cg => cg.customizationGroupId),
+          applyToCategory: false
         });
       } else {
         toast.showError('Item not found');
@@ -141,8 +143,37 @@ export default function EditItemPage() {
       });
 
       if (response.ok) {
-        toast.showSuccess('Menu item updated successfully!');
-        router.push(`/management-portal/menu-manager/items/${params.id}`);
+        toast.showSuccess('Menu item updated successfully! Changes have been saved.');
+        
+        // If applyToCategory is checked, apply customizations to other items in the same category
+        if (formData.applyToCategory && formData.customizationGroups.length > 0) {
+          try {
+            const applyCategoryResponse = await fetch(`/api/management-portal/menu/items/${params.id}/apply-to-category`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                customizationGroups: formData.customizationGroups
+              })
+            });
+
+            if (applyCategoryResponse.ok) {
+              const result = await applyCategoryResponse.json();
+              toast.showSuccess(`Successfully applied customizations to ${result.updatedItemsCount} other items in this category!`);
+            } else {
+              const error = await applyCategoryResponse.json();
+              toast.showWarning(`Item updated but failed to apply to category: ${error.error || 'Unknown error'}`);
+            }
+          } catch (categoryError) {
+            console.error('Error applying to category:', categoryError);
+            toast.showWarning('Item updated but failed to apply customizations to other items in category');
+          }
+        }
+        
+        // Refresh the form data to show updated values
+        if (params.id) {
+          fetchItem(params.id as string);
+        }
+        // Stay on the edit page to allow further edits
       } else {
         const error = await response.json();
         toast.showError('Error updating item: ' + (error.error || 'Unknown error'));
@@ -320,6 +351,29 @@ export default function EditItemPage() {
                   </label>
                 ))}
               </div>
+              
+              {/* Apply to Category Option */}
+              {formData.customizationGroups.length > 0 && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <label className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={formData.applyToCategory || false}
+                      onChange={(e) => setFormData(prev => ({ ...prev, applyToCategory: e.target.checked }))}
+                      className="rounded mt-1"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-blue-900">
+                        Apply these customizations to all items in this category
+                      </span>
+                      <p className="text-xs text-blue-700 mt-1">
+                        This will add the selected customization groups to all other menu items in the same category. 
+                        Existing customizations on other items will be preserved.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              )}
             </div>
           )}
 
@@ -338,6 +392,34 @@ export default function EditItemPage() {
             >
               Cancel
             </button>
+          </div>
+
+          {/* Navigation Helper */}
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+            <p className="text-sm text-gray-600 mb-2">After saving, you can:</p>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => router.push(`/management-portal/menu-manager/items/${params.id}`)}
+                className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+              >
+                View Item Details
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push('/management-portal/menu-manager/items')}
+                className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
+              >
+                Back to Items List
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push('/management-portal/menu-manager/items/new')}
+                className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors"
+              >
+                Create New Item
+              </button>
+            </div>
           </div>
         </form>
       </div>
