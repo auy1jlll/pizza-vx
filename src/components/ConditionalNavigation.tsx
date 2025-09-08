@@ -45,8 +45,15 @@ export function ConditionalTopNavigation() {
   const isAdminRoute = pathname?.startsWith('/management-portal');
   const isLoginPage = pathname === '/management-portal/login';
   
+  // Hide navigation on store routes (kitchen display, etc.)
+  const isStoreRoute = pathname?.startsWith('/store/');
+  
   if (isAdminRoute && !isLoginPage) {
     return null; // Let AdminLayout/AdminPageLayout handle navigation for authenticated pages
+  }
+  
+  if (isStoreRoute) {
+    return null; // Hide navigation on store routes for clean display
   }
   
   if (isLoginPage) {
@@ -63,8 +70,15 @@ export function ConditionalBottomElements() {
   // Hide public navigation on admin pages
   const isAdminRoute = pathname?.startsWith('/management-portal');
   
+  // Hide navigation on store routes (kitchen display, etc.)
+  const isStoreRoute = pathname?.startsWith('/store/');
+  
   if (isAdminRoute) {
     return null; // Don't render public navigation on admin pages
+  }
+  
+  if (isStoreRoute) {
+    return null; // Don't render navigation on store routes for clean display
   }
   
   return (

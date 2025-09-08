@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 import prisma from '@/lib/prisma';
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret');
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,10 +22,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify token
-    const decoded = jwt.verify(
-      token, 
-      process.env.JWT_SECRET || 'fallback-secret'
-    ) as any;
+    const { payload } = await jose.jwtVerify(token, JWT_SECRET, {
+      issuer: 'pizza-builder-app',
+    });
+
+    const decoded = payload as any;
 
     // Get user from database (admins and employees)
     const user = await prisma.user.findUnique({

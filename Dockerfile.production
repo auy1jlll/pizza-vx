@@ -1,74 +1,80 @@
-# Multi-stage Docker build for Next.js Pizza App
-FROM node:18-alpine AS base
+# 🐳 PRODUCTION DOCKER CONTAINER
+# Optimized for deployment with minimal size and maximum security
 
-# Install dependencies only when needed
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# ============================================
+# Stage 1: Dependencies Installation
+# ============================================
+FROM node:18-alpine AS deps
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
+# Install system dependencies
+RUN apk add --no-cache libc6-compat openssl curl
+
+# Copy package files
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+COPY prisma ./prisma/
 
-# Rebuild the source code only when needed
-FROM base AS builder
+# Install dependencies with cache optimization
+RUN npm ci --only=production --frozen-lockfile && \
+    npm cache clean --force && \
+    npx prisma generate
+
+# ============================================
+# Stage 2: Build Application
+# ============================================
+FROM node:18-alpine AS builder
 WORKDIR /app
+
+# Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma client
-RUN npx prisma generate
+# Build the application with temporary database URL for build process
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+RUN npx prisma generate && \
+    npm run build
 
-# Build the application
-RUN npm run build
-
-# Production image, copy all the files and run next
-FROM base AS runner
+# ============================================
+# Stage 3: Production Runtime
+# ============================================
+FROM node:18-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV=production
+# Create system user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Install only runtime dependencies
+RUN apk add --no-cache curl dumb-init && \
+    rm -rf /var/cache/apk/*
+
+# Set environment
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
 
 # Copy built application
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Copy Prisma schema and generated client
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# Copy package.json for scripts
-COPY package.json ./
+# Copy Prisma client from deps stage
+COPY --from=deps /app/node_modules/.prisma ./.prisma
+COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
 
-# Create uploads directory
-RUN mkdir -p uploads && chown nextjs:nodejs uploads
+# Set ownership
+RUN chown -R nextjs:nodejs /app
 
+# Switch to non-root user
 USER nextjs
-
-EXPOSE 3000
-
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD node -e "const http = require('http'); const options = { host: 'localhost', port: 3000, path: '/api/health', timeout: 2000 }; const req = http.request(options, (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }); req.on('error', () => process.exit(1)); req.end();"
+  CMD curl -f http://localhost:3000/api/health || exit 1
 
-CMD ["node", "server.js"]
-
-# Development target
-FROM base AS development
-WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm ci
-COPY . .
-RUN npx prisma generate
+# Expose port
 EXPOSE 3000
-CMD ["npm", "run", "dev"]
 
-# Production target (default)
-FROM runner AS production
+# Start application with proper process management
+CMD ["dumb-init", "node", "server.js"]

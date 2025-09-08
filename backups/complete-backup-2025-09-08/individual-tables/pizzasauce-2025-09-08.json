@@ -1,0 +1,67 @@
+{
+  "tableName": "PizzaSauce",
+  "exportDate": "2025-09-08T10:56:34.916Z",
+  "recordCount": 5,
+  "data": [
+    {
+      "id": "cmez57ct10002vkc4dd3k6gig",
+      "name": "Pizza Sauce",
+      "description": "Classic tomato pizza sauce",
+      "color": "#e53e3e",
+      "spiceLevel": 0,
+      "priceModifier": 0,
+      "isActive": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T03:40:20.245Z",
+      "updatedAt": "2025-08-31T03:40:20.245Z"
+    },
+    {
+      "id": "cmez57ct30003vkc4zgf8fsbt",
+      "name": "Alfredo Sauce",
+      "description": "Creamy white alfredo sauce",
+      "color": "#f7fafc",
+      "spiceLevel": 0,
+      "priceModifier": 0,
+      "isActive": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T03:40:20.247Z",
+      "updatedAt": "2025-08-31T03:40:20.247Z"
+    },
+    {
+      "id": "cmez57ct40004vkc4ndh8iu2b",
+      "name": "Garlic Butter Sauce",
+      "description": "Rich garlic butter sauce",
+      "color": "#fefcbf",
+      "spiceLevel": 0,
+      "priceModifier": 0,
+      "isActive": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T03:40:20.248Z",
+      "updatedAt": "2025-08-31T03:40:20.248Z"
+    },
+    {
+      "id": "cmez57ct50005vkc4udrjjw5h",
+      "name": "White (No Sauce)",
+      "description": "No sauce - just cheese and toppings",
+      "color": "#ffffff",
+      "spiceLevel": 0,
+      "priceModifier": 0,
+      "isActive": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T03:40:20.250Z",
+      "updatedAt": "2025-08-31T03:40:20.250Z"
+    },
+    {
+      "id": "cmez57ct70006vkc4uuwgkjk5",
+      "name": "Marinara sauce",
+      "description": "Marinara sauce",
+      "color": "#ff0000",
+      "spiceLevel": 1,
+      "priceModifier": 0,
+      "isActive": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T03:40:20.251Z",
+      "updatedAt": "2025-08-31T03:40:20.251Z"
+    }
+  ]
+}

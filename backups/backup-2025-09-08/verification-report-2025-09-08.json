@@ -1,0 +1,43 @@
+{
+  "verificationDate": "2025-09-08T10:49:12.644Z",
+  "backupDate": "2025-09-08",
+  "status": "COMPLETED",
+  "summary": {
+    "totalTables": 9,
+    "totalRecords": 307,
+    "backupSize": 232603
+  },
+  "tables": {
+    "users": 5,
+    "categories": 0,
+    "menuItems": 105,
+    "customizationGroups": 19,
+    "customizations": 0,
+    "orders": 17,
+    "orderItems": 24,
+    "appSettings": 137,
+    "businessHours": 0
+  },
+  "files": {
+    "complete-data-2025-09-08.json": {
+      "size": 124856,
+      "sizeMB": "0.12",
+      "created": "2025-09-08T10:47:38.387Z"
+    },
+    "complete-database-2025-09-08.json": {
+      "size": 80504,
+      "sizeMB": "0.08",
+      "created": "2025-09-08T10:48:46.569Z"
+    },
+    "schema-2025-09-08.prisma": {
+      "size": 26062,
+      "sizeMB": "0.02",
+      "created": "2025-09-08T10:48:46.571Z"
+    },
+    "schema-summary-2025-09-08.json": {
+      "size": 1181,
+      "sizeMB": "0.00",
+      "created": "2025-09-08T10:48:46.571Z"
+    }
+  }
+}

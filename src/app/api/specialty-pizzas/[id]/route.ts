@@ -7,25 +7,64 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    
+    let specialtyPizza = null;
 
-    const specialtyPizza = await prisma.specialtyPizza.findUnique({
-      where: { id },
-      include: {
-        sizes: {
-          include: {
-            pizzaSize: true
-          },
-          where: {
-            isAvailable: true
-          },
-          orderBy: {
-            pizzaSize: {
-              sortOrder: 'asc'
+    // First try to find by ID (UUID)
+    if (id.length > 10) { // Rough check for UUID vs numeric index
+      specialtyPizza = await prisma.specialtyPizza.findUnique({
+        where: { id },
+        include: {
+          sizes: {
+            include: {
+              pizzaSize: true
+            },
+            where: {
+              isAvailable: true
+            },
+            orderBy: {
+              pizzaSize: {
+                sortOrder: 'asc'
+              }
             }
           }
         }
+      });
+    }
+
+    // If not found by ID or if it's a numeric index, try to get by array position
+    if (!specialtyPizza) {
+      const numericIndex = parseInt(id);
+      if (!isNaN(numericIndex)) {
+        console.log(`🔍 Fetching specialty pizza by index: ${numericIndex}`);
+        
+        // Get all specialty pizzas ordered by sortOrder
+        const allSpecialtyPizzas = await prisma.specialtyPizza.findMany({
+          where: { isActive: true },
+          include: {
+            sizes: {
+              include: {
+                pizzaSize: true
+              },
+              where: {
+                isAvailable: true
+              },
+              orderBy: {
+                pizzaSize: {
+                  sortOrder: 'asc'
+                }
+              }
+            }
+          },
+          orderBy: { sortOrder: 'asc' }
+        });
+
+        if (numericIndex >= 0 && numericIndex < allSpecialtyPizzas.length) {
+          specialtyPizza = allSpecialtyPizzas[numericIndex];
+          console.log(`✅ Found specialty pizza by index ${numericIndex}: ${specialtyPizza.name}`);
+        }
       }
-    });
+    }
 
     if (!specialtyPizza) {
       return NextResponse.json(

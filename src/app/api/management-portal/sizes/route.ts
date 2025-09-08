@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Verify management authentication
-    const user = verifyManagementToken(request);
+    const user = await verifyManagementToken(request);
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const sizes = await prisma.pizzaSize.findMany({
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Verify management authentication
-    const user = verifyManagementToken(request);
+    const user = await verifyManagementToken(request);
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const { name, diameter, basePrice, productType, isActive, sortOrder } = await request.json();
@@ -96,7 +96,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     }
     
-    const user = verifyManagementToken(request);
+    const user = await verifyManagementToken(request);
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const { id, name, diameter, basePrice, productType, isActive, sortOrder } = await request.json();
@@ -134,7 +134,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     }
     
-    const user = verifyManagementToken(request);
+    const user = await verifyManagementToken(request);
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const { searchParams } = new URL(request.url);

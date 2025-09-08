@@ -1,0 +1,55 @@
+{
+  "tableName": "PizzaSize",
+  "exportDate": "2025-09-08T10:56:34.916Z",
+  "recordCount": 4,
+  "data": [
+    {
+      "id": "cmez57csv0000vkc4nzo0th14",
+      "name": "Small Pizza",
+      "diameter": "12\"",
+      "basePrice": 11.5,
+      "isActive": true,
+      "sortOrder": 1,
+      "description": "Perfect for 1-2 people",
+      "createdAt": "2025-08-31T03:40:20.240Z",
+      "updatedAt": "2025-09-01T20:15:54.868Z",
+      "productType": "PIZZA"
+    },
+    {
+      "id": "cmez57csy0001vkc4fbtoets6",
+      "name": "Large Pizza",
+      "diameter": "16\"",
+      "basePrice": 16.5,
+      "isActive": true,
+      "sortOrder": 2,
+      "description": "Great for families and sharing",
+      "createdAt": "2025-08-31T03:40:20.242Z",
+      "updatedAt": "2025-09-01T20:16:17.579Z",
+      "productType": "PIZZA"
+    },
+    {
+      "id": "cmez5n8nl0000vk3k7n5edmea",
+      "name": "Small Calzone",
+      "diameter": "Personal size calzone",
+      "basePrice": 16,
+      "isActive": true,
+      "sortOrder": 10,
+      "description": null,
+      "createdAt": "2025-08-31T03:52:41.361Z",
+      "updatedAt": "2025-09-01T20:16:24.519Z",
+      "productType": "CALZONE"
+    },
+    {
+      "id": "cmez5n8nn0001vk3kjqe0zbsp",
+      "name": "Large Calzone",
+      "diameter": "Family size calzone",
+      "basePrice": 21.5,
+      "isActive": true,
+      "sortOrder": 11,
+      "description": null,
+      "createdAt": "2025-08-31T03:52:41.364Z",
+      "updatedAt": "2025-09-01T20:16:34.376Z",
+      "productType": "CALZONE"
+    }
+  ]
+}

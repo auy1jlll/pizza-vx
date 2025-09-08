@@ -1,0 +1,87 @@
+{
+  "tableName": "OrderItemTopping",
+  "exportDate": "2025-09-08T10:56:34.916Z",
+  "recordCount": 8,
+  "data": [
+    {
+      "id": "cmezdi7je0004vk68axnk09of",
+      "orderItemId": "cmezdi7j60003vk68h3sznenr",
+      "pizzaToppingId": "cmez57ctq000pvkc41cp4qe5p",
+      "quantity": 1,
+      "section": "WHOLE",
+      "intensity": "REGULAR",
+      "price": 2,
+      "createdAt": "2025-08-31T07:32:43.562Z"
+    },
+    {
+      "id": "cmf06d16i0004vkignokte6zm",
+      "orderItemId": "cmf06d1670003vkig06bge9uc",
+      "pizzaToppingId": "cmez57ctp000nvkc48fy737nq",
+      "quantity": 1,
+      "section": "WHOLE",
+      "intensity": "REGULAR",
+      "price": 2,
+      "createdAt": "2025-08-31T21:00:30.906Z"
+    },
+    {
+      "id": "cmf0is4160004vkl8o4wun6h8",
+      "orderItemId": "cmf0is3zq0003vkl85pz1zzr0",
+      "pizzaToppingId": "cmez57ctp000nvkc48fy737nq",
+      "quantity": 1,
+      "section": "WHOLE",
+      "intensity": "REGULAR",
+      "price": 2,
+      "createdAt": "2025-09-01T02:48:09.834Z"
+    },
+    {
+      "id": "cmf0is4160005vkl84bjppt4h",
+      "orderItemId": "cmf0is3zq0003vkl85pz1zzr0",
+      "pizzaToppingId": "cmez57ctc0008vkc4gno2jo9r",
+      "quantity": 1,
+      "section": "RIGHT",
+      "intensity": "REGULAR",
+      "price": 2,
+      "createdAt": "2025-09-01T02:48:09.834Z"
+    },
+    {
+      "id": "cmf3e6rsn0004vkw8ji0t9pep",
+      "orderItemId": "cmf3e6rqi0003vkw8arz591kz",
+      "pizzaToppingId": "cmez57ctu000uvkc4asbg1mbb",
+      "quantity": 1,
+      "section": "WHOLE",
+      "intensity": "REGULAR",
+      "price": 5,
+      "createdAt": "2025-09-03T03:02:54.263Z"
+    },
+    {
+      "id": "cmf3e6rsn0005vkw8bg80dyge",
+      "orderItemId": "cmf3e6rqi0003vkw8arz591kz",
+      "pizzaToppingId": "cmez57ctg000cvkc46m0wjghg",
+      "quantity": 1,
+      "section": "WHOLE",
+      "intensity": "REGULAR",
+      "price": 2,
+      "createdAt": "2025-09-03T03:02:54.263Z"
+    },
+    {
+      "id": "cmf3e6rsn0006vkw8996of7t3",
+      "orderItemId": "cmf3e6rqi0003vkw8arz591kz",
+      "pizzaToppingId": "cmez57ctt000tvkc4ln5deozo",
+      "quantity": 1,
+      "section": "WHOLE",
+      "intensity": "REGULAR",
+      "price": 5,
+      "createdAt": "2025-09-03T03:02:54.263Z"
+    },
+    {
+      "id": "cmf3e6rsn0007vkw8667xxyb0",
+      "orderItemId": "cmf3e6rqi0003vkw8arz591kz",
+      "pizzaToppingId": "cmez57cto000lvkc42gzgyexr",
+      "quantity": 1,
+      "section": "WHOLE",
+      "intensity": "REGULAR",
+      "price": 2,
+      "createdAt": "2025-09-03T03:02:54.263Z"
+    }
+  ]
+}

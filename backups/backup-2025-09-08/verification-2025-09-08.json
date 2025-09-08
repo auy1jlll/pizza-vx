@@ -1,0 +1,52 @@
+{
+  "timestamp": "2025-09-08T10:50:51.882Z",
+  "checks": {
+    "users": {
+      "liveCount": 5,
+      "backupCount": 5,
+      "match": true,
+      "status": "VERIFIED"
+    },
+    "categories": {
+      "error": "Cannot read properties of undefined (reading 'count')",
+      "status": "ERROR"
+    },
+    "menuItems": {
+      "liveCount": 105,
+      "backupCount": 105,
+      "match": true,
+      "status": "VERIFIED"
+    },
+    "customizationGroups": {
+      "liveCount": 19,
+      "backupCount": 19,
+      "match": true,
+      "status": "VERIFIED"
+    },
+    "options": {
+      "error": "Cannot read properties of undefined (reading 'count')",
+      "status": "ERROR"
+    },
+    "orders": {
+      "liveCount": 17,
+      "backupCount": 17,
+      "match": true,
+      "status": "VERIFIED"
+    },
+    "orderItems": {
+      "liveCount": 24,
+      "backupCount": 24,
+      "match": true,
+      "status": "VERIFIED"
+    },
+    "appSettings": {
+      "liveCount": 137,
+      "backupCount": 137,
+      "match": true,
+      "status": "VERIFIED"
+    }
+  },
+  "overallStatus": "PARTIAL_VERIFICATION",
+  "verifiedTables": 6,
+  "totalTables": 8
+}

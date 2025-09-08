@@ -1,0 +1,50 @@
+services:
+  # Next.js Application Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      # This URL must match the credentials in the 'db' service below.
+      # The hostname 'db' is the service name defined in this file.
+      DATABASE_URL: "postgresql://pizzabuilder:pizzapassword@db:5432/pizzax"
+      # The NEXTAUTH_URL is required for authentication to work correctly in production.
+      NEXTAUTH_URL: "http://localhost:3000"
+      # A secret is required for JWT signing. Generate a strong one for production.
+      NEXTAUTH_SECRET: "your-super-secret-nextauth-secret"
+      # SMTP Configuration for Resend.com
+      SMTP_HOST: "smtp.resend.com"
+      SMTP_PORT: "587"
+      SMTP_USER: "resend"
+      SMTP_PASS: "re_iXc3XSMw_LqNmsMeFYKD7EwijAUQCnUwW"
+      SMTP_FROM_EMAIL: "noreply@resend.dev"
+      SMTP_FROM_NAME: "Boston Pizza"
+    depends_on:
+      db:
+        condition: service_healthy
+    # This command will run database migrations and then start the app.
+    command: sh -c "npx prisma migrate deploy && npm start"
+
+  # PostgreSQL Database Service
+  db:
+    image: postgres:14-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pizzabuilder -d pizzax"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: "pizzabuilder"
+      POSTGRES_PASSWORD: "pizzapassword"
+      POSTGRES_DB: "pizzax"
+    ports:
+      - "5432:5432"
+    volumes:
+      # This named volume will persist the database data across container restarts.
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  # Define the named volume for data persistence.
+  postgres_data:

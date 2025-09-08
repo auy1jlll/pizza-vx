@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     }
     // Verify admin authentication
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const sizes = await prisma.pizzaSize.findMany({
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     }
     // Verify admin authentication
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const { name, diameter, basePrice } = await request.json();
@@ -79,7 +79,7 @@ export async function PUT(request: NextRequest) {
     if (!limit.allowed) {
       return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     }
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const { name, diameter, basePrice } = await request.json();
@@ -114,7 +114,7 @@ export async function DELETE(request: NextRequest) {
     if (!limit.allowed) {
       return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     }
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     
     const url = new URL(request.url);

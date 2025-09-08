@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
   const limit = adminLimiter.check('admin-dashboard-get', ip);
   if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
-  const user = verifyManagementToken(request);
+  const user = await verifyManagementToken(request);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     console.log('Fetching dashboard stats...');
 

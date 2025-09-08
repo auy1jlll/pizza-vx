@@ -239,6 +239,10 @@ const KitchenDisplay = () => {
   };
 
   useEffect(() => {
+    let pollingInterval: NodeJS.Timeout | null = null;
+    let authTimeout: NodeJS.Timeout | null = null;
+    let mounted = true;
+
     // Check authentication first
     const checkAuth = async () => {
       try {
@@ -247,45 +251,102 @@ const KitchenDisplay = () => {
         });
         
         if (!authResponse.ok) {
-          setError('Admin authentication required - redirecting to login...');
-          setTimeout(() => {
-            window.location.href = '/management-portal/login';
-          }, 2000);
+          if (mounted) {
+            setError('Admin authentication required - redirecting to login...');
+            authTimeout = setTimeout(() => {
+              if (mounted) {
+                window.location.href = '/management-portal/login';
+              }
+            }, 2000);
+          }
           return;
         }
         
         const authData = await authResponse.json();
         if (authData.role !== 'ADMIN') {
-          setError('Admin access required - redirecting to login...');
-          setTimeout(() => {
-            window.location.href = '/management-portal/login';
-          }, 2000);
+          if (mounted) {
+            setError('Admin access required - redirecting to login...');
+            authTimeout = setTimeout(() => {
+              if (mounted) {
+                window.location.href = '/management-portal/login';
+              }
+            }, 2000);
+          }
           return;
         }
         
         // If authenticated, start fetching orders
-        fetchOrders();
-        
-        // Set up dynamic polling interval
-        const setupPolling = async () => {
-          const pollingInterval = await KitchenConfig.getPollingInterval();
-          console.log(`🔄 Kitchen display polling every ${pollingInterval/1000} seconds`);
-          return setInterval(fetchOrders, pollingInterval);
-        };
-        
-        setupPolling().then(interval => {
-          return () => clearInterval(interval);
-        });
-        
-        // Fallback cleanup
-        return () => {};
+        if (mounted) {
+          fetchOrders();
+          
+          // Set up dynamic polling interval with proper cleanup
+          const setupPolling = async () => {
+            try {
+              const intervalDuration = await KitchenConfig.getPollingInterval();
+              console.log(`🔄 Kitchen display polling every ${intervalDuration/1000} seconds`);
+              
+              if (mounted) {
+                pollingInterval = setInterval(() => {
+                  if (mounted) {
+                    fetchOrders();
+                  }
+                }, intervalDuration);
+              }
+            } catch (error) {
+              console.error('Failed to setup polling:', error);
+            }
+          };
+          
+          setupPolling();
+        }
         
       } catch (error) {
-        setError('Network error - please check your connection');
+        if (mounted) {
+          setError('Network error - please check your connection');
+        }
       }
     };
     
     checkAuth();
+
+    // Cleanup function - CRITICAL for preventing memory leaks
+    return () => {
+      mounted = false;
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+      }
+      if (authTimeout) {
+        clearTimeout(authTimeout);
+        authTimeout = null;
+      }
+    };
+  }, []);
+
+  // Performance optimization: Pause polling when tab is not visible
+  useEffect(() => {
+    let isPollingPaused = false;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        console.log('🔄 Kitchen display polling paused (tab not visible)');
+        isPollingPaused = true;
+      } else {
+        console.log('🔄 Kitchen display polling resumed (tab visible)');
+        isPollingPaused = false;
+        // Immediately fetch fresh data when tab becomes visible again
+        fetchOrders();
+      }
+    };
+
+    // Only add listener if Page Visibility API is supported
+    if (typeof document !== 'undefined' && 'visibilityState' in document) {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
+    }
   }, []);
 
   // Calculate elapsed time for each order
@@ -331,9 +392,11 @@ const KitchenDisplay = () => {
       // Refresh orders after updating
       fetchOrders();
     } catch (error) {
-  showToast('Failed to update order status. Please try again.', { type: 'error' });
+      showToast('Failed to update order status. Please try again.', { type: 'error' });
     }
   };
+
+
 
   // Print order
   const printOrder = (order: Order) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 
 interface MenuCategory {
@@ -61,11 +61,25 @@ const filterCategoriesWithItems = (categories: MenuCategory[]): MenuCategory[] =
 };
 
 export default function DynamicMenuNavbar({ className = '', hideEmptyCategories = true }: DynamicMenuNavbarProps) {
-  const [categories, setCategories] = useState<MenuCategory[]>([]);
+  const [rawCategories, setRawCategories] = useState<MenuCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  // Memoize the filtered categories to prevent expensive recalculation on every render
+  const categories = useMemo(() => {
+    if (!hideEmptyCategories) {
+      return rawCategories;
+    }
+    
+    if (rawCategories.length === 0) {
+      return [];
+    }
+    
+    console.log('🔄 MEMOIZED FILTERING: Processing categories...');
+    return filterCategoriesWithItems(rawCategories);
+  }, [rawCategories, hideEmptyCategories]);
 
   // Load categories on mount
   useEffect(() => {
@@ -90,13 +104,8 @@ export default function DynamicMenuNavbar({ className = '', hideEmptyCategories 
           const allCategories = result.data;
           console.log('📦 ENHANCED NAVBAR: Raw categories loaded:', allCategories.length);
           
-          if (hideEmptyCategories) {
-            const filtered = filterCategoriesWithItems(allCategories);
-            console.log('🎯 ENHANCED NAVBAR: Filtered categories:', filtered.length);
-            setCategories(filtered);
-          } else {
-            setCategories(allCategories);
-          }
+          // Store raw categories and let useMemo handle filtering
+          setRawCategories(allCategories);
         } else {
           throw new Error('Invalid API response format');
         }
@@ -111,7 +120,7 @@ export default function DynamicMenuNavbar({ className = '', hideEmptyCategories 
     };
 
     loadCategories();
-  }, [hideEmptyCategories]);
+  }, []); // Remove hideEmptyCategories dependency since useMemo handles it
 
   // Handle dropdown toggle
   const toggleDropdown = (categoryId: string) => {

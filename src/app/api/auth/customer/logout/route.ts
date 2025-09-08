@@ -9,7 +9,7 @@ export async function POST() {
     // Clear the user token cookie
     response.cookies.set('user-token', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Disabled for HTTP production deployment
       sameSite: 'strict',
       maxAge: 0,
       path: '/'

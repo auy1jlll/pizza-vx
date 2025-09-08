@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 import { NextRequest } from 'next/server';
 
 interface JWTPayload {
@@ -9,10 +9,12 @@ interface JWTPayload {
   exp: number;
 }
 
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret');
+
 // Cache for validated tokens to reduce JWT verification overhead
 const tokenCache = new Map<string, { payload: JWTPayload; expiry: number }>();
 
-export function verifyAdminToken(request: NextRequest): JWTPayload | null {
+export async function verifyAdminToken(request: NextRequest): Promise<JWTPayload | null> {
   try {
     // Check for access-token first (new JWT system)
     let token = request.cookies.get('access-token')?.value;
@@ -32,10 +34,11 @@ export function verifyAdminToken(request: NextRequest): JWTPayload | null {
       return cached.payload;
     }
 
-    const decoded = jwt.verify(
-      token, 
-      process.env.JWT_SECRET || 'fallback-secret'
-    ) as JWTPayload;
+    const { payload } = await jose.jwtVerify(token, JWT_SECRET, {
+      issuer: 'pizza-builder-app',
+    });
+
+    const decoded = payload as unknown as JWTPayload;
 
     if (decoded.role !== 'ADMIN') {
       return null;
@@ -64,8 +67,8 @@ export function verifyAdminToken(request: NextRequest): JWTPayload | null {
   }
 }
 
-export function requireAdmin(request: NextRequest) {
-  const user = verifyAdminToken(request);
+export async function requireAdmin(request: NextRequest) {
+  const user = await verifyAdminToken(request);
   if (!user) {
     throw new Error('Unauthorized: Admin access required');
   }
@@ -73,7 +76,7 @@ export function requireAdmin(request: NextRequest) {
 }
 
 // Management portal token verification - allows ADMIN and EMPLOYEE roles
-export function verifyManagementToken(request: NextRequest): JWTPayload | null {
+export async function verifyManagementToken(request: NextRequest): Promise<JWTPayload | null> {
   try {
     // Check for access-token first (new JWT system)
     let token = request.cookies.get('access-token')?.value;
@@ -97,10 +100,11 @@ export function verifyManagementToken(request: NextRequest): JWTPayload | null {
       return null;
     }
 
-    const decoded = jwt.verify(
-      token, 
-      process.env.JWT_SECRET || 'fallback-secret'
-    ) as JWTPayload;
+    const { payload } = await jose.jwtVerify(token, JWT_SECRET, {
+      issuer: 'pizza-builder-app',
+    });
+
+    const decoded = payload as unknown as JWTPayload;
 
     // Allow both ADMIN and EMPLOYEE roles for management portal
     if (decoded.role !== 'ADMIN' && decoded.role !== 'EMPLOYEE') {
@@ -121,7 +125,7 @@ export function verifyManagementToken(request: NextRequest): JWTPayload | null {
 }
 
 // General token verification - allows any authenticated user
-export function verifyToken(request: NextRequest): JWTPayload | null {
+export async function verifyToken(request: NextRequest): Promise<JWTPayload | null> {
   try {
     // Check for access-token first (new JWT system)
     let token = request.cookies.get('access-token')?.value;
@@ -141,10 +145,11 @@ export function verifyToken(request: NextRequest): JWTPayload | null {
       return cached.payload;
     }
 
-    const decoded = jwt.verify(
-      token, 
-      process.env.JWT_SECRET || 'fallback-secret'
-    ) as JWTPayload;
+    const { payload } = await jose.jwtVerify(token, JWT_SECRET, {
+      issuer: 'pizza-builder-app',
+    });
+
+    const decoded = payload as unknown as JWTPayload;
 
     // Cache the validated token for 5 minutes
     tokenCache.set(token, {
@@ -160,7 +165,7 @@ export function verifyToken(request: NextRequest): JWTPayload | null {
 }
 
 // Kitchen staff authentication - allows both ADMIN and EMPLOYEE roles
-export function verifyKitchenStaffToken(request: NextRequest): JWTPayload | null {
+export async function verifyKitchenStaffToken(request: NextRequest): Promise<JWTPayload | null> {
   try {
     // Check for access-token first (new JWT system)
     let token = request.cookies.get('access-token')?.value;
@@ -184,10 +189,11 @@ export function verifyKitchenStaffToken(request: NextRequest): JWTPayload | null
       return null;
     }
 
-    const decoded = jwt.verify(
-      token, 
-      process.env.JWT_SECRET || 'fallback-secret'
-    ) as JWTPayload;
+    const { payload } = await jose.jwtVerify(token, JWT_SECRET, {
+      issuer: 'pizza-builder-app',
+    });
+
+    const decoded = payload as unknown as JWTPayload;
 
     // Allow both ADMIN and EMPLOYEE roles for kitchen access
     if (decoded.role !== 'ADMIN' && decoded.role !== 'EMPLOYEE') {

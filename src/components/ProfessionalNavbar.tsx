@@ -28,7 +28,7 @@ export default function ProfessionalNavbar() {
     fetchCategories();
   }, []);
 
-  const fetchCategories = async () => {
+  const fetchCategories = async (retryCount = 0) => {
     try {
       setLoading(true);
       setError(null); // Clear any previous errors
@@ -38,7 +38,7 @@ export default function ProfessionalNavbar() {
           'Content-Type': 'application/json',
         },
         // Add timeout for better error handling
-        signal: AbortSignal.timeout(8000) // 8 second timeout (reduced from 10)
+        signal: AbortSignal.timeout(15000) // 15 second timeout for better reliability
       });
       
       if (!response.ok) {
@@ -69,16 +69,25 @@ export default function ProfessionalNavbar() {
     } catch (err) {
       console.error('❌ Error loading categories:', err);
       
+      // Retry logic - retry up to 2 times with delay
+      if (retryCount < 2) {
+        console.log(`🔄 Retrying... attempt ${retryCount + 1}/2`);
+        setTimeout(() => {
+          fetchCategories(retryCount + 1);
+        }, 2000); // 2 second delay before retry
+        return;
+      }
+      
       if (err instanceof Error) {
         if (err.name === 'TimeoutError') {
-          setError('Connection timeout - please check your internet connection');
+          setError('Connection timeout - please refresh the page');
         } else if (err.message.includes('Failed to fetch')) {
-          setError('Network error - server may be down');
+          setError('Network error - please check your connection');
         } else {
-          setError(`Error: ${err.message}`);
+          setError(`Error loading menu: ${err.message}`);
         }
       } else {
-        setError('Unknown network error occurred');
+        setError('Unknown error occurred loading menu');
       }
     } finally {
       setLoading(false);
@@ -119,8 +128,14 @@ export default function ProfessionalNavbar() {
   if (error) {
     return (
       <div className="bg-white shadow-xl rounded-3xl border border-red-100 overflow-hidden">
-        <div className="px-6 py-4 text-center text-red-600">
-          Error loading menu: {error}
+        <div className="px-6 py-4 text-center">
+          <div className="text-red-600 mb-2">{error}</div>
+          <button 
+            onClick={() => fetchCategories()}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );

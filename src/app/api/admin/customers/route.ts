@@ -5,7 +5,7 @@ import { verifyAdminToken } from '@/lib/auth';
 // GET - Get all customers (admin only)
 export async function GET(request: NextRequest) {
   try {
-    const tokenData = verifyAdminToken(request);
+    const tokenData = await verifyAdminToken(request);
     
     if (!tokenData) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -12,14 +12,6 @@ import LocalBusinessStructuredData from '@/components/LocalBusinessStructuredDat
 import Analytics from '@/components/Analytics';
 import { generateMetadata as generateDynamicMetadata } from '@/lib/dynamic-metadata';
 
-// Instrumentation is only meaningful on the Node server; defer to runtime dynamic import
-if (typeof window === 'undefined') {
-  // Dynamic import so that any Edge compilation path can tree-shake / skip Node APIs
-  import('@/instrumentation').then(m => m.register()).catch(err => {
-    console.warn('[INSTRUMENT] registration failed', err);
-  });
-}
-
 // Use dynamic metadata generation
 export const generateMetadata = generateDynamicMetadata;
 

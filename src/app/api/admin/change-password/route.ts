@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 export async function PUT(request: NextRequest) {
   try {
     // Verify admin authentication
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   const limit = adminLimiter.check('admin-components-get', ip);
   if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     // Verify admin authentication
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

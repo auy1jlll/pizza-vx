@@ -6,7 +6,7 @@ import { verifyAdminToken } from '@/lib/auth';
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
     const customizationOptions = await prisma.customizationOption.findMany({
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Verify admin authentication
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
     const body = await request.json();

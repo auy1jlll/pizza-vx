@@ -10,27 +10,66 @@ export async function GET(
 
     console.log(`📥 Fetching specialty calzone with ID: ${id}`);
 
-    const specialtyCalzone = await prisma.specialtyCalzone.findUnique({
-      where: {
-        id: id,
-        isActive: true
-      },
-      include: {
-        sizes: {
-          include: {
-            pizzaSize: true
-          },
-          where: {
-            isAvailable: true
-          },
-          orderBy: {
-            pizzaSize: {
-              sortOrder: 'asc'
+    let specialtyCalzone = null;
+
+    // First try to find by ID (UUID)
+    if (id.length > 10) { // Rough check for UUID vs numeric index
+      specialtyCalzone = await prisma.specialtyCalzone.findUnique({
+        where: {
+          id: id,
+          isActive: true
+        },
+        include: {
+          sizes: {
+            include: {
+              pizzaSize: true
+            },
+            where: {
+              isAvailable: true
+            },
+            orderBy: {
+              pizzaSize: {
+                sortOrder: 'asc'
+              }
             }
           }
         }
+      });
+    }
+
+    // If not found by ID or if it's a numeric index, try to get by array position
+    if (!specialtyCalzone) {
+      const numericIndex = parseInt(id);
+      if (!isNaN(numericIndex)) {
+        console.log(`🔍 Fetching specialty calzone by index: ${numericIndex}`);
+        
+        // Get all specialty calzones ordered by sortOrder
+        const allSpecialtyCalzones = await prisma.specialtyCalzone.findMany({
+          where: { isActive: true },
+          include: {
+            sizes: {
+              include: {
+                pizzaSize: true
+              },
+              where: {
+                isAvailable: true
+              },
+              orderBy: {
+                pizzaSize: {
+                  sortOrder: 'asc'
+                }
+              }
+            }
+          },
+          orderBy: { sortOrder: 'asc' }
+        });
+
+        if (numericIndex >= 0 && numericIndex < allSpecialtyCalzones.length) {
+          specialtyCalzone = allSpecialtyCalzones[numericIndex];
+          console.log(`✅ Found specialty calzone by index ${numericIndex}: ${specialtyCalzone.calzoneName}`);
+        }
       }
-    });
+    }
 
     if (!specialtyCalzone) {
       console.log(`❌ Specialty calzone not found: ${id}`);

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 import prisma from '@/lib/prisma';
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret');
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,16 +45,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 401 });
     }
 
-    // Create JWT token
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        email: user.email,
-        role: user.role
-      },
-      process.env.JWT_SECRET || 'fallback-secret',
-      { expiresIn: '24h' }
-    );
+    // Create JWT token with longer expiration using jose
+    const token = await new jose.SignJWT({
+      userId: user.id,
+      email: user.email,
+      role: user.role
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setIssuer('pizza-builder-app')
+      .setExpirationTime('72h') // 3 days for production stability
+      .sign(JWT_SECRET);
 
     // Simple success response
     const response = NextResponse.json({
@@ -65,12 +68,22 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Set proper JWT token
+    // Set proper JWT token with consistent settings
     response.cookies.set('admin-token', token, {
       httpOnly: true,
-      maxAge: 60 * 60 * 24, // 24 hours
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
+      maxAge: 60 * 60 * 72, // 72 hours to match JWT expiration
+      secure: false, // Disabled for HTTP production deployment
+      sameSite: 'strict',
+      path: '/'
+    });
+
+    // Also set access-token for consistency
+    response.cookies.set('access-token', token, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 72, // 72 hours to match JWT expiration
+      secure: false, // Disabled for HTTP production deployment
+      sameSite: 'strict',
+      path: '/'
     });
 
     return response;

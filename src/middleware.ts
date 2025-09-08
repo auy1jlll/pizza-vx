@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as jose from 'jose';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret');
-const REISSUE_THRESHOLD_SECONDS = 15 * 60; // 15 minutes
+const REISSUE_THRESHOLD_SECONDS = 6 * 60 * 60; // 6 hours - reissue when less than 6 hours remain
 
 export async function middleware(request: NextRequest) {
   // We only want to run this middleware on API routes
@@ -15,7 +15,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get('access-token')?.value;
+  // Check for tokens in the same order as verifyAdminToken
+  let token = request.cookies.get('access-token')?.value;
+  
+  // Fallback to admin-token for backward compatibility
+  if (!token) {
+    token = request.cookies.get('admin-token')?.value;
+  }
 
   if (!token) {
     return NextResponse.next();
@@ -46,25 +52,25 @@ export async function middleware(request: NextRequest) {
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .setIssuer('pizza-builder-app')
-        .setExpirationTime('60m')
+        .setExpirationTime('72h') // 3 days for production stability
         .sign(JWT_SECRET);
 
-      // Set the new token in the response cookies
+      // Set the new token in the response cookies with consistent settings
       response.cookies.set('access-token', newToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Disabled for HTTP production deployment
         sameSite: 'strict',
         path: '/',
-        maxAge: 60 * 60, // 1 hour
+        maxAge: 60 * 60 * 72, // 72 hours to match JWT expiration
       });
       
       // Also update the legacy admin-token for compatibility
       response.cookies.set('admin-token', newToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Disabled for HTTP production deployment
         sameSite: 'strict',
         path: '/',
-        maxAge: 60 * 60, // 1 hour
+        maxAge: 60 * 60 * 72, // 72 hours to match JWT expiration
       });
 
       isTokenReissued = true;

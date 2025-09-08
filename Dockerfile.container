@@ -1,0 +1,33 @@
+# 🐳 FULL DOCKER CONTAINER DEPLOYMENT
+# Both app and database in containers as per contract
+
+FROM node:18-alpine AS deps
+WORKDIR /app
+RUN apk add --no-cache libc6-compat
+COPY package*.json ./
+COPY prisma ./prisma/
+RUN npm ci --omit=dev --frozen-lockfile
+RUN npx prisma generate
+
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV DATABASE_URL="postgresql://auy1jll66:_Zx-nake_6172@postgres-container:5432/pizzax"
+RUN npm run build
+
+FROM node:18-alpine AS runner
+WORKDIR /app
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --chown=nextjs:nodejs prisma ./prisma/
+USER nextjs
+EXPOSE 3000
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+CMD ["node", "server.js"]

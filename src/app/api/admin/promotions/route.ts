@@ -7,7 +7,7 @@ import { verifyAdminToken } from '@/lib/auth';
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized: Admin access required' },
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Verify admin authentication
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized: Admin access required' },

@@ -1,0 +1,2255 @@
+{
+  "tableName": "MenuItemCustomization",
+  "exportDate": "2025-09-08T10:56:34.916Z",
+  "recordCount": 281,
+  "data": [
+    {
+      "id": "cmf2ah31w0000vka4nq0b7ksd",
+      "menuItemId": "cmez527ch0018vk8032m02431",
+      "customizationGroupId": "cmez4ylw70003vkvowz7y4tsn",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T08:31:10.772Z"
+    },
+    {
+      "id": "cmf1s5lq6005yvk0sh4ir46oj",
+      "menuItemId": "cmez5bugk001fvkvs8jtn5du0",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T23:58:22.014Z"
+    },
+    {
+      "id": "cmf1s5lq6005zvk0sj7xdi0c9",
+      "menuItemId": "cmez5bugk001fvkvs8jtn5du0",
+      "customizationGroupId": "cmf07bxj10000vkv8ziod1skk",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-09-01T23:58:22.014Z"
+    },
+    {
+      "id": "cmf1s5lq60060vk0ssljoohmo",
+      "menuItemId": "cmez5bugk001fvkvs8jtn5du0",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-09-01T23:58:22.014Z"
+    },
+    {
+      "id": "cmf1s5lq60061vk0sg13ivkb0",
+      "menuItemId": "cmez5bugk001fvkvs8jtn5du0",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-09-01T23:58:22.014Z"
+    },
+    {
+      "id": "cmf1s5lq60062vk0s9negvrnv",
+      "menuItemId": "cmez5bugk001fvkvs8jtn5du0",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 5,
+      "createdAt": "2025-09-01T23:58:22.014Z"
+    },
+    {
+      "id": "cmf24tnfu000yvkq0064p77x9",
+      "menuItemId": "cmf24skss000vvkq0y84brlq9",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:52:59.370Z"
+    },
+    {
+      "id": "cmf24uoxf0013vkq07w0qtyzy",
+      "menuItemId": "cmf24ueki0010vkq0m620k5bu",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:53:47.956Z"
+    },
+    {
+      "id": "cmf24we160018vkq0egms4kaa",
+      "menuItemId": "cmf24vzqk0015vkq06atrczo6",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:55:07.146Z"
+    },
+    {
+      "id": "cmf28imbc003tvkq080i84s30",
+      "menuItemId": "cmez4ylz7001cvkvoyc2xmwxy",
+      "customizationGroupId": "cmez4ylw70003vkvowz7y4tsn",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T07:36:23.160Z"
+    },
+    {
+      "id": "cmf28imbc003uvkq04r1sp1xs",
+      "menuItemId": "cmez4ylz7001cvkvoyc2xmwxy",
+      "customizationGroupId": "cmf26thyi002xvkq01n46mw31",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-09-02T07:36:23.160Z"
+    },
+    {
+      "id": "cmf28jfai003vvkq08xjgg0zw",
+      "menuItemId": "cmez4ylz7001evkvoo7mcs4ly",
+      "customizationGroupId": "cmez4ylw70003vkvowz7y4tsn",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T07:37:00.715Z"
+    },
+    {
+      "id": "cmf28jfai003wvkq0ex5ihixp",
+      "menuItemId": "cmez4ylz7001evkvoo7mcs4ly",
+      "customizationGroupId": "cmf26thyi002xvkq01n46mw31",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-09-02T07:37:00.715Z"
+    },
+    {
+      "id": "cmf29jpfq0004vk7c0tgca00n",
+      "menuItemId": "cmf0kymsi0006vk5gyp8abnrw",
+      "customizationGroupId": "cmf0kymvt000svk5g00zjcfdl",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.479Z"
+    },
+    {
+      "id": "cmf29jpg20008vk7clcvg4kcm",
+      "menuItemId": "cmf0kymsi0006vk5gyp8abnrw",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.490Z"
+    },
+    {
+      "id": "cmf29jpg4000avk7cfalyb3m3",
+      "menuItemId": "cmf0kymv2000evk5gecv43nyi",
+      "customizationGroupId": "cmf0kymvt000svk5g00zjcfdl",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.493Z"
+    },
+    {
+      "id": "cmf29jpg9000evk7c8pw9bxur",
+      "menuItemId": "cmf0kymv2000evk5gecv43nyi",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.498Z"
+    },
+    {
+      "id": "cmf29jpgc000gvk7cl5dhlg59",
+      "menuItemId": "cmf0kymv8000ivk5gtwrp5ro4",
+      "customizationGroupId": "cmf0kymvt000svk5g00zjcfdl",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.500Z"
+    },
+    {
+      "id": "cmf29jpgi000kvk7cacc6f35l",
+      "menuItemId": "cmf0kymv8000ivk5gtwrp5ro4",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.506Z"
+    },
+    {
+      "id": "cmf29jpgk000mvk7cj2nle7yf",
+      "menuItemId": "cmf0kz13z0006vkg4nqr2kpbj",
+      "customizationGroupId": "cmf0kymvt000svk5g00zjcfdl",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.508Z"
+    },
+    {
+      "id": "cmf29jpgq000qvk7cb6hsg1m3",
+      "menuItemId": "cmf0kz147000avkg4lcptf42p",
+      "customizationGroupId": "cmf0kymvt000svk5g00zjcfdl",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.515Z"
+    },
+    {
+      "id": "cmf29jpgw000uvk7cjdji47yd",
+      "menuItemId": "cmf0kz147000avkg4lcptf42p",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.520Z"
+    },
+    {
+      "id": "cmf29jpgy000wvk7c6iv343c7",
+      "menuItemId": "cmf0kz14a000evkg4fvz7l8ax",
+      "customizationGroupId": "cmf0kymvt000svk5g00zjcfdl",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.523Z"
+    },
+    {
+      "id": "cmf29jph30010vk7cm770vt5n",
+      "menuItemId": "cmf0kz14a000evkg4fvz7l8ax",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.528Z"
+    },
+    {
+      "id": "cmf29jph60012vk7c1y5g5p0t",
+      "menuItemId": "cmf0kz14e000ivkg4fpi95zfv",
+      "customizationGroupId": "cmf0kymvt000svk5g00zjcfdl",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.530Z"
+    },
+    {
+      "id": "cmf29jphb0016vk7cp6y2qt05",
+      "menuItemId": "cmf0kz14e000ivkg4fpi95zfv",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:05:13.535Z"
+    },
+    {
+      "id": "cmf2anqkd0007vka4dxm5zxk1",
+      "menuItemId": "cmez4ylz7001avkvowcpcy4ea",
+      "customizationGroupId": "cmez4ylw70003vkvowz7y4tsn",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T08:36:21.182Z"
+    },
+    {
+      "id": "cmf2anqkd0008vka44uvqs8lg",
+      "menuItemId": "cmez4ylz7001avkvowcpcy4ea",
+      "customizationGroupId": "cmf2al5u70002vka4wyhqmvaq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-09-02T08:36:21.182Z"
+    },
+    {
+      "id": "cmf2391ng0012vk88f47y61ab",
+      "menuItemId": "cmf237uan0011vk88f0katf7g",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:08:58.397Z"
+    },
+    {
+      "id": "cmf25bdp3002fvkq07w1oybf3",
+      "menuItemId": "cmf25al1g002cvkq0yqm24f0y",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T06:06:46.552Z"
+    },
+    {
+      "id": "cmf28td880047vkq0pn0j1u6t",
+      "menuItemId": "cmez5bufx000tvkvs3psh4hyl",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T07:44:44.601Z"
+    },
+    {
+      "id": "cmf28td880048vkq0rj2jc75z",
+      "menuItemId": "cmez5bufx000tvkvs3psh4hyl",
+      "customizationGroupId": "cmf0dooqi0005vkbcaetve5zt",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-09-02T07:44:44.601Z"
+    },
+    {
+      "id": "cmf28td880049vkq0hmwknk6y",
+      "menuItemId": "cmez5bufx000tvkvs3psh4hyl",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-09-02T07:44:44.601Z"
+    },
+    {
+      "id": "cmf29kss60017vk7cku6bjgzt",
+      "menuItemId": "cmez5bug1000xvkvsytz35wfc",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T08:06:04.470Z"
+    },
+    {
+      "id": "cmf29kss60018vk7cpsf789m7",
+      "menuItemId": "cmez5bug1000xvkvsytz35wfc",
+      "customizationGroupId": "cmf0dooqi0005vkbcaetve5zt",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-09-02T08:06:04.470Z"
+    },
+    {
+      "id": "cmf29kss60019vk7cz0jvdsx7",
+      "menuItemId": "cmez5bug1000xvkvsytz35wfc",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-09-02T08:06:04.470Z"
+    },
+    {
+      "id": "cmf2avd8u0009vka47m67gvf1",
+      "menuItemId": "cmez5bufb000bvkvsvxlcblte",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T08:42:17.166Z"
+    },
+    {
+      "id": "cmf2avd8u000avka4eue7apbt",
+      "menuItemId": "cmez5bufb000bvkvsvxlcblte",
+      "customizationGroupId": "cmf0l31z80000vk0s10ywj3zp",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-09-02T08:42:17.166Z"
+    },
+    {
+      "id": "cmf07zb3m0001vkk8gan9wdxi",
+      "menuItemId": "cmez5bugf001bvkvs9utg7k5d",
+      "customizationGroupId": "cmf07bxj10000vkv8ziod1skk",
+      "isRequired": true,
+      "sortOrder": 0,
+      "createdAt": "2025-08-31T21:45:49.811Z"
+    },
+    {
+      "id": "cmf07zb400005vkk8kr551ejp",
+      "menuItemId": "cmez5bugm001hvkvswtop2ezu",
+      "customizationGroupId": "cmf07bxj10000vkv8ziod1skk",
+      "isRequired": true,
+      "sortOrder": 0,
+      "createdAt": "2025-08-31T21:45:49.824Z"
+    },
+    {
+      "id": "cmf07zb450007vkk8eaetf6uh",
+      "menuItemId": "cmez5bufk000hvkvspk80r6rp",
+      "customizationGroupId": "cmf07bxj10000vkv8ziod1skk",
+      "isRequired": true,
+      "sortOrder": 0,
+      "createdAt": "2025-08-31T21:45:49.830Z"
+    },
+    {
+      "id": "cmf09u7kh000qvkic1svzpk6z",
+      "menuItemId": "cmez5buhf0029vkvs95vr1a6m",
+      "customizationGroupId": "cmf09u7jm0000vkic0gt7k9ax",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:37:51.185Z"
+    },
+    {
+      "id": "cmf09u7kj000svkic3wudogh0",
+      "menuItemId": "cmez5buhh002bvkvsqef86gvy",
+      "customizationGroupId": "cmf09u7jm0000vkic0gt7k9ax",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:37:51.187Z"
+    },
+    {
+      "id": "cmf09u7kk000uvkicrgbma9af",
+      "menuItemId": "cmez5buhj002dvkvs2wlo8w8h",
+      "customizationGroupId": "cmf09u7jm0000vkic0gt7k9ax",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:37:51.188Z"
+    },
+    {
+      "id": "cmf09u7kl000wvkic4qsznkbz",
+      "menuItemId": "cmez5buhl002fvkvs101lksxm",
+      "customizationGroupId": "cmf09u7jm0000vkic0gt7k9ax",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:37:51.189Z"
+    },
+    {
+      "id": "cmf09u7km000yvkiczpiditgj",
+      "menuItemId": "cmez5buhn002hvkvsfy7fj8g9",
+      "customizationGroupId": "cmf09u7jm0000vkic0gt7k9ax",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:37:51.191Z"
+    },
+    {
+      "id": "cmf09u7ko0010vkicty25h4yw",
+      "menuItemId": "cmez5buh4001zvkvsodoxnl83",
+      "customizationGroupId": "cmf09u7jm0000vkic0gt7k9ax",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:37:51.192Z"
+    },
+    {
+      "id": "cmf09u7kp0012vkic27apsbfv",
+      "menuItemId": "cmez5buh60021vkvsx6pjsrsl",
+      "customizationGroupId": "cmf09u7jm0000vkic0gt7k9ax",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:37:51.194Z"
+    },
+    {
+      "id": "cmf09u7kq0014vkic1voizwpc",
+      "menuItemId": "cmez5buh80023vkvsyejru7y7",
+      "customizationGroupId": "cmf09u7jm0000vkic0gt7k9ax",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:37:51.195Z"
+    },
+    {
+      "id": "cmf09u7kr0016vkicee6l8616",
+      "menuItemId": "cmez5buha0025vkvss8g1oejt",
+      "customizationGroupId": "cmf09u7jm0000vkic0gt7k9ax",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:37:51.196Z"
+    },
+    {
+      "id": "cmf09u7kt0018vkic3q8788xu",
+      "menuItemId": "cmez5buhc0027vkvsy1aicbxf",
+      "customizationGroupId": "cmf09u7jm0000vkic0gt7k9ax",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:37:51.197Z"
+    },
+    {
+      "id": "cmf0bhrkb001hvkz4u3nmb1tk",
+      "menuItemId": "cmez5buhx002rvkvs1n6haty2",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T23:24:09.804Z"
+    },
+    {
+      "id": "cmf0bhrkd001jvkz45von16yk",
+      "menuItemId": "cmez5buhx002rvkvs1n6haty2",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:24:09.805Z"
+    },
+    {
+      "id": "cmf0bhrkf001lvkz4mb1abudf",
+      "menuItemId": "cmez5buhx002rvkvs1n6haty2",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:24:09.807Z"
+    },
+    {
+      "id": "cmf0bhrkh001nvkz4hn8678gl",
+      "menuItemId": "cmez5buhx002rvkvs1n6haty2",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:24:09.809Z"
+    },
+    {
+      "id": "cmf0ckbiy001rvk70t7erqw78",
+      "menuItemId": "cmf0cax0s000mvkcc28pgk2s4",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:54:08.602Z"
+    },
+    {
+      "id": "cmf0ckbiz001tvk70bp3473xk",
+      "menuItemId": "cmf0cax0s000mvkcc28pgk2s4",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:54:08.603Z"
+    },
+    {
+      "id": "cmf0ckbj1001vvk70kexozzl8",
+      "menuItemId": "cmf0cax0u000ovkcclyep16m6",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:54:08.605Z"
+    },
+    {
+      "id": "cmf0ckbj2001xvk70n9efppyo",
+      "menuItemId": "cmf0cax0u000ovkcclyep16m6",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:54:08.607Z"
+    },
+    {
+      "id": "cmf0ckbj4001zvk700j7ftu3w",
+      "menuItemId": "cmf0cax0u000ovkcclyep16m6",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:54:08.608Z"
+    },
+    {
+      "id": "cmf0dooqy000fvkbcunpmgzde",
+      "menuItemId": "cmez5bufz000vvkvssfm47yoi",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T00:25:31.978Z"
+    },
+    {
+      "id": "cmf0door0000hvkbck9gy0yj3",
+      "menuItemId": "cmez5bufz000vvkvssfm47yoi",
+      "customizationGroupId": "cmf0dooqi0005vkbcaetve5zt",
+      "isRequired": true,
+      "sortOrder": 2,
+      "createdAt": "2025-09-01T00:25:31.980Z"
+    },
+    {
+      "id": "cmf0door9000nvkbc2yjp9kpx",
+      "menuItemId": "cmez5bug3000zvkvshe0vwnu8",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T00:25:31.989Z"
+    },
+    {
+      "id": "cmf0doorb000pvkbcw7s1s7zy",
+      "menuItemId": "cmez5bug3000zvkvshe0vwnu8",
+      "customizationGroupId": "cmf0dooqi0005vkbcaetve5zt",
+      "isRequired": true,
+      "sortOrder": 2,
+      "createdAt": "2025-09-01T00:25:31.991Z"
+    },
+    {
+      "id": "cmf0doord000rvkbct38ckcsj",
+      "menuItemId": "cmez5bug50011vkvs330um4k1",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T00:25:31.993Z"
+    },
+    {
+      "id": "cmf0doore000tvkbc0gn790xw",
+      "menuItemId": "cmez5bug50011vkvs330um4k1",
+      "customizationGroupId": "cmf0dooqi0005vkbcaetve5zt",
+      "isRequired": true,
+      "sortOrder": 2,
+      "createdAt": "2025-09-01T00:25:31.995Z"
+    },
+    {
+      "id": "cmf0doorg000vvkbcpj3yaboa",
+      "menuItemId": "cmez5bug70013vkvs6aw3qmtk",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T00:25:31.996Z"
+    },
+    {
+      "id": "cmf0doori000xvkbcp6ggn8wx",
+      "menuItemId": "cmez5bug70013vkvs6aw3qmtk",
+      "customizationGroupId": "cmf0dooqi0005vkbcaetve5zt",
+      "isRequired": true,
+      "sortOrder": 2,
+      "createdAt": "2025-09-01T00:25:31.999Z"
+    },
+    {
+      "id": "cmf0doorl000zvkbcon6o8pq0",
+      "menuItemId": "cmez5bug90015vkvsh9ihifu1",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T00:25:32.001Z"
+    },
+    {
+      "id": "cmf0doorn0011vkbcubd41d4e",
+      "menuItemId": "cmez5bug90015vkvsh9ihifu1",
+      "customizationGroupId": "cmf0dooqi0005vkbcaetve5zt",
+      "isRequired": true,
+      "sortOrder": 2,
+      "createdAt": "2025-09-01T00:25:32.004Z"
+    },
+    {
+      "id": "cmf0doorq0013vkbcwniod1ig",
+      "menuItemId": "cmez5bugb0017vkvs8vxrv5iw",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T00:25:32.006Z"
+    },
+    {
+      "id": "cmf0doort0015vkbcxwm9wrz0",
+      "menuItemId": "cmez5bugb0017vkvs8vxrv5iw",
+      "customizationGroupId": "cmf0dooqi0005vkbcaetve5zt",
+      "isRequired": true,
+      "sortOrder": 2,
+      "createdAt": "2025-09-01T00:25:32.009Z"
+    },
+    {
+      "id": "cmf0klk2d000avki0g3qq2dj9",
+      "menuItemId": "cmf0cawzy0002vkccpj8t0hcd",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.254Z"
+    },
+    {
+      "id": "cmf0klk2j000cvki0ti5st1wv",
+      "menuItemId": "cmf0cax050004vkccpmzsgz01",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.260Z"
+    },
+    {
+      "id": "cmf0klk2m000evki0qb1k1ac0",
+      "menuItemId": "cmf0cax090006vkcc6nicnffq",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.262Z"
+    },
+    {
+      "id": "cmf0klk2o000gvki0y80je4l4",
+      "menuItemId": "cmf0cax0c0008vkcckefjlktt",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.265Z"
+    },
+    {
+      "id": "cmf0klk2r000ivki06kwhooo5",
+      "menuItemId": "cmf0cax0e000avkcc3z2pv3mf",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.268Z"
+    },
+    {
+      "id": "cmf0klk2u000kvki0ugj0292b",
+      "menuItemId": "cmf0cax0g000cvkcc3yucqldr",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.270Z"
+    },
+    {
+      "id": "cmf0klk2w000mvki0xq28yqc0",
+      "menuItemId": "cmf0cax0j000evkccpkhckphc",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.273Z"
+    },
+    {
+      "id": "cmf0klk2z000ovki0ggj4ik4v",
+      "menuItemId": "cmf0cax0l000gvkccso3qb8to",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.275Z"
+    },
+    {
+      "id": "cmf0klk31000qvki0lzacrgaf",
+      "menuItemId": "cmf0cax0o000ivkcca3j6fhf0",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.278Z"
+    },
+    {
+      "id": "cmf0klk33000svki0ptmmtcic",
+      "menuItemId": "cmf0cax0q000kvkccfccoae63",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.279Z"
+    },
+    {
+      "id": "cmf0klk34000uvki0x5kvaehe",
+      "menuItemId": "cmf0cax0s000mvkcc28pgk2s4",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.280Z"
+    },
+    {
+      "id": "cmf0klk36000wvki03kl2jt2x",
+      "menuItemId": "cmf0cax0u000ovkcclyep16m6",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.282Z"
+    },
+    {
+      "id": "cmf0klk39000yvki077wlyjpf",
+      "menuItemId": "cmez5buhf0029vkvs95vr1a6m",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.286Z"
+    },
+    {
+      "id": "cmf0klk3c0010vki0j9t8f2af",
+      "menuItemId": "cmez5buhh002bvkvsqef86gvy",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.288Z"
+    },
+    {
+      "id": "cmf0klk3d0012vki0b05youxu",
+      "menuItemId": "cmez5buhj002dvkvs2wlo8w8h",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.290Z"
+    },
+    {
+      "id": "cmf0klk3e0014vki0o6xgvwvd",
+      "menuItemId": "cmez5buhl002fvkvs101lksxm",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.291Z"
+    },
+    {
+      "id": "cmf0klk3g0016vki0v7h8xj4j",
+      "menuItemId": "cmez5buhn002hvkvsfy7fj8g9",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.292Z"
+    },
+    {
+      "id": "cmf0klk3h0018vki09g8hys0x",
+      "menuItemId": "cmez5buhp002jvkvs1ar0eppl",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.294Z"
+    },
+    {
+      "id": "cmf0klk3i001avki0nrlj24ke",
+      "menuItemId": "cmez5buhq002lvkvsp6t5damr",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.295Z"
+    },
+    {
+      "id": "cmf0klk3k001cvki0gcb597l0",
+      "menuItemId": "cmez5buhv002pvkvs92heqdfm",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.296Z"
+    },
+    {
+      "id": "cmf0klk3l001evki0cjib6adb",
+      "menuItemId": "cmez5buhx002rvkvs1n6haty2",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.297Z"
+    },
+    {
+      "id": "cmf0klk3n001gvki0u15bsjch",
+      "menuItemId": "cmez5buhs002nvkvs686iuiqw",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.299Z"
+    },
+    {
+      "id": "cmf28wicn004bvkq0hv1lrorx",
+      "menuItemId": "cmf0kz13z0006vkg4nqr2kpbj",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-09-02T07:47:11.207Z"
+    },
+    {
+      "id": "cmf29ksv0001bvk7ceyfwr5f2",
+      "menuItemId": "cmez5bug3000zvkvshe0vwnu8",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:06:04.572Z"
+    },
+    {
+      "id": "cmf29ksv5001dvk7cibe2ilu0",
+      "menuItemId": "cmez5bug50011vkvs330um4k1",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:06:04.577Z"
+    },
+    {
+      "id": "cmf29ksv8001fvk7c1v2a926c",
+      "menuItemId": "cmez5bufz000vvkvssfm47yoi",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:06:04.581Z"
+    },
+    {
+      "id": "cmf29ksvc001hvk7cq3pp1206",
+      "menuItemId": "cmez5bug70013vkvs6aw3qmtk",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:06:04.585Z"
+    },
+    {
+      "id": "cmf29ksvg001jvk7cuo3092c3",
+      "menuItemId": "cmez5bug90015vkvsh9ihifu1",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:06:04.589Z"
+    },
+    {
+      "id": "cmf29ksvk001lvk7cwjdgjvoe",
+      "menuItemId": "cmez5bugb0017vkvs8vxrv5iw",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:06:04.592Z"
+    },
+    {
+      "id": "cmf2avd8u000bvka4o5x27m9g",
+      "menuItemId": "cmez5bufb000bvkvsvxlcblte",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-09-02T08:42:17.166Z"
+    },
+    {
+      "id": "cmf23yb3f000lvkq0k8ngbe9t",
+      "menuItemId": "cmf23x5cr0006vkq0ijin4rtq",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:28:37.036Z"
+    },
+    {
+      "id": "cmf23zg35000mvkq0af45mprf",
+      "menuItemId": "cmf23xcdt000gvkq0ga0itt8k",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:29:30.161Z"
+    },
+    {
+      "id": "cmf240jkh000nvkq0ewcmklq8",
+      "menuItemId": "cmf23x7tz000avkq0qwdluiuz",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:30:21.329Z"
+    },
+    {
+      "id": "cmf241hqs000ovkq0y3kj6sb5",
+      "menuItemId": "cmf23xaiy000cvkq0ekts44ni",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:31:05.621Z"
+    },
+    {
+      "id": "cmf24zqee001avkq012p1xrab",
+      "menuItemId": "cmez5buij003dvkvsofytltn1",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:57:43.142Z"
+    },
+    {
+      "id": "cmf252y5a001gvkq0hz10k6pq",
+      "menuItemId": "cmf251n5m001cvkq02mypho7f",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T06:00:13.150Z"
+    },
+    {
+      "id": "cmf253wyt001lvkq0endweuo1",
+      "menuItemId": "cmf253ief001ivkq0ncp320fv",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T06:00:58.277Z"
+    },
+    {
+      "id": "cmf29b8l60001vk2g98n3k3uu",
+      "menuItemId": "cmf0l31zw000mvk0sassix80k",
+      "customizationGroupId": "cmf0lfe6w0001vkqgiubwi9uz",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-09-02T07:58:38.394Z"
+    },
+    {
+      "id": "cmf29b8l60002vk2g227m0d8m",
+      "menuItemId": "cmf0l31zw000mvk0sassix80k",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-09-02T07:58:38.394Z"
+    },
+    {
+      "id": "cmf22fjxp0001vk88s8i3h3gg",
+      "menuItemId": "cmez4ylz7001jvkvorf8gutkb",
+      "customizationGroupId": "cmez4ylw70003vkvowz7y4tsn",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T04:46:02.413Z"
+    },
+    {
+      "id": "cmf22fjxp0002vk88sg769m75",
+      "menuItemId": "cmez4ylz7001jvkvorf8gutkb",
+      "customizationGroupId": "cmez4ylwa0005vkvoe8fpfq94",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-09-02T04:46:02.413Z"
+    },
+    {
+      "id": "cmf06ou91000gvkq4p7ebzdvi",
+      "menuItemId": "cmez5bugd0019vkvss1syr7lw",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.798Z"
+    },
+    {
+      "id": "cmf2avenx000dvka43wgge8fn",
+      "menuItemId": "cmez5buff000dvkvsaexqwttc",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.005Z"
+    },
+    {
+      "id": "cmf06ou9e000uvkq4ne9j35x2",
+      "menuItemId": "cmez5bugs001nvkvsg4st51kb",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.811Z"
+    },
+    {
+      "id": "cmf06ou9g000wvkq4wfygffkr",
+      "menuItemId": "cmez5bugt001pvkvshj4za05r",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.812Z"
+    },
+    {
+      "id": "cmf06ou9h000yvkq48x073wra",
+      "menuItemId": "cmez5bugw001rvkvszj8ensiv",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.814Z"
+    },
+    {
+      "id": "cmf06ou9j0010vkq4qy6cjzj8",
+      "menuItemId": "cmez5bugz001tvkvsin6tvpm5",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.815Z"
+    },
+    {
+      "id": "cmf06ou9k0012vkq4jfxcjuny",
+      "menuItemId": "cmez5buh0001vvkvsxlvetfm6",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.817Z"
+    },
+    {
+      "id": "cmf06ou9m0014vkq4yn11b9i9",
+      "menuItemId": "cmez5buh2001xvkvsnhog34dl",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.818Z"
+    },
+    {
+      "id": "cmf06ou9o0016vkq4afs0bmjs",
+      "menuItemId": "cmez5buh4001zvkvsodoxnl83",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.820Z"
+    },
+    {
+      "id": "cmf06ou9p0018vkq4u1dwqqq6",
+      "menuItemId": "cmez5buh60021vkvsx6pjsrsl",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.821Z"
+    },
+    {
+      "id": "cmf06ou9q001avkq4zb9g0uza",
+      "menuItemId": "cmez5buh80023vkvsyejru7y7",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.823Z"
+    },
+    {
+      "id": "cmf06ou9s001cvkq4j9eurglb",
+      "menuItemId": "cmez5buha0025vkvss8g1oejt",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.824Z"
+    },
+    {
+      "id": "cmf06ou9t001evkq4s495npvw",
+      "menuItemId": "cmez5buhc0027vkvsy1aicbxf",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.826Z"
+    },
+    {
+      "id": "cmf06ou9v001gvkq4rb971e3x",
+      "menuItemId": "cmez5buhf0029vkvs95vr1a6m",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.828Z"
+    },
+    {
+      "id": "cmf06ou9x001ivkq41lwf7d77",
+      "menuItemId": "cmez5buhh002bvkvsqef86gvy",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.829Z"
+    },
+    {
+      "id": "cmf06ou9y001kvkq44rk3kjjj",
+      "menuItemId": "cmez5buhj002dvkvs2wlo8w8h",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.831Z"
+    },
+    {
+      "id": "cmf06oua0001mvkq4pk0h5a44",
+      "menuItemId": "cmez5buhl002fvkvs101lksxm",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.832Z"
+    },
+    {
+      "id": "cmf06oua1001ovkq4jyizjyqv",
+      "menuItemId": "cmez5buhn002hvkvsfy7fj8g9",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:09:41.834Z"
+    },
+    {
+      "id": "cmf08331u0001vk1gb03dsker",
+      "menuItemId": "cmez5bugo001jvkvslr3gsci2",
+      "customizationGroupId": "cmf07bxj10000vkv8ziod1skk",
+      "isRequired": true,
+      "sortOrder": 0,
+      "createdAt": "2025-08-31T21:48:46.002Z"
+    },
+    {
+      "id": "cmf0833290003vk1g3ymkbe12",
+      "menuItemId": "cmez5bugi001dvkvsvl6qxe2v",
+      "customizationGroupId": "cmf07bxj10000vkv8ziod1skk",
+      "isRequired": true,
+      "sortOrder": 0,
+      "createdAt": "2025-08-31T21:48:46.017Z"
+    },
+    {
+      "id": "cmf0a0tgq000gvkhsm2ecpdiy",
+      "menuItemId": "cmez5bugd0019vkvss1syr7lw",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:42:59.498Z"
+    },
+    {
+      "id": "cmf0a0tgs000ivkhsbanxtjma",
+      "menuItemId": "cmez5bugs001nvkvsg4st51kb",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:42:59.501Z"
+    },
+    {
+      "id": "cmf0a0tgt000kvkhsg8x2pjg3",
+      "menuItemId": "cmez5bugt001pvkvshj4za05r",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:42:59.502Z"
+    },
+    {
+      "id": "cmf0a0tgv000mvkhshsxlqkmk",
+      "menuItemId": "cmez5bugw001rvkvszj8ensiv",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:42:59.503Z"
+    },
+    {
+      "id": "cmf0a0tgw000ovkhsfmqxyikl",
+      "menuItemId": "cmez5bugz001tvkvsin6tvpm5",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:42:59.504Z"
+    },
+    {
+      "id": "cmf0a0tgx000qvkhs54bwvjvd",
+      "menuItemId": "cmez5buh0001vvkvsxlvetfm6",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:42:59.506Z"
+    },
+    {
+      "id": "cmf0a0tgy000svkhsedxu7cbb",
+      "menuItemId": "cmez5buh2001xvkvsnhog34dl",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:42:59.507Z"
+    },
+    {
+      "id": "cmf0a0th1000wvkhs81uxrfpm",
+      "menuItemId": "cmez5bugq001lvkvse0ycua9x",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:42:59.509Z"
+    },
+    {
+      "id": "cmf0a0th2000yvkhs31v1f3gu",
+      "menuItemId": "cmez5bugf001bvkvs9utg7k5d",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:42:59.510Z"
+    },
+    {
+      "id": "cmf0a0th30010vkhsskfjexc3",
+      "menuItemId": "cmez5bugo001jvkvslr3gsci2",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:42:59.511Z"
+    },
+    {
+      "id": "cmf0a0th40012vkhsmi32l7sa",
+      "menuItemId": "cmez5bugm001hvkvswtop2ezu",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:42:59.513Z"
+    },
+    {
+      "id": "cmf0a0th50014vkhs4kwoi8bu",
+      "menuItemId": "cmez5bugi001dvkvsvl6qxe2v",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T22:42:59.514Z"
+    },
+    {
+      "id": "cmf0ckbhi0001vk70yi0m19to",
+      "menuItemId": "cmf0cawzy0002vkccpj8t0hcd",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:54:08.551Z"
+    },
+    {
+      "id": "cmf0ckbhl0003vk70obvim9rc",
+      "menuItemId": "cmf0cawzy0002vkccpj8t0hcd",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:54:08.554Z"
+    },
+    {
+      "id": "cmf0ckbhn0005vk7037iod9te",
+      "menuItemId": "cmf0cawzy0002vkccpj8t0hcd",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:54:08.555Z"
+    },
+    {
+      "id": "cmf0ckbhq0007vk70yfrj4vfp",
+      "menuItemId": "cmf0cax050004vkccpmzsgz01",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:54:08.559Z"
+    },
+    {
+      "id": "cmf0ckbht0009vk709ff5dx5e",
+      "menuItemId": "cmf0cax050004vkccpmzsgz01",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:54:08.561Z"
+    },
+    {
+      "id": "cmf0ckbhu000bvk7092t850hu",
+      "menuItemId": "cmf0cax050004vkccpmzsgz01",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:54:08.562Z"
+    },
+    {
+      "id": "cmf0ckbhw000dvk70g4j1rcb6",
+      "menuItemId": "cmf0cax090006vkcc6nicnffq",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:54:08.564Z"
+    },
+    {
+      "id": "cmf0ckbhx000fvk70la3fw5nv",
+      "menuItemId": "cmf0cax090006vkcc6nicnffq",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:54:08.566Z"
+    },
+    {
+      "id": "cmf0ckbhz000hvk70u2ddhwom",
+      "menuItemId": "cmf0cax090006vkcc6nicnffq",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:54:08.567Z"
+    },
+    {
+      "id": "cmf0ckbi0000jvk70kwgo5z7c",
+      "menuItemId": "cmf0cax0c0008vkcckefjlktt",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:54:08.569Z"
+    },
+    {
+      "id": "cmf0ckbi1000lvk70u29krbbc",
+      "menuItemId": "cmf0cax0c0008vkcckefjlktt",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:54:08.570Z"
+    },
+    {
+      "id": "cmf0ckbi2000nvk7057s7r5qb",
+      "menuItemId": "cmf0cax0c0008vkcckefjlktt",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:54:08.571Z"
+    },
+    {
+      "id": "cmf0ckbi5000pvk70fqct4fb5",
+      "menuItemId": "cmf0cax0e000avkcc3z2pv3mf",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:54:08.574Z"
+    },
+    {
+      "id": "cmf0ckbi7000rvk70nh8ijvh8",
+      "menuItemId": "cmf0cax0e000avkcc3z2pv3mf",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:54:08.575Z"
+    },
+    {
+      "id": "cmf0ckbi9000tvk70fuc6zxa4",
+      "menuItemId": "cmf0cax0e000avkcc3z2pv3mf",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:54:08.577Z"
+    },
+    {
+      "id": "cmf0ckbib000vvk70hrjln08z",
+      "menuItemId": "cmf0cax0g000cvkcc3yucqldr",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:54:08.579Z"
+    },
+    {
+      "id": "cmf0ckbic000xvk70x9nizhk4",
+      "menuItemId": "cmf0cax0g000cvkcc3yucqldr",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:54:08.580Z"
+    },
+    {
+      "id": "cmf0ckbid000zvk700pb0ffpn",
+      "menuItemId": "cmf0cax0g000cvkcc3yucqldr",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:54:08.581Z"
+    },
+    {
+      "id": "cmf0ckbif0011vk70yauft2uw",
+      "menuItemId": "cmf0cax0j000evkccpkhckphc",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:54:08.583Z"
+    },
+    {
+      "id": "cmf0ckbig0013vk70rplxai45",
+      "menuItemId": "cmf0cax0j000evkccpkhckphc",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:54:08.584Z"
+    },
+    {
+      "id": "cmf0ckbih0015vk70oeunl8hw",
+      "menuItemId": "cmf0cax0j000evkccpkhckphc",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:54:08.585Z"
+    },
+    {
+      "id": "cmf0ckbij0017vk70f9dyqnfs",
+      "menuItemId": "cmf0cax0l000gvkccso3qb8to",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:54:08.587Z"
+    },
+    {
+      "id": "cmf0ckbik0019vk70e3sgsn67",
+      "menuItemId": "cmf0cax0l000gvkccso3qb8to",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:54:08.588Z"
+    },
+    {
+      "id": "cmf0ckbil001bvk70q10oip4f",
+      "menuItemId": "cmf0cax0l000gvkccso3qb8to",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:54:08.589Z"
+    },
+    {
+      "id": "cmf0ckbip001dvk70pxkla0pw",
+      "menuItemId": "cmf0cax0o000ivkcca3j6fhf0",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:54:08.593Z"
+    },
+    {
+      "id": "cmf0ckbiq001fvk7074lwil0h",
+      "menuItemId": "cmf0cax0o000ivkcca3j6fhf0",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:54:08.594Z"
+    },
+    {
+      "id": "cmf0ckbir001hvk707j7joon9",
+      "menuItemId": "cmf0cax0o000ivkcca3j6fhf0",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:54:08.595Z"
+    },
+    {
+      "id": "cmf0ckbit001jvk70z0l4ryw0",
+      "menuItemId": "cmf0cax0q000kvkccfccoae63",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:54:08.597Z"
+    },
+    {
+      "id": "cmf0ckbiu001lvk70lcbph6pz",
+      "menuItemId": "cmf0cax0q000kvkccfccoae63",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:54:08.598Z"
+    },
+    {
+      "id": "cmf0ckbiv001nvk705abiixsq",
+      "menuItemId": "cmf0cax0q000kvkccfccoae63",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:54:08.599Z"
+    },
+    {
+      "id": "cmf0ckbix001pvk70se10gvbe",
+      "menuItemId": "cmf0cax0s000mvkcc28pgk2s4",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:54:08.601Z"
+    },
+    {
+      "id": "cmf2aveo1000fvka4fdor7ns7",
+      "menuItemId": "cmez5buff000dvkvsaexqwttc",
+      "customizationGroupId": "cmf0l31z80000vk0s10ywj3zp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.010Z"
+    },
+    {
+      "id": "cmf2aveo4000hvka4dsk1r0p3",
+      "menuItemId": "cmez5buff000dvkvsaexqwttc",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.012Z"
+    },
+    {
+      "id": "cmf2aveo6000jvka47entq3jy",
+      "menuItemId": "cmez5bufh000fvkvscpxd5o66",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.015Z"
+    },
+    {
+      "id": "cmf2aveo9000lvka40e5ucpzz",
+      "menuItemId": "cmez5bufh000fvkvscpxd5o66",
+      "customizationGroupId": "cmf0l31z80000vk0s10ywj3zp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.017Z"
+    },
+    {
+      "id": "cmf2aveob000nvka4ecm1tqo2",
+      "menuItemId": "cmez5bufh000fvkvscpxd5o66",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.019Z"
+    },
+    {
+      "id": "cmf2aveod000pvka4cxoo93st",
+      "menuItemId": "cmez5bufm000jvkvsxckws9nb",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.021Z"
+    },
+    {
+      "id": "cmf2aveof000rvka4gcx4p6k7",
+      "menuItemId": "cmez5bufm000jvkvsxckws9nb",
+      "customizationGroupId": "cmf0l31z80000vk0s10ywj3zp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.023Z"
+    },
+    {
+      "id": "cmf2aveoh000tvka4ivs8mirg",
+      "menuItemId": "cmez5bufm000jvkvsxckws9nb",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.025Z"
+    },
+    {
+      "id": "cmf2aveoj000vvka4lc4v56jm",
+      "menuItemId": "cmez5bufp000lvkvs2gz0d9ii",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.027Z"
+    },
+    {
+      "id": "cmf07bxkc000gvkv8drvmecbb",
+      "menuItemId": "cmez5bugq001lvkvse0ycua9x",
+      "customizationGroupId": "cmf07bxj10000vkv8ziod1skk",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T21:27:39.181Z"
+    },
+    {
+      "id": "cmf08pvby000nvkz0zjq5hd52",
+      "menuItemId": "cmez5bugd0019vkvss1syr7lw",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T22:06:29.086Z"
+    },
+    {
+      "id": "cmf08pvc0000pvkz066gxe15g",
+      "menuItemId": "cmez5bugd0019vkvss1syr7lw",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T22:06:29.088Z"
+    },
+    {
+      "id": "cmf08pvc1000rvkz0zzsdtw1s",
+      "menuItemId": "cmez5bugs001nvkvsg4st51kb",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T22:06:29.089Z"
+    },
+    {
+      "id": "cmf08pvc2000tvkz0mu10b4e3",
+      "menuItemId": "cmez5bugs001nvkvsg4st51kb",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T22:06:29.090Z"
+    },
+    {
+      "id": "cmf08pvc3000vvkz03lzd5zzl",
+      "menuItemId": "cmez5bugt001pvkvshj4za05r",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T22:06:29.092Z"
+    },
+    {
+      "id": "cmf08pvc4000xvkz0hqgrihkz",
+      "menuItemId": "cmez5bugt001pvkvshj4za05r",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T22:06:29.092Z"
+    },
+    {
+      "id": "cmf08pvc5000zvkz0zs4ojzr6",
+      "menuItemId": "cmez5bugw001rvkvszj8ensiv",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T22:06:29.094Z"
+    },
+    {
+      "id": "cmf08pvc70011vkz0dkxph5th",
+      "menuItemId": "cmez5bugw001rvkvszj8ensiv",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T22:06:29.095Z"
+    },
+    {
+      "id": "cmf08pvc80013vkz0o9w9afn2",
+      "menuItemId": "cmez5bugz001tvkvsin6tvpm5",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T22:06:29.097Z"
+    },
+    {
+      "id": "cmf08pvc90015vkz0714vcx4y",
+      "menuItemId": "cmez5bugz001tvkvsin6tvpm5",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T22:06:29.098Z"
+    },
+    {
+      "id": "cmf08pvca0017vkz0gsn0idj8",
+      "menuItemId": "cmez5buh0001vvkvsxlvetfm6",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T22:06:29.099Z"
+    },
+    {
+      "id": "cmf08pvcb0019vkz0szbal667",
+      "menuItemId": "cmez5buh0001vvkvsxlvetfm6",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T22:06:29.099Z"
+    },
+    {
+      "id": "cmf08pvcc001bvkz08j4dp43e",
+      "menuItemId": "cmez5buh2001xvkvsnhog34dl",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T22:06:29.101Z"
+    },
+    {
+      "id": "cmf08pvcd001dvkz0u8dfc44l",
+      "menuItemId": "cmez5buh2001xvkvsnhog34dl",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T22:06:29.101Z"
+    },
+    {
+      "id": "cmf2aveok000xvka4b965ocx8",
+      "menuItemId": "cmez5bufp000lvkvs2gz0d9ii",
+      "customizationGroupId": "cmf0l31z80000vk0s10ywj3zp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.029Z"
+    },
+    {
+      "id": "cmf2aveom000zvka45wix504t",
+      "menuItemId": "cmez5bufp000lvkvs2gz0d9ii",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.031Z"
+    },
+    {
+      "id": "cmf08pvcg001jvkz0mhad25pp",
+      "menuItemId": "cmez5bugq001lvkvse0ycua9x",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T22:06:29.104Z"
+    },
+    {
+      "id": "cmf08pvcg001lvkz0u7zhc7ur",
+      "menuItemId": "cmez5bugq001lvkvse0ycua9x",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T22:06:29.105Z"
+    },
+    {
+      "id": "cmf08pvci001nvkz0ohzfs8h7",
+      "menuItemId": "cmez5bugf001bvkvs9utg7k5d",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T22:06:29.106Z"
+    },
+    {
+      "id": "cmf08pvci001pvkz0f95q18ly",
+      "menuItemId": "cmez5bugf001bvkvs9utg7k5d",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T22:06:29.107Z"
+    },
+    {
+      "id": "cmf08pvcj001rvkz07cq12sq2",
+      "menuItemId": "cmez5bugo001jvkvslr3gsci2",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T22:06:29.108Z"
+    },
+    {
+      "id": "cmf08pvck001tvkz0qp2l8hcl",
+      "menuItemId": "cmez5bugo001jvkvslr3gsci2",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T22:06:29.109Z"
+    },
+    {
+      "id": "cmf08pvcm001vvkz02vs2sc8t",
+      "menuItemId": "cmez5bugm001hvkvswtop2ezu",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T22:06:29.110Z"
+    },
+    {
+      "id": "cmf08pvcn001xvkz0dbaxaxcx",
+      "menuItemId": "cmez5bugm001hvkvswtop2ezu",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T22:06:29.111Z"
+    },
+    {
+      "id": "cmf08pvcp001zvkz02a7bkljc",
+      "menuItemId": "cmez5bugi001dvkvsvl6qxe2v",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T22:06:29.113Z"
+    },
+    {
+      "id": "cmf08pvcq0021vkz0ga5sfs2e",
+      "menuItemId": "cmez5bugi001dvkvsvl6qxe2v",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T22:06:29.114Z"
+    },
+    {
+      "id": "cmf23p7x80000vkq01r0sbabp",
+      "menuItemId": "cmf23bzgf0016vk88w5s74h2s",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:21:33.020Z"
+    },
+    {
+      "id": "cmf2aveoo0011vka4f2acbttt",
+      "menuItemId": "cmez5bufr000nvkvs5a925es2",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.032Z"
+    },
+    {
+      "id": "cmf244w1w000rvkq0orcxy1y4",
+      "menuItemId": "cmf23x2l00004vkq04uywrd85",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:33:44.132Z"
+    },
+    {
+      "id": "cmf248rv7000tvkq035bs89r2",
+      "menuItemId": "cmf23xe7i000kvkq0qudi6y99",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:36:45.331Z"
+    },
+    {
+      "id": "cmf0bhrgk0005vkz4oxo8ls6o",
+      "menuItemId": "cmez5buhp002jvkvs1ar0eppl",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T23:24:09.669Z"
+    },
+    {
+      "id": "cmf0bhrgm0007vkz4d89dcyl1",
+      "menuItemId": "cmez5buhp002jvkvs1ar0eppl",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:24:09.671Z"
+    },
+    {
+      "id": "cmf0bhrgo0009vkz4b0sq9r25",
+      "menuItemId": "cmez5buhp002jvkvs1ar0eppl",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:24:09.673Z"
+    },
+    {
+      "id": "cmf0bhrgq000bvkz4txw5vy84",
+      "menuItemId": "cmez5buhp002jvkvs1ar0eppl",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:24:09.674Z"
+    },
+    {
+      "id": "cmf25cccj002gvkq0u1efoeeq",
+      "menuItemId": "cmf2570be001uvkq0qnysaenz",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T06:07:31.460Z"
+    },
+    {
+      "id": "cmf25cn5r002hvkq04gc5vazs",
+      "menuItemId": "cmf254y9l001nvkq028daxm2u",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T06:07:45.472Z"
+    },
+    {
+      "id": "cmf0bhrgy000hvkz4vindep58",
+      "menuItemId": "cmez5buhq002lvkvsp6t5damr",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T23:24:09.683Z"
+    },
+    {
+      "id": "cmf0bhrh0000jvkz41bx389zh",
+      "menuItemId": "cmez5buhq002lvkvsp6t5damr",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:24:09.685Z"
+    },
+    {
+      "id": "cmf0bhrh2000lvkz4v2m22kf9",
+      "menuItemId": "cmez5buhq002lvkvsp6t5damr",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:24:09.686Z"
+    },
+    {
+      "id": "cmf0bhrh4000nvkz4xfcl5831",
+      "menuItemId": "cmez5buhq002lvkvsp6t5damr",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:24:09.689Z"
+    },
+    {
+      "id": "cmf29b9qb0004vk2gbb3kgab2",
+      "menuItemId": "cmf0l31zh0006vk0szbgocarb",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T07:58:39.875Z"
+    },
+    {
+      "id": "cmf29b9qg0006vk2gf0lff46u",
+      "menuItemId": "cmf0l31zm000avk0sn2us2ca1",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T07:58:39.880Z"
+    },
+    {
+      "id": "cmf0bhrip000tvkz4cjmyodg0",
+      "menuItemId": "cmez5buhs002nvkvs686iuiqw",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T23:24:09.746Z"
+    },
+    {
+      "id": "cmf0bhrj6000vvkz46g78o725",
+      "menuItemId": "cmez5buhs002nvkvs686iuiqw",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:24:09.763Z"
+    },
+    {
+      "id": "cmf0bhrjq000xvkz4wohacl63",
+      "menuItemId": "cmez5buhs002nvkvs686iuiqw",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:24:09.782Z"
+    },
+    {
+      "id": "cmf0bhrjt000zvkz4dqkntnoh",
+      "menuItemId": "cmez5buhs002nvkvs686iuiqw",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:24:09.785Z"
+    },
+    {
+      "id": "cmf29b9qi0008vk2grbvmfk6y",
+      "menuItemId": "cmf0l31zp000evk0sbt2tojs7",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T07:58:39.883Z"
+    },
+    {
+      "id": "cmf29b9ql000avk2geeh44ak0",
+      "menuItemId": "cmf0l31zs000ivk0smgvhtovt",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T07:58:39.885Z"
+    },
+    {
+      "id": "cmf0bhrjy0015vkz43v9k2cx1",
+      "menuItemId": "cmez5buhv002pvkvs92heqdfm",
+      "customizationGroupId": "cmf06ou8b0000vkq4cyng3byo",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-08-31T23:24:09.790Z"
+    },
+    {
+      "id": "cmf0bhrk00017vkz4bsd5vznl",
+      "menuItemId": "cmez5buhv002pvkvs92heqdfm",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 2,
+      "createdAt": "2025-08-31T23:24:09.792Z"
+    },
+    {
+      "id": "cmf0bhrk30019vkz4ujcc8ddh",
+      "menuItemId": "cmez5buhv002pvkvs92heqdfm",
+      "customizationGroupId": "cmf08pvbl000dvkz0ti867vpd",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-08-31T23:24:09.795Z"
+    },
+    {
+      "id": "cmf0bhrk5001bvkz4sjcksuy1",
+      "menuItemId": "cmez5buhv002pvkvs92heqdfm",
+      "customizationGroupId": "cmf0a0tg30000vkhsnwdbi0nm",
+      "isRequired": false,
+      "sortOrder": 4,
+      "createdAt": "2025-08-31T23:24:09.797Z"
+    },
+    {
+      "id": "cmf29b9qo000cvk2gcned6hm3",
+      "menuItemId": "cmf0l31zy000qvk0saes8ra8z",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T07:58:39.888Z"
+    },
+    {
+      "id": "cmf29b9qs000evk2geplzftgh",
+      "menuItemId": "cmf0l3201000uvk0slm026x8y",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T07:58:39.892Z"
+    },
+    {
+      "id": "cmf0klk3q001ivki0wxzcjbmv",
+      "menuItemId": "cmez5bugd0019vkvss1syr7lw",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.303Z"
+    },
+    {
+      "id": "cmf0klk3s001kvki09cg4vfne",
+      "menuItemId": "cmez5bugs001nvkvsg4st51kb",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.305Z"
+    },
+    {
+      "id": "cmf0klk3u001mvki0gdfkjxzj",
+      "menuItemId": "cmez5bugt001pvkvshj4za05r",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.306Z"
+    },
+    {
+      "id": "cmf0klk3v001ovki0qobdb9yd",
+      "menuItemId": "cmez5bugw001rvkvszj8ensiv",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.307Z"
+    },
+    {
+      "id": "cmf0klk3w001qvki0zssr75m9",
+      "menuItemId": "cmez5bugz001tvkvsin6tvpm5",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.309Z"
+    },
+    {
+      "id": "cmf0klk3y001svki0yfkpzub2",
+      "menuItemId": "cmez5buh0001vvkvsxlvetfm6",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.310Z"
+    },
+    {
+      "id": "cmf0klk3z001uvki0azfg30mp",
+      "menuItemId": "cmez5buh2001xvkvsnhog34dl",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.312Z"
+    },
+    {
+      "id": "cmf0klk40001wvki0pn8fpov8",
+      "menuItemId": "cmez5buh4001zvkvsodoxnl83",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.313Z"
+    },
+    {
+      "id": "cmf0klk42001yvki013dpn14k",
+      "menuItemId": "cmez5buh60021vkvsx6pjsrsl",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.314Z"
+    },
+    {
+      "id": "cmf0klk440020vki0d08w4008",
+      "menuItemId": "cmez5buh80023vkvsyejru7y7",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.316Z"
+    },
+    {
+      "id": "cmf0klk460022vki0ifq6ykef",
+      "menuItemId": "cmez5buha0025vkvss8g1oejt",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.319Z"
+    },
+    {
+      "id": "cmf0klk480024vki0opdab4zw",
+      "menuItemId": "cmez5buhc0027vkvsy1aicbxf",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.320Z"
+    },
+    {
+      "id": "cmf2aveop0013vka4dbf4d5e6",
+      "menuItemId": "cmez5bufr000nvkvs5a925es2",
+      "customizationGroupId": "cmf0l31z80000vk0s10ywj3zp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.034Z"
+    },
+    {
+      "id": "cmf0klk4b0028vki0ii8135wg",
+      "menuItemId": "cmez5bugq001lvkvse0ycua9x",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.323Z"
+    },
+    {
+      "id": "cmf0klk4c002avki0v2g7nvrg",
+      "menuItemId": "cmez5bugf001bvkvs9utg7k5d",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.324Z"
+    },
+    {
+      "id": "cmf0klk4e002cvki0mf4e1wms",
+      "menuItemId": "cmez5bugo001jvkvslr3gsci2",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.326Z"
+    },
+    {
+      "id": "cmf0klk4f002evki063t8p8u5",
+      "menuItemId": "cmez5bugm001hvkvswtop2ezu",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.327Z"
+    },
+    {
+      "id": "cmf0klk4g002gvki0edg5zgo4",
+      "menuItemId": "cmez5bugi001dvkvsvl6qxe2v",
+      "customizationGroupId": "cmf0klk1c0000vki0gy432pcp",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-01T03:39:03.329Z"
+    },
+    {
+      "id": "cmf2aveor0015vka4l0bntuzx",
+      "menuItemId": "cmez5bufr000nvkvs5a925es2",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.036Z"
+    },
+    {
+      "id": "cmf2aveot0017vka4d8ctzy09",
+      "menuItemId": "cmez5buft000pvkvsdwqpwkc5",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.038Z"
+    },
+    {
+      "id": "cmf233jwi000xvk882z8w0d46",
+      "menuItemId": "cmez5bui80033vkvshs0kiawt",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:04:42.114Z"
+    },
+    {
+      "id": "cmf23497a000yvk88tbj5f7y4",
+      "menuItemId": "cmez5bui3002xvkvsn4umf699",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T05:05:14.903Z"
+    },
+    {
+      "id": "cmf2aveov0019vka4f1eqmo25",
+      "menuItemId": "cmez5buft000pvkvsdwqpwkc5",
+      "customizationGroupId": "cmf0l31z80000vk0s10ywj3zp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.039Z"
+    },
+    {
+      "id": "cmf2aveow001bvka4v1uf31jy",
+      "menuItemId": "cmez5buft000pvkvsdwqpwkc5",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.041Z"
+    },
+    {
+      "id": "cmf2aveoz001dvka4a1eagg7e",
+      "menuItemId": "cmez5bufv000rvkvsq3b7iw35",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.043Z"
+    },
+    {
+      "id": "cmf2aveph001fvka4cgxm8j7n",
+      "menuItemId": "cmez5bufv000rvkvsq3b7iw35",
+      "customizationGroupId": "cmf0l31z80000vk0s10ywj3zp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.062Z"
+    },
+    {
+      "id": "cmf2avepz001hvka4d46r1y9t",
+      "menuItemId": "cmez5bufv000rvkvsq3b7iw35",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.079Z"
+    },
+    {
+      "id": "cmf2aveq1001jvka4czejvg1y",
+      "menuItemId": "cmez5bufk000hvkvspk80r6rp",
+      "customizationGroupId": "cmf0doopy0000vkbcb6citd6a",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.081Z"
+    },
+    {
+      "id": "cmf2aveq2001lvka4t3lqbd4o",
+      "menuItemId": "cmez5bufk000hvkvspk80r6rp",
+      "customizationGroupId": "cmf0l31z80000vk0s10ywj3zp",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.083Z"
+    },
+    {
+      "id": "cmf2aveq4001nvka42altttu1",
+      "menuItemId": "cmez5bufk000hvkvspk80r6rp",
+      "customizationGroupId": "cmf08pvb50000vkz04t32pcxq",
+      "isRequired": false,
+      "sortOrder": 999,
+      "createdAt": "2025-09-02T08:42:19.084Z"
+    },
+    {
+      "id": "cmf0lfe7e0005vkqgjjq400vt",
+      "menuItemId": "cmf0l31zh0006vk0szbgocarb",
+      "customizationGroupId": "cmf0lfe6w0001vkqgiubwi9uz",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T04:02:15.338Z"
+    },
+    {
+      "id": "cmf0lfe7h0007vkqgcrbgvp90",
+      "menuItemId": "cmf0l31zm000avk0sn2us2ca1",
+      "customizationGroupId": "cmf0lfe6w0001vkqgiubwi9uz",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T04:02:15.341Z"
+    },
+    {
+      "id": "cmf0lfe7j0009vkqg6xlhbc5x",
+      "menuItemId": "cmf0l31zp000evk0sbt2tojs7",
+      "customizationGroupId": "cmf0lfe6w0001vkqgiubwi9uz",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T04:02:15.344Z"
+    },
+    {
+      "id": "cmf0lfe7l000bvkqgbajd5zu1",
+      "menuItemId": "cmf0l31zs000ivk0smgvhtovt",
+      "customizationGroupId": "cmf0lfe6w0001vkqgiubwi9uz",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T04:02:15.346Z"
+    },
+    {
+      "id": "cmf0lfe7n000dvkqgsk29nuxn",
+      "menuItemId": "cmf0l31zy000qvk0saes8ra8z",
+      "customizationGroupId": "cmf0lfe6w0001vkqgiubwi9uz",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T04:02:15.347Z"
+    },
+    {
+      "id": "cmf0lfe7q000fvkqg8uv522v9",
+      "menuItemId": "cmf0l3201000uvk0slm026x8y",
+      "customizationGroupId": "cmf0lfe6w0001vkqgiubwi9uz",
+      "isRequired": true,
+      "sortOrder": 1,
+      "createdAt": "2025-09-01T04:02:15.350Z"
+    },
+    {
+      "id": "cmf2896ok003qvkq0o1lcm1wz",
+      "menuItemId": "cmf2896oh003pvkq0y570kdx0",
+      "customizationGroupId": "cmf26thyi002xvkq01n46mw31",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-02T07:29:02.997Z"
+    },
+    {
+      "id": "cmf2896ok003rvkq0y5qbaeck",
+      "menuItemId": "cmf2896oh003pvkq0y570kdx0",
+      "customizationGroupId": "cmf26g4mw002pvkq03xf5r2t1",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-02T07:29:02.997Z"
+    },
+    {
+      "id": "cmf2896ok003svkq0vlh0qpbp",
+      "menuItemId": "cmf2896oh003pvkq0y570kdx0",
+      "customizationGroupId": "cmez4ylw70003vkvowz7y4tsn",
+      "isRequired": false,
+      "sortOrder": 0,
+      "createdAt": "2025-09-02T07:29:02.997Z"
+    },
+    {
+      "id": "cmf29jnp30000vk7cxsx4kby4",
+      "menuItemId": "cmf0kymu2000avk5g9b5f3kt4",
+      "customizationGroupId": "cmf0kymvt000svk5g00zjcfdl",
+      "isRequired": false,
+      "sortOrder": 1,
+      "createdAt": "2025-09-02T08:05:11.223Z"
+    },
+    {
+      "id": "cmf29jnp30002vk7cy835dnaq",
+      "menuItemId": "cmf0kymu2000avk5g9b5f3kt4",
+      "customizationGroupId": "cmf28n7mi003yvkq0k99uuzyp",
+      "isRequired": false,
+      "sortOrder": 3,
+      "createdAt": "2025-09-02T08:05:11.223Z"
+    }
+  ]
+}

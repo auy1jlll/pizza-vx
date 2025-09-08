@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
     const { searchParams } = new URL(request.url);
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Verify admin authentication
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
     const body = await request.json();

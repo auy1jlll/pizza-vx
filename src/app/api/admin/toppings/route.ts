@@ -7,7 +7,7 @@ import prisma from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Verify admin authentication
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
 // PUT /api/admin/toppings - Update topping
 export async function PUT(request: NextRequest) {
   try {
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -117,7 +117,7 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/admin/toppings - Delete topping
 export async function DELETE(request: NextRequest) {
   try {
-    const user = verifyAdminToken(request);
+    const user = await verifyAdminToken(request);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

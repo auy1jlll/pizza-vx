@@ -98,19 +98,61 @@ export default function GourmetPizzasClient({ initialPizzas, initialPizzaData }:
       return;
     }
 
-    // Create detailed pizza object for cart
+    // Get default crust and sauce objects (not just strings)
+    const defaultCrust = initialPizzaData.crusts?.find((c: any) => c.isActive) || initialPizzaData.crusts?.[0];
+    const defaultSauce = initialPizzaData.sauces?.find((s: any) => s.isActive) || initialPizzaData.sauces?.[0];
+    
+    // Create detailed pizza object for cart with proper object structures
     const pizzaForCart = {
       id: `specialty-${pizza.id}`,
       name: pizza.name,
-      size: selectedSizeData.pizzaSize.name,
-      sizeId: selectedSizeData.pizzaSize.id,
-      crust: 'Traditional', // Default crust
-      crustId: initialPizzaData.crusts[0]?.id || 'default',
-      sauce: 'Marinara', // Default sauce  
-      sauceId: initialPizzaData.sauces[0]?.id || 'default',
+      size: {
+        id: selectedSizeData.pizzaSize.id,
+        name: selectedSizeData.pizzaSize.name,
+        diameter: selectedSizeData.pizzaSize.diameter,
+        basePrice: selectedSizeData.pizzaSize.basePrice,
+        isActive: true,
+        sortOrder: 1
+      },
+      crust: defaultCrust ? {
+        id: defaultCrust.id,
+        name: defaultCrust.name,
+        description: defaultCrust.description,
+        priceModifier: defaultCrust.priceModifier,
+        isActive: defaultCrust.isActive,
+        sortOrder: defaultCrust.sortOrder
+      } : {
+        id: 'default-crust',
+        name: 'Traditional',
+        description: 'Traditional crust',
+        priceModifier: 0,
+        isActive: true,
+        sortOrder: 1
+      },
+      sauce: defaultSauce ? {
+        id: defaultSauce.id,
+        name: defaultSauce.name,
+        description: defaultSauce.description,
+        color: defaultSauce.color,
+        spiceLevel: defaultSauce.spiceLevel,
+        priceModifier: defaultSauce.priceModifier,
+        isActive: defaultSauce.isActive,
+        sortOrder: defaultSauce.sortOrder
+      } : {
+        id: 'default-sauce',
+        name: 'Marinara',
+        description: 'Traditional marinara sauce',
+        color: '#FF0000',
+        spiceLevel: 1,
+        priceModifier: 0,
+        isActive: true,
+        sortOrder: 1
+      },
       toppings: [], // Specialty pizzas come with preset toppings
-      price: selectedSizeData.price,
+      quantity: 1,
+      notes: `Specialty Pizza: ${pizza.name}`,
       basePrice: pizza.basePrice,
+      totalPrice: selectedSizeData.price,
       isSpecialty: true,
       specialtyId: pizza.id,
       ingredients: pizza.ingredients,

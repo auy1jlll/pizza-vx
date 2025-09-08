@@ -78,10 +78,6 @@ const nextConfig: NextConfig = {
         destination: "/build-pizza",
       },
       {
-        source: "/specialty-pizzas", 
-        destination: "/gourmet-pizzas",
-      },
-      {
         source: "/sitemap.xml",
         destination: "/api/sitemap.xml",
       },

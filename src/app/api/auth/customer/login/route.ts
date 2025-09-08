@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
 
     response.cookies.set('user-token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Disabled for HTTP production deployment
       sameSite: 'strict',
       maxAge: 604800, // 7 days
       path: '/'

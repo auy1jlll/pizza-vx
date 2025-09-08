@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
   const limit = adminLimiter.check('admin-orders-get', ip);
   if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
-  const user = verifyAdminToken(request);
+  const user = await verifyAdminToken(request);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     console.log('Fetching orders...');
 
@@ -57,7 +57,7 @@ export async function PATCH(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
   const limit = adminLimiter.check('admin-orders-patch', ip);
   if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
-  const user = verifyAdminToken(request);
+  const user = await verifyAdminToken(request);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { orderId, status } = await request.json();
 
@@ -114,7 +114,7 @@ export async function DELETE(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'local';
   const limit = adminLimiter.check('admin-orders-delete', ip);
   if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
-  const user = verifyAdminToken(request);
+  const user = await verifyAdminToken(request);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const { searchParams } = new URL(request.url);
     const orderId = searchParams.get('orderId');

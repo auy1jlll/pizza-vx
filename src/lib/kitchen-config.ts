@@ -14,7 +14,7 @@ export class KitchenConfig {
       }
 
       // Fetch fresh settings
-      const response = await fetch('/api/admin/settings');
+      const response = await fetch('/api/settings');
       if (!response.ok) {
         console.warn('Failed to load kitchen polling config, using default 35 seconds');
         return this.cachedPollingInterval * 1000;

@@ -72,7 +72,9 @@ export default function SpecialtyPizzasAdmin() {
   // Fetch specialty pizzas
   const fetchPizzas = async () => {
     try {
-      const response = await fetch('/api/admin/specialty-pizzas');
+      const response = await fetch('/api/admin/specialty-pizzas', {
+        credentials: 'include'
+      });
       if (response.status === 401) {
         window.location.href = '/management-portal/login';
         return;
@@ -103,7 +105,9 @@ export default function SpecialtyPizzasAdmin() {
   // Fetch available pizza sizes
   const fetchSizes = async () => {
     try {
-      const response = await fetch('/api/management-portal/sizes');
+      const response = await fetch('/api/management-portal/sizes', {
+        credentials: 'include'
+      });
       if (response.ok) {
         const data = await response.json();
         setAvailableSizes(data);
@@ -123,7 +127,9 @@ export default function SpecialtyPizzasAdmin() {
   // Fetch available toppings
   const fetchToppings = async () => {
     try {
-      const response = await fetch('/api/management-portal/toppings');
+      const response = await fetch('/api/management-portal/toppings', {
+        credentials: 'include'
+      });
       if (response.ok) {
         const data = await response.json();
         setAvailableToppings(data);
@@ -146,6 +152,7 @@ export default function SpecialtyPizzasAdmin() {
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formDataUpload,
+        credentials: 'include'
       });
 
       const result = await response.json();
