@@ -1,79 +1,26 @@
-# 🚀 PRODUCTION DOCKER COMPOSE - COMPLETE SETUP
+version: '3.8'
 
 services:
-  # ============================================
-  # PostgreSQL Database
-  # ============================================
-  database:
-    image: postgres:15-alpine
-    container_name: pizza-db-prod
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-pizzauser}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pizzapass123!}
-      POSTGRES_DB: ${POSTGRES_DB:-pizzadb}
-      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d:ro
-      - ./backups:/backups
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    networks:
-      - pizza-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pizzauser} -d ${POSTGRES_DB:-pizzadb}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-  # ============================================
-  # Pizza App
-  # ============================================
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile.optimized
-      target: runner
-    container_name: pizza-app-prod
-    restart: unless-stopped
+    build: .
+    ports:
+      - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-pizzauser}:${POSTGRES_PASSWORD:-pizzapass123!}@database:5432/${POSTGRES_DB:-pizzadb}?schema=public
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-your-secret-key-change-in-production}
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
-      - GMAIL_USER=${GMAIL_USER}
-      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
-      - PORT=3000
-    ports:
-      - "${APP_PORT:-3000}:3000"
+      - DATABASE_URL=postgresql://username:password@db:5432/pizzax
     depends_on:
-      database:
-        condition: service_healthy
-    networks:
-      - pizza-network
-    volumes:
-      - uploads_data:/app/public/uploads
-      - logs_data:/app/logs
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+      - db
 
-# ============================================
-# Networks & Volumes
-# ============================================
-networks:
-  pizza-network:
-    driver: bridge
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_DB=pizzax
+      - POSTGRES_USER=username
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
 volumes:
   postgres_data:
-    driver: local
-  uploads_data:
-    driver: local
-  logs_data:
-    driver: local
