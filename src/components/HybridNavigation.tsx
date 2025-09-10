@@ -68,10 +68,7 @@ export default function HybridNavigation() {
             // Exclude inactive categories
             if (!category.isActive) return false;
             
-            // Optionally exclude empty categories
-            if (category._count?.menuItems === 0) {
-              return false;
-            }
+            // Don't exclude empty categories - show all active categories
             
             return !isPizzaCategory;
           })
