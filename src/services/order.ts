@@ -358,19 +358,32 @@ export class OrderService extends BaseService {
             let crustId: string | undefined = item.crust?.id;  
             let sauceId: string | undefined = item.sauce?.id;
 
-            // If any required ID is missing, fetch defaults from database
-            if (!sizeId || !crustId || !sauceId) {
+            // Validate that IDs exist in database, if not, fetch defaults
+            const [existingSize, existingCrust, existingSauce] = await Promise.all([
+              sizeId ? tx.pizzaSize.findUnique({ where: { id: sizeId } }) : null,
+              crustId ? tx.pizzaCrust.findUnique({ where: { id: crustId } }) : null,
+              sauceId ? tx.pizzaSauce.findUnique({ where: { id: sauceId } }) : null
+            ]);
+
+            // If any required ID is missing or invalid, fetch defaults from database
+            if (!sizeId || !crustId || !sauceId || !existingSize || !existingCrust || !existingSauce) {
+              console.log('🔍 Invalid or missing IDs detected:', { 
+                sizeId: sizeId ? (existingSize ? 'valid' : 'invalid') : 'missing',
+                crustId: crustId ? (existingCrust ? 'valid' : 'invalid') : 'missing', 
+                sauceId: sauceId ? (existingSauce ? 'valid' : 'invalid') : 'missing'
+              });
+
               const [defaultSize, defaultCrust, defaultSauce] = await Promise.all([
-                !sizeId ? tx.pizzaSize.findFirst({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }) : null,
-                !crustId ? tx.pizzaCrust.findFirst({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }) : null,
-                !sauceId ? tx.pizzaSauce.findFirst({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }) : null
+                !sizeId || !existingSize ? tx.pizzaSize.findFirst({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }) : null,
+                !crustId || !existingCrust ? tx.pizzaCrust.findFirst({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }) : null,
+                !sauceId || !existingSauce ? tx.pizzaSauce.findFirst({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } }) : null
               ]);
 
-              sizeId = sizeId || defaultSize?.id || undefined;
-              crustId = crustId || defaultCrust?.id || undefined;
-              sauceId = sauceId || defaultSauce?.id || undefined;
+              sizeId = existingSize?.id || defaultSize?.id || undefined;
+              crustId = existingCrust?.id || defaultCrust?.id || undefined;
+              sauceId = existingSauce?.id || defaultSauce?.id || undefined;
 
-              console.log('Using fallback IDs:', { sizeId, crustId, sauceId });
+              console.log('🔧 Using corrected IDs:', { sizeId, crustId, sauceId });
             }
 
             // Ensure we have all required IDs
