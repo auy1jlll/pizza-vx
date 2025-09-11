@@ -74,15 +74,22 @@ export async function calculatePizzaPrice(pizzaData: any): Promise<PriceCalculat
     let toppingsPrice = 0;
     let customizationsPrice = 0;
 
-    // Get size price
+    // Get size price - handle specialty pizzas specially
     if (pizzaData.size?.id) {
       try {
-        const size = await safeDbOperation(() => 
-          prisma.pizzaSize.findUnique({
-            where: { id: pizzaData.size.id }
-          })
-        );
-        basePrice += size?.basePrice || 0;
+        // For specialty pizzas, use the size price from cart data (which contains specialty pricing)
+        if (pizzaData.isSpecialty || pizzaData.specialtyId || pizzaData.specialtyPizzaName) {
+          console.log('🍕 Specialty pizza detected, using cart size price:', pizzaData.size?.basePrice);
+          basePrice += pizzaData.size?.basePrice || 0;
+        } else {
+          // For regular pizzas, fetch current size price from database
+          const size = await safeDbOperation(() => 
+            prisma.pizzaSize.findUnique({
+              where: { id: pizzaData.size.id }
+            })
+          );
+          basePrice += size?.basePrice || 0;
+        }
       } catch (error) {
         console.error('Error fetching size data:', error);
         // Use size from cart data as fallback
