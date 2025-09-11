@@ -110,7 +110,7 @@ export default function GourmetPizzasClient({ initialPizzas, initialPizzaData }:
         id: selectedSizeData.pizzaSize.id,
         name: selectedSizeData.pizzaSize.name,
         diameter: selectedSizeData.pizzaSize.diameter,
-        basePrice: selectedSizeData.pizzaSize.basePrice,
+        basePrice: selectedSizeData.price, // Use specialty price instead of regular size price
         isActive: true,
         sortOrder: 1
       },
@@ -151,8 +151,8 @@ export default function GourmetPizzasClient({ initialPizzas, initialPizzaData }:
       toppings: [], // Specialty pizzas come with preset toppings
       quantity: 1,
       notes: `Specialty Pizza: ${pizza.name}`,
-      basePrice: pizza.basePrice,
-      totalPrice: selectedSizeData.price,
+      basePrice: selectedSizeData.price, // Use specialty price as base price
+      totalPrice: selectedSizeData.price, // Both should be the specialty price
       isSpecialty: true,
       specialtyId: pizza.id,
       ingredients: pizza.ingredients,
