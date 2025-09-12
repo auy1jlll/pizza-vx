@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma'; // Use singleton instance
 
 // Ensure database connection with retry logic
 async function ensureDatabaseConnection() {
@@ -77,9 +76,26 @@ export async function calculatePizzaPrice(pizzaData: any): Promise<PriceCalculat
     // Get size price - handle specialty pizzas specially
     if (pizzaData.size?.id) {
       try {
-        // For specialty pizzas, use the size price from cart data (which contains specialty pricing)
-        if (pizzaData.isSpecialty || pizzaData.specialtyId || pizzaData.specialtyPizzaName) {
-          console.log('🍕 Specialty pizza detected, using cart size price:', pizzaData.size?.basePrice);
+        // For specialty pizzas and calzones, use the size price from cart data (which contains specialty pricing)
+        const isSpecialtyPizza = pizzaData.isSpecialty || pizzaData.specialtyId || pizzaData.specialtyPizzaName;
+        const isSpecialtyCalzone = pizzaData.specialtyCalzoneName || (pizzaData.notes && pizzaData.notes.includes('Specialty Calzone:'));
+        const isSpecialtyByNotes = pizzaData.notes && pizzaData.notes.includes('Specialty Pizza:');
+        
+        console.log('🔍 SPECIALTY DETECTION DEBUG:', {
+          itemId: pizzaData.id || 'unknown',
+          notes: pizzaData.notes || 'no notes',
+          isSpecialty: !!pizzaData.isSpecialty,
+          specialtyId: !!pizzaData.specialtyId,
+          specialtyPizzaName: !!pizzaData.specialtyPizzaName,
+          specialtyCalzoneName: !!pizzaData.specialtyCalzoneName,
+          isSpecialtyPizza,
+          isSpecialtyCalzone,
+          isSpecialtyByNotes,
+          finalDecision: isSpecialtyPizza || isSpecialtyCalzone || isSpecialtyByNotes
+        });
+        
+        if (isSpecialtyPizza || isSpecialtyCalzone || isSpecialtyByNotes) {
+          console.log('🍕 Specialty pizza/calzone detected, using cart size price:', pizzaData.size?.basePrice);
           basePrice += pizzaData.size?.basePrice || 0;
         } else {
           // For regular pizzas, fetch current size price from database
@@ -370,11 +386,14 @@ export async function refreshCartPrices(cartData: any): Promise<CartPriceData> {
       menuItems: []
     };
   } finally {
-    // Only disconnect if connection was established
-    try {
-      await prisma.$disconnect();
-    } catch (disconnectError) {
-      console.warn('Error during database disconnect:', disconnectError);
+    // Don't disconnect in development to avoid breaking dev server
+    // The prisma singleton handles connection management automatically
+    if (process.env.NODE_ENV === 'production') {
+      try {
+        await prisma.$disconnect();
+      } catch (disconnectError) {
+        console.warn('Error during database disconnect:', disconnectError);
+      }
     }
   }
 }

@@ -31,6 +31,20 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
+scp -i "%KEY_PATH%" "%LOCAL_PROJECT%\src\contexts\CartContext.tsx" root@%SERVER%:/root/src/contexts/CartContext.tsx
+if %ERRORLEVEL% neq 0 (
+    echo ❌ Failed to upload cart context
+    pause
+    exit /b 1
+)
+
+scp -i "%KEY_PATH%" "%LOCAL_PROJECT%\src\app\menu\page.tsx" root@%SERVER%:/root/src/app/menu/page.tsx
+if %ERRORLEVEL% neq 0 (
+    echo ❌ Failed to upload gmail service
+    pause
+    exit /b 1
+)
+
 echo ✅ All files uploaded successfully!
 echo.
 
