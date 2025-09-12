@@ -114,54 +114,67 @@ export async function POST(request: NextRequest) {
     }
 
     // Send order confirmation email (non-blocking)
-    try {
-      const emailNotificationsEnabled = await prisma.appSetting.findUnique({
-        where: { key: 'emailNotifications' }
-      });
+    // Use setTimeout to make this truly non-blocking
+    setTimeout(async () => {
+      try {
+        const emailNotificationsEnabled = await prisma.appSetting.findUnique({
+          where: { key: 'emailNotifications' }
+        });
 
-      if (emailNotificationsEnabled?.value === 'true') {
-        console.log('📧 Sending order confirmation email...');
+        if (emailNotificationsEnabled?.value === 'true') {
+          console.log('📧 Sending order confirmation email...');
 
-        // Get order details with items for email
-        const orderWithDetails = await prisma.order.findUnique({
-          where: { id: order.id },
-          include: {
-            orderItems: {
-              include: {
-                pizzaSize: true,
-                pizzaCrust: true,
-                pizzaSauce: true,
-                toppings: {
-                  include: {
-                    pizzaTopping: true
-                  }
-                },
-                menuItem: true,
-                customizations: {
-                  include: {
-                    customizationOption: {
-                      include: {
-                        group: true
+          // Check if Gmail service is available
+          if (!gmailService.isConfigured()) {
+            console.warn('Gmail service not configured, skipping email');
+            return;
+          }
+
+          // Get order details with items for email
+          const orderWithDetails = await prisma.order.findUnique({
+            where: { id: order.id },
+            include: {
+              orderItems: {
+                include: {
+                  pizzaSize: true,
+                  pizzaCrust: true,
+                  pizzaSauce: true,
+                  toppings: {
+                    include: {
+                      pizzaTopping: true
+                    }
+                  },
+                  menuItem: true,
+                  customizations: {
+                    include: {
+                      customizationOption: {
+                        include: {
+                          group: true
+                        }
                       }
                     }
                   }
                 }
               }
             }
-          }
-        });
+          });
 
-        if (orderWithDetails) {
-          await gmailService.sendOrderConfirmationEmail(orderWithDetails);
-          console.log('✅ Order confirmation email sent successfully');
+          if (orderWithDetails) {
+            const emailSent = await gmailService.sendOrderConfirmationEmail(orderWithDetails);
+            if (emailSent) {
+              console.log('✅ Order confirmation email sent successfully');
+            } else {
+              console.warn('⚠️ Order confirmation email failed to send');
+            }
+          }
+        } else {
+          console.log('📧 Email notifications disabled, skipping order confirmation email');
         }
-      } else {
-        console.log('📧 Email notifications disabled, skipping order confirmation email');
+      } catch (emailError) {
+        console.error('❌ Failed to send order confirmation email:', emailError);
+        // Email failure should not affect the order completion
       }
-    } catch (emailError) {
-      console.error('❌ Failed to send order confirmation email:', emailError);
-      // Don't fail the order if email fails - just log the error
-    }
+    }, 100); // Small delay to ensure response is sent first
 
     // Get preparation time setting for estimated delivery  
     const prepTimeResult = await prisma.appSetting.findUnique({
@@ -188,12 +201,28 @@ export async function POST(request: NextRequest) {
     console.error('Error type:', typeof error);
     console.error('Error constructor:', error?.constructor?.name);
     
-    const errorResponse = createApiError(
-      error instanceof Error ? error.message : 'Failed to process order. Please try again.', 
-      500
-    );
+    // Specific error handling for different error types
+    let errorMessage = 'Failed to process order. Please try again.';
+    let statusCode = 500;
+    
+    if (error instanceof Error) {
+      if (error.message.includes('Foreign key constraint')) {
+        errorMessage = 'Invalid menu selection. Please refresh the page and try again.';
+        statusCode = 400;
+      } else if (error.message.includes('Invalid pizza size ID') ||
+                 error.message.includes('Invalid pizza crust ID') ||
+                 error.message.includes('Invalid pizza sauce ID')) {
+        errorMessage = 'Invalid pizza configuration. Please rebuild your pizza and try again.';
+        statusCode = 400;
+      } else if (error.message.includes('Database connection')) {
+        errorMessage = 'Service temporarily unavailable. Please try again in a moment.';
+        statusCode = 503;
+      }
+    }
+    
+    const errorResponse = createApiError(errorMessage, statusCode);
     console.log('Sending error response:', JSON.stringify(errorResponse, null, 2));
     
-    return NextResponse.json(errorResponse, { status: 500 });
+    return NextResponse.json(errorResponse, { status: statusCode });
   }
 }

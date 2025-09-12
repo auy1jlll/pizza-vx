@@ -108,6 +108,14 @@ class GmailService {
       return true;
     } catch (error) {
       console.error('Error sending password reset email:', error);
+      
+      // Handle auth errors gracefully
+      if (error instanceof Error && error.message.includes('EAUTH')) {
+        console.warn('Gmail authentication failed for password reset');
+        this.initialized = false;
+        this.transporter = null;
+      }
+      
       return false;
     }
   }
@@ -129,6 +137,14 @@ class GmailService {
       return true;
     } catch (error) {
       console.error('Error sending test email:', error);
+      
+      // Handle auth errors gracefully
+      if (error instanceof Error && error.message.includes('EAUTH')) {
+        console.warn('Gmail authentication failed for test email');
+        this.initialized = false;
+        this.transporter = null;
+      }
+      
       return false;
     }
   }
@@ -166,6 +182,14 @@ class GmailService {
       return true;
     } catch (error) {
       console.error('Error sending welcome email:', error);
+      
+      // Handle auth errors gracefully
+      if (error instanceof Error && error.message.includes('EAUTH')) {
+        console.warn('Gmail authentication failed for welcome email');
+        this.initialized = false;
+        this.transporter = null;
+      }
+      
       return false;
     }
   }
@@ -173,8 +197,21 @@ class GmailService {
   async sendOrderConfirmationEmail(order: any): Promise<boolean> {
     try {
       if (!this.initialized || !this.transporter) {
-        console.warn('Gmail service not initialized');
+        console.warn('Gmail service not initialized - skipping email');
         return false;
+      }
+
+      // Test connection before sending
+      try {
+        await this.transporter.verify();
+      } catch (verifyError) {
+        console.error('Gmail service connection verification failed:', verifyError);
+        // Try to refresh credentials once
+        await this.refreshCredentials();
+        if (!this.transporter) {
+          console.warn('Gmail service still not available after refresh');
+          return false;
+        }
       }
 
       const customerEmail = order.customerEmail;
@@ -226,6 +263,19 @@ class GmailService {
       return true;
     } catch (error) {
       console.error('Error sending order confirmation email:', error);
+      
+      // Specific handling for authentication errors
+      if (error instanceof Error) {
+        if (error.message.includes('Username and Password not accepted') ||
+            error.message.includes('Invalid login') ||
+            error.message.includes('EAUTH')) {
+          console.warn('Gmail authentication failed - credentials may be invalid');
+          // Mark service as not initialized to prevent further attempts
+          this.initialized = false;
+          this.transporter = null;
+        }
+      }
+      
       return false;
     }
   }

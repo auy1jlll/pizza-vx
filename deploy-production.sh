@@ -1,113 +1,52 @@
-# Production deployment script with database restoration
-# Run this on your production server
+#!/bin/bash
+# Production Deployment Script - Restore Working State
+# This script ensures all fixes persist and can be redeployed
 
-echo "🚀 Starting Pizza Builder App Production Deployment..."
+set -e  # Exit on any error
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+echo '🚀 Starting production deployment...'
 
-log_info() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
+# Production server details
+SERVER='91.99.58.154'
+KEY_PATH='C:\Users\auy1j\.ssh\new_hetzner_key'
+LOCAL_PROJECT='C:\Users\auy1j\Desktop\final'
 
-log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
+echo '📦 Uploading source files to production...'
 
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+# Upload critical fixed files
+scp -i "$KEY_PATH" "$LOCAL_PROJECT/src/services/order.ts" root@$SERVER:/root/src/services/order.ts
+scp -i "$KEY_PATH" "$LOCAL_PROJECT/src/app/api/checkout/route.ts" root@$SERVER:/root/src/app/api/checkout/route.ts
+scp -i "$KEY_PATH" "$LOCAL_PROJECT/src/lib/gmail-service.ts" root@$SERVER:/root/src/lib/gmail-service.ts
+scp -i "$KEY_PATH" "$LOCAL_PROJECT/prisma/schema.prisma" root@$SERVER:/root/prisma/schema.prisma
 
-# Check if we're running as root or with sudo
-if [[ $EUID -eq 0 ]]; then
-   log_error "This script should not be run as root"
-   exit 1
-fi
+echo '🔧 Rebuilding and restarting production services...'
 
-# Check if Docker is installed
-if ! command -v docker &> /dev/null; then
-    log_error "Docker is not installed. Please install Docker first."
-    exit 1
-fi
+ssh -i "$KEY_PATH" root@$SERVER << 'EOF'
+cd /root
 
-if ! command -v docker-compose &> /dev/null; then
-    log_error "Docker Compose is not installed. Please install Docker Compose first."
-    exit 1
-fi
+# Stop existing containers
+docker-compose down
 
-log_info "Stopping existing containers..."
-docker-compose -f docker-compose.prod.yml down
+# Rebuild with no cache to ensure fresh build
+docker-compose build --no-cache
 
-log_info "Removing old containers and images..."
-docker system prune -f
-docker image prune -f
+# Start services
+docker-compose up -d
 
-log_info "Building new application image..."
-docker-compose -f docker-compose.prod.yml build --no-cache
+# Wait for database to be ready
+sleep 15
 
-log_info "Starting database..."
-docker-compose -f docker-compose.prod.yml up -d db
+# Push database schema
+docker exec typescript-app npx prisma db push
 
-log_info "Waiting for database to be ready..."
-sleep 30
+# Ensure email notifications are enabled
+docker exec postgres-db psql -U postgres -d resto_app -c "UPDATE app_settings SET value = 'true' WHERE key = 'emailNotifications';"
 
-# Check if database is ready
-max_attempts=10
-attempt=1
-while [ $attempt -le $max_attempts ]; do
-    log_info "Checking database connection (attempt $attempt/$max_attempts)..."
-    if docker-compose -f docker-compose.prod.yml exec -T db pg_isready -U pizzabuilder -d pizzadb; then
-        log_info "Database is ready!"
-        break
-    else
-        log_warning "Database not ready yet, waiting..."
-        sleep 10
-        ((attempt++))
-    fi
-done
+echo '✅ Production deployment completed successfully!'
+echo '🌐 Application available at: http://91.99.58.154:3000'
 
-if [ $attempt -gt $max_attempts ]; then
-    log_error "Database failed to start after $max_attempts attempts"
-    exit 1
-fi
+# Show running containers
+docker ps
+EOF
 
-log_info "Running database migrations..."
-docker-compose -f docker-compose.prod.yml exec -T app npx prisma migrate deploy
-
-log_info "Starting application..."
-docker-compose -f docker-compose.prod.yml up -d app
-
-log_info "Waiting for application to be ready..."
-sleep 30
-
-log_info "Checking application health..."
-max_health_attempts=5
-health_attempt=1
-while [ $health_attempt -le $max_health_attempts ]; do
-    log_info "Checking application health (attempt $health_attempt/$max_health_attempts)..."
-    if curl -f http://localhost:8000/api/health; then
-        log_info "Application is healthy!"
-        break
-    else
-        log_warning "Application not healthy yet, waiting..."
-        sleep 15
-        ((health_attempt++))
-    fi
-done
-
-if [ $health_attempt -gt $max_health_attempts ]; then
-    log_warning "Application health check failed, but deployment continues..."
-fi
-
-log_info "Deployment completed successfully!"
-log_info "Application should be available at: https://greenlandfamous.net"
-log_info "Admin panel: https://greenlandfamous.net/management-portal"
-
-# Show container status
-log_info "Container status:"
-docker-compose -f docker-compose.prod.yml ps
-
-log_info "To view logs, run: docker-compose -f docker-compose.prod.yml logs -f"
+echo '🎉 Deployment script completed!'

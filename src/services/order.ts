@@ -323,7 +323,8 @@ export class OrderService extends BaseService {
                 quantity: item.quantity,
                 basePrice: item._serverUnitPrice,
                 totalPrice: item._serverExtended,
-                notes: this.generateMenuItemDescription(item)
+                notes: this.generateMenuItemDescription(item),
+                itemType: 'MENU' // Explicitly set itemType for menu items
               }
             });
             
@@ -391,6 +392,33 @@ export class OrderService extends BaseService {
               throw new Error(`Missing required pizza component IDs: size=${!!sizeId}, crust=${!!crustId}, sauce=${!!sauceId}`);
             }
             
+            // Validate all IDs exist before creating order item
+            console.log('🔍 Validating pizza component IDs:', { sizeId, crustId, sauceId });
+            const [validSize, validCrust, validSauce] = await Promise.all([
+              tx.pizzaSize.findUnique({ where: { id: sizeId }, select: { id: true, name: true } }),
+              tx.pizzaCrust.findUnique({ where: { id: crustId }, select: { id: true, name: true } }),
+              tx.pizzaSauce.findUnique({ where: { id: sauceId }, select: { id: true, name: true } })
+            ]);
+
+            console.log('🔍 Validation results:', { 
+              validSize: validSize ? `${validSize.name} (${validSize.id})` : 'NOT FOUND',
+              validCrust: validCrust ? `${validCrust.name} (${validCrust.id})` : 'NOT FOUND',
+              validSauce: validSauce ? `${validSauce.name} (${validSauce.id})` : 'NOT FOUND'
+            });
+
+            if (!validSize) {
+              console.error(`Invalid pizzaSizeId: ${sizeId}`);
+              throw new Error(`Invalid pizza size ID: ${sizeId}`);
+            }
+            if (!validCrust) {
+              console.error(`Invalid pizzaCrustId: ${crustId}`);
+              throw new Error(`Invalid pizza crust ID: ${crustId}`);
+            }
+            if (!validSauce) {
+              console.error(`Invalid pizzaSauceId: ${sauceId}`);
+              throw new Error(`Invalid pizza sauce ID: ${sauceId}`);
+            }
+
             const createdItem = await tx.orderItem.create({
               data: {
                 orderId: order.id,
@@ -400,7 +428,8 @@ export class OrderService extends BaseService {
                 quantity: item.quantity,
                 basePrice: item._serverUnitPrice,
                 totalPrice: item._serverExtended,
-                notes: this.generatePizzaDescription(item)
+                notes: this.generatePizzaDescription(item),
+                itemType: 'PIZZA' // Explicitly set itemType for pizza items
               }
             });
             
