@@ -16,9 +16,7 @@ class GmailService {
 
   constructor() {
     this.storeName = process.env.STORE_NAME || 'Greenland Famous Pizza';
-    // Temporarily disable initialization to prevent connection timeouts
-    console.log('Gmail service initialization disabled to prevent connection timeouts');
-    // this.initializeService();
+    this.initializeService();
   }
 
   private async initializeService() {
