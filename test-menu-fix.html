@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Test - All Categories</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a, #059669, #ea580c);
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .category-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        .category-card:hover {
+            transform: scale(1.05);
+        }
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .category-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .loading {
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        .spinner {
+            font-size: 3rem;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍕 Menu Categories Test</h1>
+            <p>Testing if all 21 categories load from the API</p>
+        </div>
+        
+        <div id="loading" class="loading">
+            <div class="spinner">🍕</div>
+            <p>Loading categories from API...</p>
+        </div>
+        
+        <div id="categories" class="categories-grid" style="display: none;">
+            <!-- Categories will be loaded here -->
+        </div>
+        
+        <div id="error" style="display: none; text-align: center; color: #ff6b6b;">
+            <h2>❌ Error Loading Categories</h2>
+            <p id="error-message"></p>
+        </div>
+    </div>
+
+    <script>
+        const categoryIcons = {
+            'pizza': '🍕',
+            'specialty-pizzas': '🍕',
+            'calzones': '🥟',
+            'specialty-calzones': '🥟',
+            'sandwiches': '🥪',
+            'salads': '🥗',
+            'seafood': '🦞',
+            'dinner-plates': '🍽️',
+            'appetizers': '🍤',
+            'pasta': '🍝',
+            'beverages': '🥤',
+            'desserts': '🍰',
+            'wings': '🔥',
+            'chicken': '🍗',
+            'soups': '🍜',
+            'kids-menu': '👶',
+            'vegetarian': '🥬',
+            'gluten-free': '🌾',
+            'combo-meals': '🍱',
+            'family-deals': '👨‍👩‍👧‍👦',
+            'specialty-items': '⭐'
+        };
+
+        async function loadCategories() {
+            try {
+                console.log('🍕 Loading categories from API...');
+                const response = await fetch('http://91.99.58.154:3000/api/menu/categories');
+                const result = await response.json();
+                
+                console.log('API Response:', result);
+                
+                if (result.success && Array.isArray(result.data)) {
+                    console.log(`✅ Found ${result.data.length} categories`);
+                    displayCategories(result.data);
+                } else {
+                    throw new Error(result.error || 'API returned error');
+                }
+            } catch (error) {
+                console.error('❌ Error loading categories:', error);
+                showError(error.message);
+            }
+        }
+
+        function displayCategories(categories) {
+            const container = document.getElementById('categories');
+            const loading = document.getElementById('loading');
+            
+            loading.style.display = 'none';
+            container.style.display = 'grid';
+            
+            categories.forEach(category => {
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.innerHTML = `
+                    <div class="category-icon">${categoryIcons[category.slug] || '🍴'}</div>
+                    <div class="category-name">${category.name}</div>
+                    <div>${category.description || 'Delicious menu items await!'}</div>
+                `;
+                container.appendChild(card);
+            });
+            
+            console.log(`✅ Displayed ${categories.length} categories`);
+        }
+
+        function showError(message) {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            
+            loading.style.display = 'none';
+            error.style.display = 'block';
+            document.getElementById('error-message').textContent = message;
+        }
+
+        // Load categories when page loads
+        loadCategories();
+    </script>
+</body>
+</html>

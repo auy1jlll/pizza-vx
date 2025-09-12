@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Console Error Capturer</title>
+    <style>
+        body { font-family: monospace; margin: 20px; background: #1a1a1a; color: #00ff00; }
+        #errors { background: #000; padding: 20px; border-radius: 5px; max-height: 400px; overflow-y: auto; }
+        .error { color: #ff4444; margin: 10px 0; padding: 10px; border-left: 3px solid #ff4444; }
+        .warning { color: #ffaa00; margin: 10px 0; padding: 10px; border-left: 3px solid #ffaa00; }
+        .log { color: #00ff00; margin: 10px 0; padding: 10px; border-left: 3px solid #00ff00; }
+        button { padding: 10px 20px; margin: 10px; background: #333; color: #fff; border: none; cursor: pointer; }
+        button:hover { background: #555; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Console Error Capturer</h1>
+    <p>This will capture all console errors and display them here so you can copy them.</p>
+    
+    <button onclick="clearErrors()">Clear Errors</button>
+    <button onclick="testMainApp()">Test Main App</button>
+    <button onclick="copyAllErrors()">Copy All Errors</button>
+    
+    <div id="errors"></div>
+    <textarea id="copyArea" style="position: absolute; left: -9999px;"></textarea>
+
+    <script>
+        const errorContainer = document.getElementById('errors');
+        const copyArea = document.getElementById('copyArea');
+        let allErrors = [];
+        
+        // Capture console errors
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        const originalLog = console.log;
+        
+        console.error = function(...args) {
+            const error = args.join(' ');
+            allErrors.push(`ERROR: ${error}`);
+            displayError('error', `ERROR: ${error}`);
+            originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            const warning = args.join(' ');
+            allErrors.push(`WARNING: ${warning}`);
+            displayError('warning', `WARNING: ${warning}`);
+            originalWarn.apply(console, args);
+        };
+        
+        console.log = function(...args) {
+            const log = args.join(' ');
+            allErrors.push(`LOG: ${log}`);
+            displayError('log', `LOG: ${log}`);
+            originalLog.apply(console, args);
+        };
+        
+        // Capture window errors
+        window.addEventListener('error', function(e) {
+            const error = `SCRIPT ERROR: ${e.message} at ${e.filename}:${e.lineno}:${e.colno}`;
+            allErrors.push(error);
+            displayError('error', error);
+        });
+        
+        // Capture promise rejections
+        window.addEventListener('unhandledrejection', function(e) {
+            const error = `PROMISE REJECTION: ${e.reason}`;
+            allErrors.push(error);
+            displayError('error', error);
+        });
+        
+        function displayError(type, message) {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            errorContainer.appendChild(div);
+            errorContainer.scrollTop = errorContainer.scrollHeight;
+        }
+        
+        function clearErrors() {
+            errorContainer.innerHTML = '';
+            allErrors = [];
+        }
+        
+        function testMainApp() {
+            displayError('log', 'Opening main app in iframe to capture errors...');
+            
+            // Create iframe to load main app
+            const iframe = document.createElement('iframe');
+            iframe.src = 'http://localhost:3007';
+            iframe.style.width = '100%';
+            iframe.style.height = '300px';
+            iframe.style.border = '1px solid #333';
+            
+            // Add iframe after the errors div
+            const container = document.querySelector('body');
+            container.appendChild(iframe);
+            
+            displayError('log', 'Main app loaded in iframe above. Any errors will appear here.');
+        }
+        
+        function copyAllErrors() {
+            const errorText = allErrors.join('\\n');
+            copyArea.value = errorText;
+            copyArea.select();
+            copyArea.setSelectionRange(0, 99999);
+            
+            try {
+                document.execCommand('copy');
+                displayError('log', 'All errors copied to clipboard!');
+            } catch (err) {
+                displayError('log', 'Copy failed, but errors are in the text area below:');
+                copyArea.style.position = 'relative';
+                copyArea.style.left = '0';
+                copyArea.style.width = '100%';
+                copyArea.style.height = '200px';
+                copyArea.style.marginTop = '20px';
+            }
+        }
+        
+        // Initial message
+        displayError('log', 'Console error capturer started. Open your main app at http://localhost:3007 in another tab.');
+    </script>
+</body>
+</html>

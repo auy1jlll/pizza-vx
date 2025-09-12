@@ -1,35 +1,58 @@
-const fetch = require('node-fetch');
+const http = require('http');
 
-async function testCheckout() {
-  try {
-    const response = await fetch('http://localhost:3005/api/checkout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        items: [],
-        customer: {
-          name: 'Test User',
-          email: 'test@example.com',
-          phone: '123-456-7890'
-        },
-        orderType: 'PICKUP',
-        subtotal: 0,
-        deliveryFee: 0,
-        tax: 0,
-        total: 0
-      })
-    });
+const testOrder = {
+  customerEmail: "test@example.com",
+  customerName: "Test User",
+  items: [
+    {
+      id: 1,
+      name: "Test Item",
+      price: 10.99,
+      quantity: 1
+    }
+  ],
+  total: 10.99,
+  paymentMethod: "cash"
+};
 
-    console.log('Status:', response.status);
-    console.log('Status Text:', response.statusText);
-    const text = await response.text();
-    console.log('Response body:', text);
+const postData = JSON.stringify(testOrder);
 
-  } catch (error) {
-    console.error('Error:', error);
+const options = {
+  hostname: '91.99.58.154',
+  port: 3000,
+  path: '/api/checkout',
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Content-Length': Buffer.byteLength(postData)
   }
-}
+};
 
-testCheckout();
+console.log('🧪 Testing checkout functionality...');
+console.log('Order data:', testOrder);
+
+const req = http.request(options, (res) => {
+  console.log(`Status: ${res.statusCode}`);
+  console.log(`Headers: ${JSON.stringify(res.headers)}`);
+  
+  let data = '';
+  res.on('data', (chunk) => {
+    data += chunk;
+  });
+  
+  res.on('end', () => {
+    console.log('Response:', data);
+    if (res.statusCode === 200 || res.statusCode === 201) {
+      console.log('✅ Checkout test successful!');
+    } else {
+      console.log('❌ Checkout test failed!');
+    }
+  });
+});
+
+req.on('error', (e) => {
+  console.error(`❌ Problem with request: ${e.message}`);
+});
+
+req.write(postData);
+req.end();

@@ -143,14 +143,14 @@ export default function SpecialtyCalzonesPage() {
         id: selectedSize.pizzaSize.id,
         name: selectedSize.pizzaSize.name,
         diameter: selectedSize.pizzaSize.diameter,
-        basePrice: selectedSize.pizzaSize.basePrice,
+        basePrice: price, // Use specialty price instead of regular size price
         isActive: true,
         sortOrder: 1
       } : {
         id: 'cmeb4wr360000vk9s8q3wu9o1', // Fallback Small size ID
         name: 'Small',
         diameter: '12"',
-        basePrice: 12.99,
+        basePrice: price, // Use specialty price instead of fallback price
         isActive: true,
         sortOrder: 1
       },
@@ -191,8 +191,13 @@ export default function SpecialtyCalzonesPage() {
       toppings: matchedToppings, // Empty array like specialty pizzas
       quantity: 1,
       notes: `Specialty Calzone: ${pizza.name} | Ingredients: ${pizza.ingredients}`,
-      basePrice: pizza.basePrice || 12.99,
-      totalPrice: price,
+      basePrice: price, // Use specialty price as base price
+      totalPrice: price, // Use specialty price as total price
+      isSpecialty: true,
+      specialtyId: pizza.id,
+      ingredients: pizza.ingredients,
+      imageUrl: pizza.imageUrl,
+      specialtyCalzoneName: pizza.name // Add specialty calzone name for identification
     });
     showToast(`${pizza.name} (${selectedSize?.pizzaSize.name || 'Medium'}) added to cart! 🥟`, { type: 'success' });
   };

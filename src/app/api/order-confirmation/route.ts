@@ -90,7 +90,13 @@ export async function POST(request: NextRequest) {
 
     // Send order confirmation email
     console.log(`📧 Sending order confirmation email for order ${order.id} to ${customerEmail}`);
-    const emailSent = await gmailService.sendOrderConfirmationEmail(customerEmail, orderDetails);
+    const emailOrderData = {
+      ...orderDetails,
+      customerEmail,
+      orderItems: order.orderItems,
+      total: parseFloat(order.total.toString())
+    };
+    const emailSent = await gmailService.sendOrderConfirmationEmail(emailOrderData);
 
     if (emailSent) {
       console.log(`✅ Order confirmation email sent successfully to: ${customerEmail}`);
