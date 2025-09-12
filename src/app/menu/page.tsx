@@ -1,7 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { ChevronRight, Clock, Star, Utensils, ShoppingCart } from 'lucide-react';
-import { prisma } from '@/lib/prisma';
-import { Metadata } from 'next';
+import { useEffect, useState } from 'react';
 
 interface MenuCategory {
   id: string;
@@ -12,86 +13,6 @@ interface MenuCategory {
   isActive: boolean;
   sortOrder: number;
   menuItems?: any[];
-}
-
-// Generate metadata for SEO
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: 'Menu - Pizza Builder Pro | Fresh Italian Pizza & Calzones',
-    description: 'Explore our full menu featuring fresh pizzas, calzones, sandwiches, salads, and authentic Italian dishes. Order online for delivery or pickup.',
-    keywords: 'pizza menu, calzone menu, Italian food, sandwiches, salads, seafood, dinner plates, online ordering',
-    openGraph: {
-      title: 'Full Menu - Pizza Builder Pro',
-      description: 'Browse our complete menu of authentic Italian dishes, pizzas, and more.',
-      type: 'website',
-      images: ['/pizza-hero.jpg'],
-    },
-  };
-}
-
-// Server-side data fetching
-async function getMenuCategories(): Promise<MenuCategory[]> {
-  try {
-    const categories = await prisma.menuCategory.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: 'asc' },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        imageUrl: true,
-        isActive: true,
-        sortOrder: true,
-      }
-    });
-
-    return categories.map(cat => ({
-      ...cat,
-      menuItems: [] // Will be loaded by client components if needed
-    }));
-  } catch (error) {
-    console.error('Error fetching menu categories:', error);
-    // Return fallback categories
-    return [
-      {
-        id: '1',
-        name: 'Sandwiches',
-        slug: 'sandwiches',
-        description: 'Fresh made-to-order sandwiches with premium ingredients',
-        isActive: true,
-        sortOrder: 1,
-        menuItems: []
-      },
-      {
-        id: '2', 
-        name: 'Salads',
-        slug: 'salads',
-        description: 'Crisp, fresh salads with local ingredients',
-        isActive: true,
-        sortOrder: 2,
-        menuItems: []
-      },
-      {
-        id: '3',
-        name: 'Seafood',
-        slug: 'seafood', 
-        description: 'Fresh seafood dishes from local waters',
-        isActive: true,
-        sortOrder: 3,
-        menuItems: []
-      },
-      {
-        id: '4',
-        name: 'Dinner Plates',
-        slug: 'dinner-plates',
-        description: 'Hearty dinner plates with authentic Italian flavors',
-        isActive: true,
-        sortOrder: 4,
-        menuItems: []
-      }
-    ];
-  }
 }
 
 const getCategoryIcon = (slug: string) => {
@@ -190,8 +111,151 @@ const getCategoryGradient = (slug: string) => {
   }
 };
 
-export default async function MenuPage() {
-  const categories = await getMenuCategories();
+export default function MenuPage() {
+  const [categories, setCategories] = useState<MenuCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        console.log('🍕 CLIENT-SIDE: Fetching menu categories from API...');
+        const response = await fetch(`/api/menu/categories?t=${Date.now()}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success && Array.isArray(result.data)) {
+          console.log(`🍕 CLIENT-SIDE: Found ${result.data.length} categories from API`);
+          console.log('🍕 CLIENT-SIDE: Categories:', result.data.map((c: MenuCategory) => c.name).join(', '));
+          setCategories(result.data);
+        } else {
+          console.error('❌ CLIENT-SIDE: API returned error or invalid data:', result);
+          throw new Error('Invalid API response');
+        }
+      } catch (error) {
+        console.error('❌ CLIENT-SIDE: Error fetching categories:', error);
+        console.log('🔧 CLIENT-SIDE: Using enhanced fallback categories...');
+        // Enhanced fallback categories with more comprehensive options
+          setCategories([
+            {
+              id: '1',
+              name: 'Pizza',
+              slug: 'pizza',
+              description: 'Build your own pizza with fresh ingredients',
+              isActive: true,
+              sortOrder: 1,
+              menuItems: []
+            },
+            {
+              id: '2',
+              name: 'Specialty Pizzas',
+              slug: 'specialty-pizzas',
+              description: 'Our signature pizzas with unique combinations',
+              isActive: true,
+              sortOrder: 2,
+              menuItems: []
+            },
+            {
+              id: '3',
+              name: 'Calzones',
+              slug: 'calzones',
+              description: 'Build your own calzone with fresh ingredients',
+              isActive: true,
+              sortOrder: 3,
+              menuItems: []
+            },
+            {
+              id: '4',
+              name: 'Subs & Sandwiches',
+              slug: 'subs-sandwiches',
+              description: 'Fresh made-to-order sandwiches and subs',
+              isActive: true,
+              sortOrder: 4,
+              menuItems: []
+            },
+            {
+              id: '5', 
+              name: 'Salads',
+              slug: 'salads',
+              description: 'Crisp, fresh salads with local ingredients',
+              isActive: true,
+              sortOrder: 5,
+              menuItems: []
+            },
+            {
+              id: '6',
+              name: 'Seafood',
+              slug: 'seafood', 
+              description: 'Fresh seafood dishes from local waters',
+              isActive: true,
+              sortOrder: 6,
+              menuItems: []
+            },
+            {
+              id: '7',
+              name: 'Dinner Plates',
+              slug: 'dinner-plates',
+              description: 'Hearty dinner plates with authentic Italian flavors',
+              isActive: true,
+              sortOrder: 7,
+              menuItems: []
+            },
+            {
+              id: '8',
+              name: 'Appetizers',
+              slug: 'appetizers',
+              description: 'Perfect starters to begin your meal',
+              isActive: true,
+              sortOrder: 8,
+              menuItems: []
+            },
+            {
+              id: '9',
+              name: 'Chicken',
+              slug: 'chicken',
+              description: 'Wings, fingers, and chicken dishes',
+              isActive: true,
+              sortOrder: 9,
+              menuItems: []
+            },
+            {
+              id: '10',
+              name: 'Pasta',
+              slug: 'pasta',
+              description: 'Hearty pasta dishes with your choice of sauce',
+              isActive: true,
+              sortOrder: 10,
+              menuItems: []
+            },
+            {
+              id: '11',
+              name: 'Beverages',
+              slug: 'beverages',
+              description: 'Refreshing drinks and beverages',
+              isActive: true,
+              sortOrder: 11,
+              menuItems: []
+            },
+            {
+              id: '12',
+              name: 'Desserts',
+              slug: 'desserts',
+              description: 'Sweet treats to end your meal',
+              isActive: true,
+              sortOrder: 12,
+              menuItems: []
+            }
+          ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -275,8 +339,14 @@ export default async function MenuPage() {
                 Browse by <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400">Category</span>
               </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {categories.map((category) => (
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4 animate-spin">🍕</div>
+                  <p className="text-white text-xl">Loading menu categories...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {categories.map((category) => (
                   <Link 
                     key={category.id}
                     href={`/menu/${category.slug}`}
@@ -310,8 +380,9 @@ export default async function MenuPage() {
                       </div>
                     </div>
                   </Link>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Bottom CTA */}

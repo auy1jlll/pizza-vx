@@ -69,24 +69,47 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Load cart from localStorage on mount
   useEffect(() => {
-    try {
-      const savedCart = localStorage.getItem('cartItems');
-      if (savedCart) {
-        const parsed = JSON.parse(savedCart);
-        setCartItems(parsed);
+    const loadCart = () => {
+      try {
+        const savedCart = localStorage.getItem('cartItems');
+        if (savedCart) {
+          const parsed = JSON.parse(savedCart);
+          // Validate cart data structure
+          if (Array.isArray(parsed)) {
+            setCartItems(parsed);
+          } else {
+            console.warn('Invalid cart data in localStorage, clearing...');
+            localStorage.removeItem('cartItems');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading cart from localStorage:', error);
+        localStorage.removeItem('cartItems'); // Clear corrupted data
       }
-    } catch (error) {
-      console.error('Error loading cart from localStorage:', error);
-    }
+    };
+    
+    loadCart();
   }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    try {
-      localStorage.setItem('cartItems', JSON.stringify(cartItems));
-    } catch (error) {
-      console.error('Error saving cart to localStorage:', error);
-    }
+    const saveCart = () => {
+      try {
+        // Only save if cartItems is valid
+        if (Array.isArray(cartItems)) {
+          localStorage.setItem('cartItems', JSON.stringify(cartItems));
+        }
+      } catch (error) {
+        console.error('Error saving cart to localStorage:', error);
+        // If we can't save, at least don't crash
+        if (error.name === 'QuotaExceededError') {
+          console.warn('localStorage quota exceeded, clearing old data');
+          localStorage.clear();
+        }
+      }
+    };
+    
+    saveCart();
   }, [cartItems]);
 
   const addPizza = (pizza: Omit<CartItem, 'id'>) => {
@@ -111,7 +134,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         id: pizzaData.sizeId || 'unknown',
         name: pizzaData.sizeName || 'Unknown Size',
         diameter: '',
-        basePrice: pizzaData.basePrice || 0,
+        basePrice: pizzaData.size?.basePrice || pizzaData.basePrice || 0, // Prioritize specialty size price
         isActive: true,
         sortOrder: 0
       },
@@ -144,7 +167,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       })),
       quantity: pizzaData.quantity || 1,
       notes: pizzaData.notes || '',
-      basePrice: pizzaData.basePrice || pizzaData.size?.basePrice || 0,
+      basePrice: pizzaData.size?.basePrice || pizzaData.totalPrice || pizzaData.basePrice || 0, // Use specialty size price first
       totalPrice: pizzaData.totalPrice || 0,
       specialtyPizzaName: pizzaData.specialtyPizzaName || undefined,
       name: pizzaData.name || pizzaData.specialtyPizzaName || undefined
@@ -177,37 +200,57 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => {
-      // Use the pre-calculated totalPrice if available, otherwise calculate it
-      if (item.totalPrice && item.totalPrice > 0) {
-        const itemQuantity = Number(item.quantity) || 1;
-        return total + (item.totalPrice * itemQuantity);
-      }
+    try {
+      if (!Array.isArray(cartItems)) return 0;
       
-      // Fallback calculation for legacy items
-      const basePrice = Number(item.basePrice) || 0;
-      const crustPrice = Number(item.crust?.priceModifier) || 0;
-      const saucePrice = Number(item.sauce?.priceModifier) || 0;
-      const toppingsPrice = (item.toppings || []).reduce((sum, topping) => {
-        return sum + (Number(topping.price) * Number(topping.quantity));
+      return cartItems.reduce((total, item) => {
+        try {
+          // Use the pre-calculated totalPrice if available, otherwise calculate it
+          if (item.totalPrice && item.totalPrice > 0) {
+            const itemQuantity = Number(item.quantity) || 1;
+            const itemTotal = item.totalPrice * itemQuantity;
+            return isNaN(itemTotal) ? total : total + itemTotal;
+          }
+          
+          // Fallback calculation for legacy items
+          const basePrice = Number(item.basePrice) || 0;
+          const crustPrice = Number(item.crust?.priceModifier) || 0;
+          const saucePrice = Number(item.sauce?.priceModifier) || 0;
+          const toppingsPrice = (item.toppings || []).reduce((sum, topping) => {
+            const toppingTotal = Number(topping.price) * Number(topping.quantity || 1);
+            return isNaN(toppingTotal) ? sum : sum + toppingTotal;
+          }, 0);
+          
+          const itemSubtotal = basePrice + crustPrice + saucePrice + toppingsPrice;
+          const itemQuantity = Number(item.quantity) || 1;
+          const itemTotal = itemSubtotal * itemQuantity;
+          
+          return isNaN(itemTotal) ? total : total + itemTotal;
+        } catch (itemError) {
+          console.warn('Error calculating price for item:', item.id, itemError);
+          return total;
+        }
       }, 0);
-      
-      const itemSubtotal = basePrice + crustPrice + saucePrice + toppingsPrice;
-      const itemQuantity = Number(item.quantity) || 1;
-      
-      return total + (itemSubtotal * itemQuantity);
-    }, 0);
+    } catch (error) {
+      console.error('Error calculating subtotal:', error);
+      return 0;
+    }
   };
 
   const calculateTotal = () => {
-    const subtotal = calculateSubtotal();
-    if (isNaN(subtotal)) return 0;
-    
-    const tax = getTaxAmount(subtotal); // Use dynamic tax rate from settings
-    // Delivery fee should only be calculated at checkout after user selects order type
-    const total = subtotal + tax;
-    
-    return isNaN(total) ? 0 : total;
+    try {
+      const subtotal = calculateSubtotal();
+      if (isNaN(subtotal) || subtotal < 0) return 0;
+      
+      const tax = getTaxAmount(subtotal); // Use dynamic tax rate from settings
+      // Delivery fee should only be calculated at checkout after user selects order type
+      const total = subtotal + (isNaN(tax) ? 0 : tax);
+      
+      return isNaN(total) || total < 0 ? 0 : Math.round(total * 100) / 100;
+    } catch (error) {
+      console.error('Error calculating total:', error);
+      return 0;
+    }
   };
 
   return (

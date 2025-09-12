@@ -60,6 +60,9 @@ class GmailService {
           user: gmailUser,
           pass: gmailAppPassword,
         },
+        connectionTimeout: 30000, // 30 second timeout
+        greetingTimeout: 30000,    // 30 second greeting timeout
+        socketTimeout: 30000,      // 30 second socket timeout
       });
 
       this.initialized = true;
