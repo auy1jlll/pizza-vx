@@ -113,68 +113,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send order confirmation email (non-blocking)
-    // Use setTimeout to make this truly non-blocking
-    setTimeout(async () => {
-      try {
-        const emailNotificationsEnabled = await prisma.appSetting.findUnique({
-          where: { key: 'emailNotifications' }
-        });
-
-        if (emailNotificationsEnabled?.value === 'true') {
-          console.log('📧 Sending order confirmation email...');
-
-          // Check if Gmail service is available
-          if (!gmailService.isConfigured()) {
-            console.warn('Gmail service not configured, skipping email');
-            return;
-          }
-
-          // Get order details with items for email
-          const orderWithDetails = await prisma.order.findUnique({
-            where: { id: order.id },
-            include: {
-              orderItems: {
-                include: {
-                  pizzaSize: true,
-                  pizzaCrust: true,
-                  pizzaSauce: true,
-                  toppings: {
-                    include: {
-                      pizzaTopping: true
-                    }
-                  },
-                  menuItem: true,
-                  customizations: {
-                    include: {
-                      customizationOption: {
-                        include: {
-                          group: true
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          });
-
-          if (orderWithDetails) {
-            const emailSent = await gmailService.sendOrderConfirmationEmail(orderWithDetails);
-            if (emailSent) {
-              console.log('✅ Order confirmation email sent successfully');
-            } else {
-              console.warn('⚠️ Order confirmation email failed to send');
-            }
-          }
-        } else {
-          console.log('📧 Email notifications disabled, skipping order confirmation email');
-        }
-      } catch (emailError) {
-        console.error('❌ Failed to send order confirmation email:', emailError);
-        // Email failure should not affect the order completion
-      }
-    }, 100); // Small delay to ensure response is sent first
+    // Email sending temporarily disabled to prevent checkout blocking
+    // TODO: Implement proper background job queue for email notifications
+    console.log('📧 Order confirmation email temporarily disabled to ensure fast checkout');
 
     // Get preparation time setting for estimated delivery  
     const prepTimeResult = await prisma.appSetting.findUnique({

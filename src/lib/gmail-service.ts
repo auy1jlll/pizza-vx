@@ -16,7 +16,9 @@ class GmailService {
 
   constructor() {
     this.storeName = process.env.STORE_NAME || 'Greenland Famous Pizza';
-    this.initializeService();
+    // Temporarily disable initialization to prevent connection timeouts
+    console.log('Gmail service initialization disabled to prevent connection timeouts');
+    // this.initializeService();
   }
 
   private async initializeService() {
@@ -54,15 +56,26 @@ class GmailService {
         return;
       }
 
-      this.transporter = nodemailer.createTransport({
-        service: 'gmail',
+      this.transporter = nodemailer.createTransporter({
+        host: 'smtp.gmail.com',
+        port: 465,               // Use SSL port instead of STARTTLS
+        secure: true,            // Use SSL directly
         auth: {
           user: gmailUser,
           pass: gmailAppPassword,
         },
-        connectionTimeout: 30000, // 30 second timeout
-        greetingTimeout: 30000,    // 30 second greeting timeout
-        socketTimeout: 30000,      // 30 second socket timeout
+        connectionTimeout: 5000,   // Even shorter timeout
+        greetingTimeout: 5000,
+        socketTimeout: 5000,
+        // Network settings for Docker/cloud environments
+        family: 4,               // Force IPv4
+        dnsTimeout: 5000,        // DNS timeout
+        logger: false,           // Disable logging to reduce overhead
+        debug: false,            // Disable debug mode
+        tls: {
+          rejectUnauthorized: false,
+          minVersion: 'TLSv1.2'
+        }
       });
 
       this.initialized = true;
@@ -204,18 +217,8 @@ class GmailService {
         return false;
       }
 
-      // Test connection before sending
-      try {
-        await this.transporter.verify();
-      } catch (verifyError) {
-        console.error('Gmail service connection verification failed:', verifyError);
-        // Try to refresh credentials once
-        await this.refreshCredentials();
-        if (!this.transporter) {
-          console.warn('Gmail service still not available after refresh');
-          return false;
-        }
-      }
+      // Skip connection verification to avoid blocking checkout
+      // Connection will be tested when actually sending the email
 
       const customerEmail = order.customerEmail;
       if (!customerEmail) {
