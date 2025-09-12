@@ -324,7 +324,7 @@ export class OrderService extends BaseService {
                 basePrice: item._serverUnitPrice,
                 totalPrice: item._serverExtended,
                 notes: this.generateMenuItemDescription(item),
-                itemType: 'MENU' // Explicitly set itemType for menu items
+                itemType: 'MENU_ITEM' // Explicitly set itemType for menu items
               }
             });
             
