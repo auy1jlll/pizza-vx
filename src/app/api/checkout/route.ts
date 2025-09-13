@@ -6,6 +6,19 @@ import { OrderService } from '@/services';
 import { orderLimiter } from '@/lib/simple-rate-limit';
 import { gmailService } from '@/lib/gmail-service';
 
+
+// Add timeout protection to prevent 504 Gateway Timeout
+const CHECKOUT_TIMEOUT = 25000; // 25 seconds (less than gateway timeout)
+
+const createOrderWithTimeout = async (orderData, orderServiceInstance) => {
+  return Promise.race([
+    orderServiceInstance.createOrder(orderData),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Order creation timeout - please try again')), CHECKOUT_TIMEOUT)
+    )
+  ]);
+};
+
 export async function POST(request: NextRequest) {
   try {
     // Lightweight rate limiting (in-memory)
@@ -82,7 +95,7 @@ export async function POST(request: NextRequest) {
     const orderService = new OrderService();
 
     // Create order using service
-    const order = await orderService.createOrder({
+    const order = await createOrderWithTimeout({
       items,
       customer,
       delivery: delivery || undefined,
@@ -100,7 +113,7 @@ export async function POST(request: NextRequest) {
       total,
       notes,
       userId: authenticatedUserId
-    });
+    }, orderService);
 
     console.log('Order creation result:', { order, orderExists: !!order, orderNumber: order?.orderNumber });
 

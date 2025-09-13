@@ -657,12 +657,12 @@ export default function CheckoutPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           {/* Checkout Form */}
-          <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="lg:col-span-2 order-2 lg:order-1">
+            <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
               {/* Order Type Selection */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 lg:p-8">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="p-2 bg-green-100 rounded-lg">
                     <Truck className="w-6 h-6 text-green-600" />
@@ -714,7 +714,7 @@ export default function CheckoutPage() {
               </div>
 
               {/* Customer Information */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 lg:p-8">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <User className="w-6 h-6 text-blue-600" />
@@ -777,7 +777,7 @@ export default function CheckoutPage() {
               </div>
 
               {/* Order Scheduling */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 lg:p-8">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="p-2 bg-purple-100 rounded-lg">
                     <Calendar className="w-6 h-6 text-purple-600" />
@@ -886,7 +886,7 @@ export default function CheckoutPage() {
 
               {/* Delivery Information - Only show for delivery orders */}
               {orderType === 'DELIVERY' && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 lg:p-8">
                   <div className="flex items-center space-x-3 mb-6">
                     <div className="p-2 bg-green-100 rounded-lg">
                       <Truck className="w-6 h-6 text-green-600" />
@@ -949,7 +949,7 @@ export default function CheckoutPage() {
               )}
 
               {/* Place Order Button */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 lg:p-8">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="p-2 bg-orange-100 rounded-lg">
                     <CreditCard className="w-6 h-6 text-orange-600" />
@@ -986,8 +986,8 @@ export default function CheckoutPage() {
           </div>
 
           {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 sticky top-8">
+          <div className="lg:col-span-1 order-1 lg:order-2">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 lg:p-8 lg:sticky lg:top-8">
               <h2 className="text-xl font-bold text-gray-800 mb-6">Order Summary</h2>
 
               {/* Cart Items */}

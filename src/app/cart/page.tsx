@@ -346,10 +346,10 @@ export default function CartPage() {
         ) : null}
         
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
-          <div className="grid lg:grid-cols-3 gap-0">
-            
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
+
             {/* Cart Items Section */}
-            <div className="lg:col-span-2 p-8">
+            <div className="lg:col-span-2 p-4 sm:p-8">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
                   <button
@@ -395,12 +395,12 @@ export default function CartPage() {
                       const itemPrice = getPizzaItemPrice(item) / item.quantity;
                       
                       return (
-                        <div key={item.id} className="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-6 border border-gray-100">
-                          <div className="flex items-start gap-4">
-                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
-                              <span className="text-2xl">🍕</span>
+                        <div key={item.id} className="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-4 sm:p-6 border border-gray-100">
+                          <div className="flex items-start gap-3 sm:gap-4">
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center flex-shrink-0">
+                              <span className="text-xl sm:text-2xl">🍕</span>
                             </div>
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between mb-2">
                                 <div>
                                   <h3 className="text-lg font-bold text-gray-800">
@@ -458,7 +458,7 @@ export default function CartPage() {
                                 </div>
                               )}
 
-                              <div className="flex items-center justify-between">
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                                 <div className="flex items-center gap-3">
                                   <div className="flex items-center bg-gray-100 rounded-full">
                                     <button
@@ -480,7 +480,7 @@ export default function CartPage() {
                                     </button>
                                   </div>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-right sm:text-right">
                                   <p className="text-xl font-bold text-gray-800">
                                     ${getPizzaItemPrice(item).toFixed(2)}
                                   </p>
@@ -508,12 +508,12 @@ export default function CartPage() {
                       const itemPrice = getMenuItemPrice(item) / item.quantity;
                       
                       return (
-                        <div key={item.id} className="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-6 border border-gray-100">
-                          <div className="flex items-start gap-4">
-                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
-                              <span className="text-2xl">🍽️</span>
+                        <div key={item.id} className="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-4 sm:p-6 border border-gray-100">
+                          <div className="flex items-start gap-3 sm:gap-4">
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
+                              <span className="text-xl sm:text-2xl">🍽️</span>
                             </div>
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between mb-2">
                                 <div>
                                   <h3 className="text-lg font-bold text-gray-800">
@@ -567,7 +567,7 @@ export default function CartPage() {
                                 </div>
                               )}
                               
-                              <div className="flex items-center justify-between">
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                                 <div className="flex items-center gap-3">
                                   <div className="flex items-center bg-gray-100 rounded-full">
                                     <button
@@ -589,7 +589,7 @@ export default function CartPage() {
                                     </button>
                                   </div>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-right sm:text-right">
                                   <p className="text-xl font-bold text-gray-800">
                                     ${getMenuItemPrice(item).toFixed(2)}
                                   </p>
@@ -606,8 +606,8 @@ export default function CartPage() {
             </div>
 
             {/* Order Summary Section */}
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-8">
-              <div className="sticky top-8">
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 sm:p-8 border-t lg:border-t-0 lg:border-l border-gray-200">
+              <div className="lg:sticky lg:top-8">
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">Order Summary</h2>
                 
                 <div className="space-y-4 mb-6">

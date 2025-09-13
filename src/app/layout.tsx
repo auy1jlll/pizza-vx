@@ -10,6 +10,7 @@ import { ConditionalTopNavigation, ConditionalBottomElements } from '@/component
 import RestaurantStructuredData from '@/components/RestaurantStructuredData';
 import LocalBusinessStructuredData from '@/components/LocalBusinessStructuredData';
 import Analytics from '@/components/Analytics';
+import PWAInstall, { PWAStatus } from '@/components/PWAInstall';
 import { generateMetadata as generateDynamicMetadata } from '@/lib/dynamic-metadata';
 
 // Use dynamic metadata generation
@@ -23,6 +24,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* PWA Meta Tags */}
+        <meta name="application-name" content="Greenland Famous Pizza" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Greenland Pizza" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#dc2626" />
+
+        {/* PWA Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+
+        {/* PWA Icons */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/pizza-icon.svg" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icons/pizza-icon.svg" />
+        <link rel="apple-touch-icon" href="/icons/pizza-icon.svg" />
+
         <RestaurantStructuredData />
         <LocalBusinessStructuredData />
         <Analytics />
@@ -39,6 +57,8 @@ export default function RootLayout({
                       {children}
                     </main>
                     <ConditionalBottomElements />
+                    <PWAInstall />
+                    <PWAStatus />
                   </AppSettingsProvider>
                 </CartProvider>
               </UserProvider>

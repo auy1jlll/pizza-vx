@@ -54,7 +54,7 @@ class GmailService {
         return;
       }
 
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,               // Use SSL port instead of STARTTLS
         secure: true,            // Use SSL directly

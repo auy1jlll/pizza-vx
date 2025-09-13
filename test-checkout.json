@@ -1,0 +1,23 @@
+{
+  "orderType": "PICKUP",
+  "customer": {
+    "name": "Test Customer",
+    "email": "test@example.com",
+    "phone": "1234567890"
+  },
+  "items": [
+    {
+      "type": "menu",
+      "menuItemId": "cmez4ylz7001jvkvorf8gutkb",
+      "quantity": 1,
+      "basePrice": 12.25,
+      "totalPrice": 12.25,
+      "customizations": []
+    }
+  ],
+  "subtotal": 12.25,
+  "deliveryFee": 0,
+  "tax": 0.98,
+  "total": 13.23,
+  "notes": "Test order from debugging"
+}
