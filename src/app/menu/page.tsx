@@ -130,7 +130,18 @@ export default function MenuPage() {
         if (result.success && Array.isArray(result.data)) {
           console.log(`🍕 CLIENT-SIDE: Found ${result.data.length} categories from API`);
           console.log('🍕 CLIENT-SIDE: Categories:', result.data.map((c: MenuCategory) => c.name).join(', '));
-          setCategories(result.data);
+          console.log('🍕 CLIENT-SIDE: Full category data:', result.data);
+
+          // Filter out categories with 0 items AND 0 subcategory items for now
+          const filteredCategories = result.data.filter((category: any) => {
+            const hasDirectItems = (category._count?.menuItems || 0) > 0;
+            const hasSubcategoryItems = (category.subcategories || []).some((sub: any) => (sub._count?.menuItems || 0) > 0);
+            console.log(`🔍 Category "${category.name}": direct=${category._count?.menuItems || 0}, subcategory=${hasSubcategoryItems ? 'yes' : 'no'}, showing=${hasDirectItems || hasSubcategoryItems ? 'YES' : 'NO'}`);
+            return hasDirectItems || hasSubcategoryItems;
+          });
+
+          console.log(`🎯 CLIENT-SIDE: Showing ${filteredCategories.length} categories with items`);
+          setCategories(filteredCategories);
         } else {
           console.error('❌ CLIENT-SIDE: API returned error or invalid data:', result);
           throw new Error('Invalid API response');
