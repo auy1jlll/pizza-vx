@@ -85,7 +85,7 @@ export default function AdminPageLayout({
     }
   };
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 text-black">
       {/* Top Navigation Bar */}
       <nav className="bg-gradient-to-r from-emerald-800 to-green-700 shadow-lg border-b border-green-600 relative z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
