@@ -79,11 +79,15 @@ export async function calculatePizzaPrice(pizzaData: any): Promise<PriceCalculat
         // For specialty pizzas and calzones, use the size price from cart data (which contains specialty pricing)
         const isSpecialtyPizza = pizzaData.isSpecialty || pizzaData.specialtyId || pizzaData.specialtyPizzaName;
         const isSpecialtyCalzone = pizzaData.specialtyCalzoneName || (pizzaData.notes && pizzaData.notes.includes('Specialty Calzone:'));
-        const isSpecialtyByNotes = pizzaData.notes && pizzaData.notes.includes('Specialty Pizza:');
+        const isSpecialtyByNotes = pizzaData.notes && (pizzaData.notes.includes('Specialty Pizza:') || pizzaData.notes.includes('**'));
+
+        // Enhanced detection: check if size price is significantly higher than typical sizes (specialty pricing)
+        const hasSpecialtyPricing = pizzaData.size?.basePrice && pizzaData.size.basePrice > 20; // Specialty pizzas typically > $20
         
         console.log('🔍 SPECIALTY DETECTION DEBUG:', {
           itemId: pizzaData.id || 'unknown',
           notes: pizzaData.notes || 'no notes',
+          sizeBasePrice: pizzaData.size?.basePrice,
           isSpecialty: !!pizzaData.isSpecialty,
           specialtyId: !!pizzaData.specialtyId,
           specialtyPizzaName: !!pizzaData.specialtyPizzaName,
@@ -91,10 +95,11 @@ export async function calculatePizzaPrice(pizzaData: any): Promise<PriceCalculat
           isSpecialtyPizza,
           isSpecialtyCalzone,
           isSpecialtyByNotes,
-          finalDecision: isSpecialtyPizza || isSpecialtyCalzone || isSpecialtyByNotes
+          hasSpecialtyPricing,
+          finalDecision: isSpecialtyPizza || isSpecialtyCalzone || isSpecialtyByNotes || hasSpecialtyPricing
         });
         
-        if (isSpecialtyPizza || isSpecialtyCalzone || isSpecialtyByNotes) {
+        if (isSpecialtyPizza || isSpecialtyCalzone || isSpecialtyByNotes || hasSpecialtyPricing) {
           console.log('🍕 Specialty pizza/calzone detected, using cart size price:', pizzaData.size?.basePrice);
           basePrice += pizzaData.size?.basePrice || 0;
         } else {
