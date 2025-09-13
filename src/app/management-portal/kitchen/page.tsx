@@ -175,7 +175,7 @@ const KitchenDisplay = () => {
       
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
-          setError('Authentication required - please login as admin');
+          setError('Authentication required - please login as kitchen staff');
           // Redirect to login page after a short delay
           setTimeout(() => {
             window.location.href = '/management-portal/login';
@@ -195,8 +195,8 @@ const KitchenDisplay = () => {
         }
         if (response.status === 500) {
           const errorText = await response.text();
-          if (errorText.includes('Unauthorized') || errorText.includes('Admin access required')) {
-            setError('Admin authentication required - redirecting to login...');
+          if (errorText.includes('Unauthorized') || errorText.includes('Admin access required') || errorText.includes('Kitchen staff access required')) {
+            setError('Kitchen staff authentication required - redirecting to login...');
             setTimeout(() => {
               window.location.href = '/management-portal/login';
             }, 2000);
@@ -246,13 +246,13 @@ const KitchenDisplay = () => {
     // Check authentication first
     const checkAuth = async () => {
       try {
-        const authResponse = await fetch('/api/auth/admin', {
+        const authResponse = await fetch('/api/auth/me', {
           credentials: 'include'
         });
         
         if (!authResponse.ok) {
           if (mounted) {
-            setError('Admin authentication required - redirecting to login...');
+            setError('Authentication required - redirecting to login...');
             authTimeout = setTimeout(() => {
               if (mounted) {
                 window.location.href = '/management-portal/login';
@@ -263,9 +263,10 @@ const KitchenDisplay = () => {
         }
         
         const authData = await authResponse.json();
-        if (authData.role !== 'ADMIN') {
+        // Allow both ADMIN and EMPLOYEE roles for kitchen access
+        if (authData.user.role !== 'ADMIN' && authData.user.role !== 'EMPLOYEE') {
           if (mounted) {
-            setError('Admin access required - redirecting to login...');
+            setError('Kitchen staff access required - redirecting to login...');
             authTimeout = setTimeout(() => {
               if (mounted) {
                 window.location.href = '/management-portal/login';

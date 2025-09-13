@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     if (!limit.allowed) return NextResponse.json({ error: 'Too many admin requests. Please slow down.' }, { status: 429 });
     
     // Check kitchen staff authentication (ADMIN or EMPLOYEE)
-    const user = verifyKitchenStaffToken(request);
+    const user = await verifyKitchenStaffToken(request);
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized: Kitchen staff access required' },

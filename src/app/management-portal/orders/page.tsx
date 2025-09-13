@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import AdminPageLayout from '@/components/AdminPageLayout';
 import { useToast } from '@/components/ToastProvider';
 import { useSexyToast } from '@/components/SexyToastProvider';
@@ -30,7 +30,7 @@ interface PizzaSauce {
 interface PizzaTopping {
   id: string;
   name: string;
-  price: number;
+  priceModifier: number;
   category: string;
 }
 
@@ -100,6 +100,7 @@ export default function AdminOrders() {
   const [printLoading, setPrintLoading] = useState<string | null>(null);
   const { show: showToast } = useToast();
   const sexyToast = useSexyToast();
+  const orderDetailsRef = useRef<HTMLDivElement>(null);
 
   // Helper functions
   const formatCurrency = (amount: number): string => {
@@ -115,8 +116,8 @@ export default function AdminOrders() {
 
   const getOrderTypeColor = (orderType: string): string => {
     return orderType === 'DELIVERY' 
-      ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' 
-      : 'bg-green-500/20 text-green-300 border-green-500/30';
+      ? 'bg-blue-500/20 text-black border-blue-500/30' 
+      : 'bg-green-500/20 text-black border-green-500/30';
   };
 
   const getTimeElapsed = (createdAt: string): string => {
@@ -156,12 +157,12 @@ export default function AdminOrders() {
   ];
 
   const statusColors = {
-    PENDING: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-    CONFIRMED: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-    PREPARING: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
-    READY: 'bg-green-500/20 text-green-300 border-green-500/30',
-    COMPLETED: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
-    CANCELLED: 'bg-red-500/20 text-red-300 border-red-500/30'
+    PENDING: 'bg-yellow-500/20 text-black border-yellow-500/30',
+    CONFIRMED: 'bg-blue-500/20 text-black border-blue-500/30',
+    PREPARING: 'bg-orange-500/20 text-black border-orange-500/30',
+    READY: 'bg-green-500/20 text-black border-green-500/30',
+    COMPLETED: 'bg-gray-500/20 text-black border-gray-500/30',
+    CANCELLED: 'bg-red-500/20 text-black border-red-500/30'
   };
 
   const statusIcons = {
@@ -171,6 +172,39 @@ export default function AdminOrders() {
     READY: '🍕',
     COMPLETED: '📦',
     CANCELLED: '❌'
+  };
+
+  // Function to handle order selection and scroll details panel into view
+  const handleOrderSelect = (order: Order) => {
+    setSelectedOrder(order);
+    
+    // Scroll the order details panel into view, especially on smaller screens
+    if (orderDetailsRef.current) {
+      // Use a small delay to ensure the DOM is updated with the new selected order
+      setTimeout(() => {
+        // Check if we're on a smaller screen where scrolling would be beneficial
+        const isMobileOrTablet = window.innerWidth < 1024; // lg breakpoint
+        
+        if (isMobileOrTablet) {
+          // On mobile/tablet, scroll the details panel into view
+          orderDetailsRef.current?.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start',
+            inline: 'nearest'
+          });
+        } else {
+          // On desktop, just ensure it's visible but don't force scroll if already visible
+          const rect = orderDetailsRef.current?.getBoundingClientRect();
+          if (rect && (rect.top < 0 || rect.bottom > window.innerHeight)) {
+            orderDetailsRef.current?.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'nearest',
+              inline: 'nearest'
+            });
+          }
+        }
+      }, 100);
+    }
   };
 
   useEffect(() => {
@@ -379,7 +413,7 @@ export default function AdminOrders() {
     return (
       <AdminPageLayout title="Order Management" description="Error loading orders">
         <div className="p-6">
-          <div className="bg-red-500/20 border border-red-500/30 text-red-300 p-4 rounded-lg">
+          <div className="bg-red-500/20 border border-red-500/30 text-black p-4 rounded-lg">
             <p className="font-semibold">Error loading orders:</p>
             <p>{error}</p>
             <button 
@@ -398,8 +432,8 @@ export default function AdminOrders() {
     <AdminPageLayout title="Order Management" description={`${orders.length} total order${orders.length !== 1 ? 's' : ''}`}>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-3xl font-bold text-white">Order Management</h1>
-          <p className="mt-2 text-lg text-slate-300">
+          <h1 className="text-3xl font-bold text-black">Order Management</h1>
+          <p className="mt-2 text-lg text-black">
             {orders.length} total order{orders.length !== 1 ? 's' : ''}
           </p>
         </div>
@@ -426,8 +460,8 @@ export default function AdminOrders() {
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-red-900">Error</h3>
-                <p className="mt-1 text-red-700">{error}</p>
+                <h3 className="text-lg font-semibold text-black">Error</h3>
+                <p className="mt-1 text-black">{error}</p>
               </div>
             </div>
           </div>
@@ -436,14 +470,14 @@ export default function AdminOrders() {
         {orders.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-6xl mb-4">📋</div>
-            <h3 className="text-xl font-semibold text-white mb-2">No orders yet</h3>
-            <p className="text-gray-400">Orders will appear here when customers place them.</p>
+            <h3 className="text-xl font-semibold text-black mb-2">No orders yet</h3>
+            <p className="text-black">Orders will appear here when customers place them.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Orders List */}
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-white mb-4">Active Orders</h2>
+              <h2 className="text-xl font-semibold text-black mb-4">Active Orders</h2>
               
               {orders
                 .sort((a, b) => {
@@ -464,19 +498,19 @@ export default function AdminOrders() {
                     className={`bg-white border border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:shadow-md hover:border-blue-300 ${
                       selectedOrder?.id === order.id ? 'ring-2 ring-blue-500' : ''
                     }`}
-                    onClick={() => setSelectedOrder(order)}
+                    onClick={() => handleOrderSelect(order)}
                   >
                     {/* Order Header */}
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{statusIcons[order.status as keyof typeof statusIcons]}</span>
                         <div>
-                          <h3 className="font-semibold text-gray-900">Order #{order.orderNumber}</h3>
-                          <p className="text-sm text-gray-500">{getTimeElapsed(order.createdAt)}</p>
+                          <h3 className="font-semibold text-black">Order #{order.orderNumber}</h3>
+                          <p className="text-sm text-black">{getTimeElapsed(order.createdAt)}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-green-600">{formatCurrency(order.total)}</div>
+                        <div className="font-bold text-black">{formatCurrency(order.total)}</div>
                         <div className={`text-xs px-2 py-1 rounded border ${getOrderTypeColor(order.orderType)}`}>
                           {getOrderTypeIcon(order.orderType)} {order.orderType}
                         </div>
@@ -486,7 +520,7 @@ export default function AdminOrders() {
                     {/* Customer Info */}
                     {order.customerName && (
                       <div className="mb-3">
-                        <p className="text-sm text-gray-300">
+                        <p className="text-sm text-black">
                           👤 {order.customerName}
                           {order.customerPhone && (
                             <span className="ml-2">📞 {order.customerPhone}</span>
@@ -537,18 +571,18 @@ export default function AdminOrders() {
 
                     {/* Order Items Preview */}
                     <div className="mb-3">
-                      <div className="text-sm font-medium text-gray-400 mb-2">Items:</div>
+                      <div className="text-sm font-medium text-black mb-2">Items:</div>
                       <div className="space-y-1">
                         {order.orderItems.slice(0, 2).map((item) => (
                           <div key={item.id} className="flex justify-between text-sm">
-                            <span className="text-gray-300">
+                            <span className="text-black">
                               {item.quantity}x {getItemDisplayName(item)}
                             </span>
-                            <span className="text-green-400">{formatCurrency(item.totalPrice)}</span>
+                            <span className="text-black">{formatCurrency(item.totalPrice)}</span>
                           </div>
                         ))}
                         {order.orderItems.length > 2 && (
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-black">
                             +{order.orderItems.length - 2} more item{order.orderItems.length - 2 !== 1 ? 's' : ''}
                           </div>
                         )}
@@ -557,7 +591,7 @@ export default function AdminOrders() {
 
                     {/* Delivery Address */}
                     {order.orderType === 'DELIVERY' && order.deliveryAddress && (
-                      <div className="text-sm text-gray-400">
+                      <div className="text-sm text-black">
                         📍 {order.deliveryAddress}, {order.deliveryCity} {order.deliveryZip}
                       </div>
                     )}
@@ -566,13 +600,13 @@ export default function AdminOrders() {
             </div>
 
             {/* Order Details */}
-            <div className="lg:sticky lg:top-6">
+            <div ref={orderDetailsRef} className="lg:sticky lg:top-6 lg:max-h-screen lg:overflow-y-auto">
               {selectedOrder ? (
                 <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
                   <div className="flex justify-between items-start mb-6">
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900">Order #{selectedOrder.orderNumber}</h2>
-                      <p className="text-gray-500">{getTimeElapsed(selectedOrder.createdAt)}</p>
+                      <h2 className="text-xl font-bold text-black">Order #{selectedOrder.orderNumber}</h2>
+                      <p className="text-black">{getTimeElapsed(selectedOrder.createdAt)}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className={`px-3 py-1 rounded border text-sm font-medium ${statusColors[selectedOrder.status as keyof typeof statusColors]}`}>
@@ -596,25 +630,25 @@ export default function AdminOrders() {
 
                   {/* Customer Details */}
                   {selectedOrder.customerName && (
-                    <div className="mb-6 p-4 bg-white/5 rounded-lg">
-                      <h3 className="font-semibold text-white mb-2">Customer Information</h3>
+                    <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                      <h3 className="font-semibold text-black mb-2">Customer Information</h3>
                       <div className="space-y-1 text-sm">
-                        <p className="text-gray-300">👤 {selectedOrder.customerName}</p>
-                        {selectedOrder.customerEmail && <p className="text-gray-300">✉️ {selectedOrder.customerEmail}</p>}
-                        {selectedOrder.customerPhone && <p className="text-gray-300">📞 {selectedOrder.customerPhone}</p>}
+                        <p className="text-black">👤 {selectedOrder.customerName}</p>
+                        {selectedOrder.customerEmail && <p className="text-black">✉️ {selectedOrder.customerEmail}</p>}
+                        {selectedOrder.customerPhone && <p className="text-black">📞 {selectedOrder.customerPhone}</p>}
                       </div>
                     </div>
                   )}
 
                   {/* Delivery Details */}
                   {selectedOrder.orderType === 'DELIVERY' && selectedOrder.deliveryAddress && (
-                    <div className="mb-6 p-4 bg-white/5 rounded-lg">
-                      <h3 className="font-semibold text-white mb-2">Delivery Information</h3>
-                      <div className="space-y-1 text-sm text-gray-300">
+                    <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                      <h3 className="font-semibold text-black mb-2">Delivery Information</h3>
+                      <div className="space-y-1 text-sm text-black">
                         <p>📍 {selectedOrder.deliveryAddress}</p>
                         <p>{selectedOrder.deliveryCity}, {selectedOrder.deliveryZip}</p>
                         {selectedOrder.deliveryInstructions && (
-                          <p className="mt-2 p-2 bg-blue-500/20 border border-blue-500/30 rounded text-blue-100">
+                          <p className="mt-2 p-2 bg-blue-100 border border-blue-300 rounded text-black">
                             💬 {selectedOrder.deliveryInstructions}
                           </p>
                         )}
@@ -624,40 +658,40 @@ export default function AdminOrders() {
 
                   {/* Order Items */}
                   <div className="mb-6">
-                    <h3 className="font-semibold text-white mb-4">Order Items</h3>
+                    <h3 className="font-semibold text-black mb-4">Order Items</h3>
                     <div className="space-y-4">
                       {selectedOrder.orderItems.map((item, index) => (
-                        <div key={item.id} className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-xl">
+                        <div key={item.id} className="bg-gray-50 border border-gray-200 p-4 rounded-xl">
                           <div className="flex justify-between items-start mb-2">
-                            <h5 className="font-medium text-white">
+                            <h5 className="font-medium text-black">
                               {item.menuItem ? item.menuItem.name : `Pizza #${index + 1}`}
                             </h5>
-                            <span className="font-bold text-green-400">{formatCurrency(item.totalPrice)}</span>
+                            <span className="font-bold text-black">{formatCurrency(item.totalPrice)}</span>
                           </div>
                           
-                          <div className="text-sm text-gray-300 space-y-1">
-                            <p><span className="font-medium text-white">Quantity:</span> {item.quantity}</p>
+                          <div className="text-sm text-black space-y-1">
+                            <p><span className="font-medium text-black">Quantity:</span> {item.quantity}</p>
                             
                             {/* Pizza Details */}
                             {item.pizzaSize && (
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <p><span className="font-medium text-white">Size:</span> {item.pizzaSize.name} ({item.pizzaSize.diameter})</p>
-                                {item.pizzaCrust && <p><span className="font-medium text-white">Crust:</span> {item.pizzaCrust.name}</p>}
-                                {item.pizzaSauce && <p><span className="font-medium text-white">Sauce:</span> {item.pizzaSauce.name}</p>}
+                                <p><span className="font-medium text-black">Size:</span> {item.pizzaSize.name} ({item.pizzaSize.diameter})</p>
+                                {item.pizzaCrust && <p><span className="font-medium text-black">Crust:</span> {item.pizzaCrust.name}</p>}
+                                {item.pizzaSauce && <p><span className="font-medium text-black">Sauce:</span> {item.pizzaSauce.name}</p>}
                               </div>
                             )}
 
                             {/* Pizza Toppings */}
                             {item.toppings && item.toppings.length > 0 && (
                               <div className="mt-2">
-                                <span className="font-medium text-white">Toppings:</span>
+                                <span className="font-medium text-black">Toppings:</span>
                                 <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-1">
                                   {item.toppings.map((topping) => (
                                     <div key={topping.id} className="flex justify-between text-xs">
-                                      <span className="text-gray-300">
+                                      <span className="text-black">
                                         {topping.pizzaTopping?.name || 'Unknown Topping'} (x{topping.quantity})
                                       </span>
-                                      <span className="text-green-400">{formatCurrency(topping.price)}</span>
+                                      <span className="text-black">{formatCurrency(topping.price)}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -667,15 +701,15 @@ export default function AdminOrders() {
                             {/* Menu Item Customizations */}
                             {item.customizations && item.customizations.length > 0 && (
                               <div className="mt-2">
-                                <span className="font-medium text-white">Customizations:</span>
+                                <span className="font-medium text-black">Customizations:</span>
                                 <div className="mt-1 space-y-1">
                                   {item.customizations.map((customization) => (
                                     <div key={customization.id} className="flex justify-between text-xs">
-                                      <span className="text-gray-300">
+                                      <span className="text-black">
                                         {customization.name}: {customization.value}
                                       </span>
                                       {customization.price > 0 && (
-                                        <span className="text-green-400">+{formatCurrency(customization.price)}</span>
+                                        <span className="text-black">+{formatCurrency(customization.price)}</span>
                                       )}
                                     </div>
                                   ))}
@@ -686,8 +720,8 @@ export default function AdminOrders() {
                             {/* Notes */}
                             {item.notes && (
                               <div className="mt-2 p-2 bg-blue-500/20 border border-blue-500/30 rounded text-xs">
-                                <div className="font-medium text-blue-200 mb-1">Notes:</div>
-                                <div className="text-blue-100 whitespace-pre-line">{item.notes}</div>
+                                <div className="font-medium text-black mb-1">Notes:</div>
+                                <div className="text-black whitespace-pre-line">{item.notes}</div>
                               </div>
                             )}
                           </div>
@@ -699,23 +733,23 @@ export default function AdminOrders() {
                   {/* Order Total */}
                   <div className="border-t border-white/10 pt-4">
                     <div className="space-y-2 text-sm">
-                      <div className="flex justify-between text-gray-300">
+                      <div className="flex justify-between text-black">
                         <span>Subtotal:</span>
                         <span>{formatCurrency(selectedOrder.subtotal)}</span>
                       </div>
                       {selectedOrder.deliveryFee > 0 && (
-                        <div className="flex justify-between text-gray-300">
+                        <div className="flex justify-between text-black">
                           <span>Delivery Fee:</span>
                           <span>{formatCurrency(selectedOrder.deliveryFee)}</span>
                         </div>
                       )}
-                      <div className="flex justify-between text-gray-300">
+                      <div className="flex justify-between text-black">
                         <span>Tax:</span>
                         <span>{formatCurrency(selectedOrder.tax)}</span>
                       </div>
-                      <div className="flex justify-between text-lg font-bold text-white border-t border-white/10 pt-2">
+                      <div className="flex justify-between text-lg font-bold text-black border-t border-gray-300 pt-2">
                         <span>Total:</span>
-                        <span className="text-green-400">{formatCurrency(selectedOrder.total)}</span>
+                        <span className="text-black">{formatCurrency(selectedOrder.total)}</span>
                       </div>
                     </div>
                   </div>
@@ -723,16 +757,16 @@ export default function AdminOrders() {
                   {/* Order Notes */}
                   {selectedOrder.notes && (
                     <div className="mt-4 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded text-sm">
-                      <div className="font-medium text-yellow-200 mb-1">Order Notes:</div>
-                      <div className="text-yellow-100 whitespace-pre-line">{selectedOrder.notes}</div>
+                      <div className="font-medium text-black mb-1">Order Notes:</div>
+                      <div className="text-black whitespace-pre-line">{selectedOrder.notes}</div>
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center">
                   <div className="text-6xl mb-4">👈</div>
-                  <h3 className="text-lg font-semibold text-white mb-2">Select an Order</h3>
-                  <p className="text-gray-400">Click on an order from the list to view details</p>
+                  <h3 className="text-lg font-semibold text-black mb-2">Select an Order</h3>
+                  <p className="text-black">Click on an order from the list to view details</p>
                 </div>
               )}
             </div>
