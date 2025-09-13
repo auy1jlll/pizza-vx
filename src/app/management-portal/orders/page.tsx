@@ -414,8 +414,8 @@ export default function AdminOrders() {
       <AdminPageLayout title="Order Management" description="Error loading orders">
         <div className="p-6">
           <div className="bg-red-500/20 border border-red-500/30 text-black p-4 rounded-lg">
-            <p className="font-semibold">Error loading orders:</p>
-            <p>{error}</p>
+            <p className="font-semibold text-black">Error loading orders:</p>
+            <p className="text-black">{error}</p>
             <button 
               onClick={fetchOrders}
               className="mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
@@ -446,7 +446,7 @@ export default function AdminOrders() {
             <svg className="h-5 w-5 group-hover:rotate-180 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            <span>Refresh Orders</span>
+            <span className="text-black">Refresh Orders</span>
           </button>
         </div>
       </div>
@@ -468,8 +468,8 @@ export default function AdminOrders() {
         )}
 
         {orders.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">📋</div>
+          <div className="text-center py-16 text-black">
+            <div className="text-6xl mb-4 text-black">📋</div>
             <h3 className="text-xl font-semibold text-black mb-2">No orders yet</h3>
             <p className="text-black">Orders will appear here when customers place them.</p>
           </div>
@@ -503,13 +503,13 @@ export default function AdminOrders() {
                     {/* Order Header */}
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl">{statusIcons[order.status as keyof typeof statusIcons]}</span>
+                        <span className="text-2xl text-black">{statusIcons[order.status as keyof typeof statusIcons]}</span>
                         <div>
                           <h3 className="font-semibold text-black">Order #{order.orderNumber}</h3>
                           <p className="text-sm text-black">{getTimeElapsed(order.createdAt)}</p>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right text-black">
                         <div className="font-bold text-black">{formatCurrency(order.total)}</div>
                         <div className={`text-xs px-2 py-1 rounded border ${getOrderTypeColor(order.orderType)}`}>
                           {getOrderTypeIcon(order.orderType)} {order.orderType}
@@ -574,7 +574,7 @@ export default function AdminOrders() {
                       <div className="text-sm font-medium text-black mb-2">Items:</div>
                       <div className="space-y-1">
                         {order.orderItems.slice(0, 2).map((item) => (
-                          <div key={item.id} className="flex justify-between text-sm">
+                          <div key={item.id} className="flex justify-between text-sm text-black">
                             <span className="text-black">
                               {item.quantity}x {getItemDisplayName(item)}
                             </span>
@@ -632,7 +632,7 @@ export default function AdminOrders() {
                   {selectedOrder.customerName && (
                     <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                       <h3 className="font-semibold text-black mb-2">Customer Information</h3>
-                      <div className="space-y-1 text-sm">
+                      <div className="space-y-1 text-sm text-black">
                         <p className="text-black">👤 {selectedOrder.customerName}</p>
                         {selectedOrder.customerEmail && <p className="text-black">✉️ {selectedOrder.customerEmail}</p>}
                         {selectedOrder.customerPhone && <p className="text-black">📞 {selectedOrder.customerPhone}</p>}
@@ -645,8 +645,8 @@ export default function AdminOrders() {
                     <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                       <h3 className="font-semibold text-black mb-2">Delivery Information</h3>
                       <div className="space-y-1 text-sm text-black">
-                        <p>📍 {selectedOrder.deliveryAddress}</p>
-                        <p>{selectedOrder.deliveryCity}, {selectedOrder.deliveryZip}</p>
+                        <p className="text-black">📍 {selectedOrder.deliveryAddress}</p>
+                        <p className="text-black">{selectedOrder.deliveryCity}, {selectedOrder.deliveryZip}</p>
                         {selectedOrder.deliveryInstructions && (
                           <p className="mt-2 p-2 bg-blue-100 border border-blue-300 rounded text-black">
                             💬 {selectedOrder.deliveryInstructions}
@@ -670,14 +670,14 @@ export default function AdminOrders() {
                           </div>
                           
                           <div className="text-sm text-black space-y-1">
-                            <p><span className="font-medium text-black">Quantity:</span> {item.quantity}</p>
+                            <p className="text-black"><span className="font-medium text-black">Quantity:</span> {item.quantity}</p>
                             
                             {/* Pizza Details */}
                             {item.pizzaSize && (
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <p><span className="font-medium text-black">Size:</span> {item.pizzaSize.name} ({item.pizzaSize.diameter})</p>
-                                {item.pizzaCrust && <p><span className="font-medium text-black">Crust:</span> {item.pizzaCrust.name}</p>}
-                                {item.pizzaSauce && <p><span className="font-medium text-black">Sauce:</span> {item.pizzaSauce.name}</p>}
+                                <p className="text-black"><span className="font-medium text-black">Size:</span> {item.pizzaSize.name} ({item.pizzaSize.diameter})</p>
+                                {item.pizzaCrust && <p className="text-black"><span className="font-medium text-black">Crust:</span> {item.pizzaCrust.name}</p>}
+                                {item.pizzaSauce && <p className="text-black"><span className="font-medium text-black">Sauce:</span> {item.pizzaSauce.name}</p>}
                               </div>
                             )}
 
@@ -734,21 +734,21 @@ export default function AdminOrders() {
                   <div className="border-t border-white/10 pt-4">
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between text-black">
-                        <span>Subtotal:</span>
-                        <span>{formatCurrency(selectedOrder.subtotal)}</span>
+                        <span className="text-black">Subtotal:</span>
+                        <span className="text-black">{formatCurrency(selectedOrder.subtotal)}</span>
                       </div>
                       {selectedOrder.deliveryFee > 0 && (
                         <div className="flex justify-between text-black">
-                          <span>Delivery Fee:</span>
-                          <span>{formatCurrency(selectedOrder.deliveryFee)}</span>
+                          <span className="text-black">Delivery Fee:</span>
+                          <span className="text-black">{formatCurrency(selectedOrder.deliveryFee)}</span>
                         </div>
                       )}
                       <div className="flex justify-between text-black">
-                        <span>Tax:</span>
-                        <span>{formatCurrency(selectedOrder.tax)}</span>
+                        <span className="text-black">Tax:</span>
+                        <span className="text-black">{formatCurrency(selectedOrder.tax)}</span>
                       </div>
                       <div className="flex justify-between text-lg font-bold text-black border-t border-gray-300 pt-2">
-                        <span>Total:</span>
+                        <span className="text-black">Total:</span>
                         <span className="text-black">{formatCurrency(selectedOrder.total)}</span>
                       </div>
                     </div>
@@ -764,7 +764,7 @@ export default function AdminOrders() {
                 </div>
               ) : (
                 <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center">
-                  <div className="text-6xl mb-4">👈</div>
+                  <div className="text-6xl mb-4 text-black">👈</div>
                   <h3 className="text-lg font-semibold text-black mb-2">Select an Order</h3>
                   <p className="text-black">Click on an order from the list to view details</p>
                 </div>
