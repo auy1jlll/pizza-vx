@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as jwt from 'jsonwebtoken';
 import prisma from '@/lib/prisma';
 import { CreateOrderSchema, validateSchema, createApiResponse, createApiError } from '@/lib/schemas';
-import { OrderService } from '@/services';
+import { OrderService } from '@/services/order';
 import { orderLimiter } from '@/lib/simple-rate-limit';
 import { gmailService } from '@/lib/gmail-service';
 
